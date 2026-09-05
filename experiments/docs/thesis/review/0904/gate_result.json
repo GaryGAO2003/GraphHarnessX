@@ -1,0 +1,148 @@
+{
+ "compile": {
+  "status": "PASS",
+  "pages": 117,
+  "errors": 0,
+  "overfull_hbox": 0,
+  "overfull_vbox": 0,
+  "seconds": 1.7,
+  "fails": []
+ },
+ "abstract": {
+  "status": "PASS",
+  "page2": "Abstract",
+  "page3": "Declaration of generative-AI use",
+  "fails": []
+ },
+ "layout": {
+  "status": "PASS",
+  "lines_per_page": [
+   22,
+   30,
+   3,
+   29,
+   4,
+   29
+  ],
+  "fails": []
+ },
+ "exclusion": {
+  "status": "PASS",
+  "hard_hits": [],
+  "soft_with_measurement": [],
+  "soft_mentions": [
+   "01-introduction.tex:42 change to output or exit reason; and a synthetic-task \\emph{replay} smoke.",
+   "01-introduction.tex:429 commissioning, before the system was properly built) and the two",
+   "01-introduction.tex:430 GHX-shakedown campaigns are excluded from every claim. Evidence rests on",
+   "01-introduction.tex:437 \\item The whitelist excluding the shakedown campaigns was ruled",
+   "01-introduction.tex:448 localization lift for the graph arm fell once the shakedown campaigns were",
+   "02-related-work.tex:48 candidates through an interface smoke test and a Pareto fitness. Same",
+   "07-discussion.tex:267 \\textbf{That reading is withdrawn.} It was measured across the shakedown",
+   "A-deviations.tex:28 shakedown and the first whitelist graph campaign (19--26 August",
+   "B-operations.tex:13 closed --- the fixes committed between the second shakedown and the first",
+   "C-ledger.tex:240 the four-campaign union figures, which pooled the shakedown campaigns, and"
+  ],
+  "fails": []
+ },
+ "anchors": {
+  "status": "PASS",
+  "rows": 65,
+  "anchors_used": 283,
+  "distinct_used": 60,
+  "uncited_rows": [
+   "9",
+   "17",
+   "18",
+   "27",
+   "28"
+  ],
+  "fails": []
+ },
+ "bib": {
+  "status": "PASS",
+  "entries": 60,
+  "distinct_cited": 60,
+  "fails": []
+ },
+ "unanchored": {
+  "status": "WARN",
+  "count": 65,
+  "hits": [
+   "00-abstract.tex: Its evidence signal grades a tool call as ``used'' only if the next assistant message repeats twenty character",
+   "00-abstract.tex: Same-configuration re-measurement flips $21.0$, $20.1$ and $19.2\\%$ of task outcomes across three seeds, so to",
+   "01-introduction.tex: The paper's GAIA headline is a $+13.6$-point gain that appears only once variants are isolated inside an ensem",
+   "01-introduction.tex: Three further specifications in the paper are not in the code: the global ratchet forbidding any solved task t",
+   "01-introduction.tex: Three of the split's 103 tasks carry pixel content the recorder cannot attribute; they are excluded, which lea",
+   "01-introduction.tex: Attribution methods are offline, and report 14.2\\% to roughly 11\\% localization accuracy on their own benchmar",
+   "01-introduction.tex: One intervention in the study is known on mechanism grounds to have worked: a budget-starvation repair that co",
+   "01-introduction.tex: This thesis has one, and the score axis did recover it --- but only because its effect was roughly three times",
+   "02-related-work.tex: \\paragraph{Workflow evolution.} AFlow~\\cite{aflow} and its successor A$^2$Flow~\\cite{a2flow} evolve agentic wo",
+   "02-related-work.tex: \\textbf{NLAH}~\\cite{nlah} lifts the harness out of controller code into an editable natural-language document ",
+   "02-related-work.tex: \\textbf{HarnessBank}~\\cite{harnessbank} keeps a gene bank of harnesses and screens mutations before expensive ",
+   "02-related-work.tex: Who\\&When~\\cite{whowhen} reports \\textbf{14.2\\%} step-level accuracy.",
+   "02-related-work.tex: TRAIL~\\cite{trail} reports its best model at roughly \\textbf{11\\%} localization on its own 148-trace benchmark",
+   "02-related-work.tex: \\item \\textbf{FlowFixer}~\\cite{flowfixer}: symbolic root cause to pre-execution filter to validated repair, ju",
+   "02-related-work.tex: This is testable: an intervention is resident if it survives into round $k{+}1$'s configuration.",
+   "02-related-work.tex: Against FlowFixer the distance is narrower and is stated as such: it is symbolic and judge-free, which GHX's g",
+   "02-related-work.tex: \\paragraph{And the join this thesis supplies.} The literature measures attribution accuracy \\emph{offline, on ",
+   "02-related-work.tex: That is enough to lift the valid-candidate rate above $90\\%$ against roughly $50\\%$ for AFlow, at a mean score",
+   "03-baseline.tex: There is no population, no archive of alternatives, and --- despite what the paper specifies --- no global rat",
+   "03-baseline.tex: \\paragraph{The safety clamp cannot engage on a small bed.} Rollback fires only when the pass \\emph{rate} drops",
+   "03-baseline.tex: What it has instead is an advisory watchlist over adjacent rounds, which the agent may overrule by declaring a",
+   "03-baseline.tex: The released tree guards its own worst known regression --- an Evolver edit that replaced the system-prompt bu",
+   "03-baseline.tex: The finding therefore rests on (i) and (ii), which need no causal premise, and the $75.0\\%$ is reported as a p",
+   "03-baseline.tex: \\begin{quote}\\small \\emph{Heuristic:} assistant message after the tool call does not contain any $\\ge$20-char ",
+   "03-baseline.tex: \\emph{This is reported as illustration, not as inference.} Against the round's base rate of $7/32$, a candidat",
+   "03-baseline.tex: \\paragraph{Which number carries this section.} The mechanism endpoints, with the $+9$ beside them rather than ",
+   "03-baseline.tex: The collapse from $35$ to $4$ and the twelve-of-sixteen attribution identify the mechanism directly and need n",
+   "03-baseline.tex: The $+9$ agrees with them and clears the same-config band.",
+   "05-design.tex: \\claim{Power arithmetic precedes endpoints: on a bed whose same-config flip rate is $20\\%$, total-score deltas",
+   "05-design.tex: GAIA's text-only split holds 103 tasks, three of which carry pixel content the graph recorder could not attrib",
+   "05-design.tex: \\begin{enumerate} \\item \\textbf{Headroom.} On BrowseComp, the published benchmark closest to this bed, Pro sco",
+   "05-design.tex: \\item \\textbf{The one documented hard limit is avoided.} Flash collapses on long context with thinking off (MR",
+   "05-design.tex: Over those windows, $52.3\\%$ of task-campaign pairs flip at least once.",
+   "05-design.tex: Four successive apparent wins --- $+7$, $+5$, $+4$, $+6$ --- were executed one at a time, by three different i",
+   "06-results.tex: Any reading of ``$0/859$'' as evidence that the graph arm's tool calls were genuinely used is unavailable, and",
+   "06-results.tex: The two shipped sets are different candidate populations, admitted under different gate regimes --- five gates",
+   "06-results.tex: The graph arm's own interval includes $1.0$ in any case, so even taken alone the value is indistinguishable fr",
+   "06-results.tex: Three seeds: $21.0$ / $20.1$ / $19.2$.",
+   "06-results.tex: Fitting a line to rounds R1--R15 on the common 100-task subset gives a \\textbf{positive slope in all six campa",
+   "06-results.tex: That is regression to the mean on a bed whose same-config swing is $-8\\ldots{+}5$: the arms that ``improved mo",
+   "06-results.tex: \\emph{Every one of those sits inside the band, and the last number in the paragraph is the one that matters}: ",
+   "06-results.tex: An observed $p$ of $0.10$ is one exchange away from the design's floor.",
+   "06-results.tex: \\paragraph{Ceilings.} Of the 100 tasks, 97 are reachable at all; 3 are never solved; 47 are reachable but unre",
+   "06-results.tex: $k{=}1$ observations suffice for the loop to reach the correct drug family.",
+   "06-results.tex: The prospective batch --- 7 clean tasks $\\times$ 10 repetitions $\\times$ 2 arms, $n{=}70$ pairs --- returns $+",
+   "06-results.tex: The pooled clean same-window pairs ($n{=}174$) return 75 for the parent against 72 for the applied configurati",
+   "06-results.tex: \\textbf{Six of the eleven land in rounds where nothing shipped at all.} Five of those six are no-op audit wind",
+   "07-discussion.tex: When selection acts on a \\emph{measured} phenotype rather than the true one, $h^2$ is attenuated by the measur",
+   "07-discussion.tex: The false-kill rate of true gains therefore scales with $1-\\rho$, while retained noise accumulates on the othe",
+   "07-discussion.tex: \\emph{That recovery is the calibration, not the reassurance.} The effect had to reach $+9$ tasks to clear a ba",
+   "A-deviations.tex: \\emph{(iii)} The $\\pm 5\\%$ noise threshold is not implemented (next item but one).",
+   "A-deviations.tex: \\emph{(iv)} Three seeds per cell is the paper's table; the code defaults to $k{=}1$ and rises to $k{=}2$ only ",
+   "A-deviations.tex: \\item[\\textnormal{\\textbf{Round indexing.}}] Round~0 is a pure baseline round and does not enter the engine; a",
+   "A-deviations.tex: \\item[\\textnormal{\\textbf{The $\\pm 5\\%$ noise threshold.}}] The paper tabulates an ignored single-round delta ",
+   "A-deviations.tex: The runner's own post-round rollback rule --- revert the round's ships when the rate falls by $5$ points \\emph",
+   "A-deviations.tex: \\item[\\textnormal{\\textbf{Bed asymmetry.}}] 103 tasks against the 100-task no-pixel subset, with the third see",
+   "A-deviations.tex: \\item \\textbf{``88--90\\% false negatives''}, quoted from a code comment.",
+   "A-deviations.tex: \\item \\textbf{``78\\% of consumed results are graded NO''}, taken with our own instrument as ground truth --- c",
+   "A-deviations.tex: \\item \\textbf{A verification script returning $0.0\\%$ disagreement}, because it read a field from the wrong ob",
+   "A-deviations.tex: \\item \\textbf{``76.6\\% verifiable false negatives''}, using shared word stems, which common words such as \\emp",
+   "A-deviations.tex: Tightened to answer-containment, giving $75.0\\%$.",
+   "A-deviations.tex: \\item \\textbf{``A harness-fixable ceiling of 3 tasks''}, computed on the never-passed queue alone.",
+   "A-deviations.tex: \\item \\textbf{``Same-config pair swing of $-12$''}, which mixed a $k{=}2$ round~0 with $k{=}1$ rounds after it",
+   "A-deviations.tex: \\item \\textbf{``Flow-column NO rate 68.1\\%''} from a 150-call sample; 300 calls gave $71.9\\%$ and the whole ar",
+   "A-deviations.tex: Serial re-running gave $1/11$ against $0/12$ --- not merely asymmetric but conclusion-changing, since the pare"
+  ],
+  "fails": []
+ },
+ "scores": {
+  "status": "PASS",
+  "seconds": 0.9,
+  "fails": []
+ },
+ "_meta": {
+  "time": "2026-09-04 05:47:42",
+  "argv": []
+ }
+}

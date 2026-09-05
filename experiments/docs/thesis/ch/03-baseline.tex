@@ -1,0 +1,414 @@
+% =========================================================================
+\chapter{Baseline Diagnosis}
+\label{ch:baseline}
+% =========================================================================
+
+\claim{Run as published, the official loop is an open loop measured through
+a noisy instrument, prescribing from evidence that is wrong three times out
+of four on the only subset anyone can verify --- and its one real repair
+demonstrates that the machinery works when the signal is clean.}
+
+This chapter reports what happened when the released self-evolving harness
+was executed at scale without modification. Nothing in it depends on the
+system built in Chapter~\ref{ch:ghx}: every finding here was established on
+the no-graph baseline campaign, using scripts that read the loop's own raw
+trajectories. That independence is deliberate. The diagnosis has to stand
+before the treatment is described, or the treatment becomes the reason the
+diagnosis was believed.
+
+The chapter has one positive finding and three negative ones. The positive
+finding --- \S\ref{sec:evidence-audit} --- is that the loop's central
+evidence signal is structurally incapable of registering the thing it
+claims to measure, and that this can be shown from the code and the bed
+alone, before any data is examined. The negative findings are that feedback
+is written but not delivered (\S\ref{sec:open-loop}), that the measurement
+layer is contaminated from three directions (\S\ref{sec:measurement}), and
+that the decision plane discards its own records (\S\ref{sec:decision}).
+\S\ref{sec:one-repair} closes with the counter-example that keeps the
+chapter honest: one repair in the whole campaign that demonstrably worked,
+was demonstrably kept, and demonstrates that the retention machinery
+engages when an effect is large enough to be seen.
+
+\section{What the official loop does well, and where the release diverges}
+\label{sec:official-strengths}
+% -------------------------------------------------------------------------
+
+The diagnosis that follows is severe, and it would be misread without the
+credit that precedes it. The released loop is the most carefully governed
+self-evolving harness in the literature surveyed in Chapter~\ref{ch:related},
+and six of its design choices are ones this thesis kept, built on, or
+wished its neighbours had.
+
+\begin{enumerate}
+  \item \textbf{It digests successes.} The Digester runs three templates ---
+        all-fail, all-pass and partial --- and the all-pass template
+        instructs it ``not to celebrate'' but to name the reusable strategy
+        and any latent fragility. Most systems read only failures.
+  \item \textbf{It invokes itself selectively.} Each round's actionability
+        is computed mechanically from the dossier mix, and the evolve stage
+        is skipped below a threshold. The loop does not edit for the sake
+        of editing.
+  \item \textbf{Every role runs behind scope gates.} No role may read the
+        harness source or the history of another run, and the gate also
+        catches absolute paths inside shell commands --- a defence against
+        prompt injection and cross-experiment leakage that this thesis's
+        own registry error 13 (\S\ref{sec:governance}) shows to be
+        necessary.
+  \item \textbf{Five deterministic gates, cheapest first.} A
+        \emph{structure} gate enforces twelve evidence invariants --- every
+        cited anchor must exist on disk and point inside its trajectory,
+        manifests must carry their required keys, a candidate's bucket must
+        match its file types, and lineage references must resolve. A
+        \emph{novelty} gate hashes the file changes and refuses anything
+        already in the ledger of refuted signatures. After
+        canonicalization, a \emph{counterfactual} gate replays the proposed
+        processor chain over recorded events from the previous round's
+        passing tasks and rejects on any change to final output or exit
+        reason --- no model call, no tool execution. A synthetic-task replay
+        closes the ladder.
+  \item \textbf{The Critic argues with the Evolver.} It judges each
+        candidate against the configuration it would land in, demands
+        round-trip evidence for tool and processor candidates, may
+        interrogate the Evolver for up to two turns, and audits the
+        candidates as a set against the scoreboard before any of them
+        ships.
+  \item \textbf{Shipped candidates are held to their own predictions.} Each
+        names the tasks it expects to flip; the next round scores that
+        prediction, and a hit rate below one half triggers rollback.
+\end{enumerate}
+
+Items 4 and 6 are the ancestors of this thesis's sixth gate and of its
+localization metric respectively, and they are what made the released
+system the right one on which to ask what such guards can see.
+
+\subsection*{Where the release diverges from the paper}
+
+Reproduction met five places where the code does not do what the paper
+says (Appendix~\ref{app:deviations} records each, with the code pins the
+reproduction audit established):
+
+\begin{itemize}
+  \item the \emph{variant pool} and ensemble routing behind the paper's
+        GAIA headline are absent --- the release is a single lineage with a
+        \texttt{ship\,|\,no\_op} decision;
+  \item the \emph{global ratchet} --- no solved task may be given back ---
+        is not implemented; in its place stand an advisory watchlist over
+        adjacent rounds, the counterfactual gate, and the hit-rate rollback
+        (\S\ref{sec:open-loop});
+  \item the $\pm 5\%$ \emph{noise threshold} on retention is not
+        implemented; a three-state discretization and one sentence in the
+        Critic's prompt approximate it;
+  \item \emph{three seeds per cell} is the paper's table; the code defaults
+        to $k{=}1$, rising to $k{=}2$ on a focus set;
+  \item the Planner's per-candidate \emph{briefs} have been retired; it
+        writes one landscape, and a single Evolver session chooses how many
+        candidates to author.
+\end{itemize}
+
+What follows diagnoses the released system as fielded. Where a finding
+depends on one of these divergences, the dependence is stated.
+
+% -------------------------------------------------------------------------
+\section{The system as fielded}
+\label{sec:fielded}
+% -------------------------------------------------------------------------
+
+The loop is the six-stage, four-role system of \S\ref{sec:motivation}:
+solver batch, Digester dossiers, Planner landscape, Evolver candidates,
+Critic verdict, five gates, and whatever lands becomes the configuration
+the next round's solver runs under. Each round is bounded by a token and
+cost budget and by a cap on the number of tasks attempted.
+
+Two properties of this architecture matter for everything that follows.
+
+The first is that \textbf{the loop edits itself through free text}. The
+Evolver does not emit a typed patch; it composes a manifest and a
+\texttt{config.yaml} as prose, and whatever survives that transcription is
+the edit that actually lands. This is not a limitation of the edit
+\emph{surface} --- the surface is wide, and \S\ref{sec:one-repair} shows
+the loop installing an entirely new processor class through it --- but of
+the edit's \emph{identity}. Nothing downstream can confirm that the
+candidate document and the applied change describe the same intervention.
+
+The second is that \textbf{the loop is a single lineage}. There is one
+configuration, and it evolves round by round. There is no population, no
+archive of alternatives, and --- despite what the paper specifies --- no
+global ratchet guaranteeing that a task solved in round $k$ is still solved
+in round $k+1$. A candidate that lands and is wrong has no floor beneath
+it. \S\ref{sec:open-loop} shows what guards that position instead.
+
+% -------------------------------------------------------------------------
+\section{Open-loop hazards: feedback written but not delivered}
+\label{sec:open-loop}
+% -------------------------------------------------------------------------
+
+A self-evolving loop is only closed if the consequences of an edit reach
+the author of the next edit. In the released system four separate channels
+break that delivery. All four are code-pinned facts: they are properties of
+the released tree, established by reading it, and none of them depends on
+which campaign was flown or which model tier was configured.
+
+\paragraph{The regression report is left empty by a round-indexing slip.}
+The loop computes, each round, which previously-passing tasks have started
+failing --- exactly the signal a lineage without a ratchet most needs. An
+off-by-one in the round index means the comparison is drawn against an
+empty set, so the report is structurally always empty. The authors' own
+upstream fix has been adopted here, and every regression account in this
+thesis is re-derived offline rather than read from the loop's output.
+
+\paragraph{The verdict contract is stated twice and the two statements have
+drifted apart.} The schema a role is instructed to emit and the schema the
+consumer validates against no longer agree. Validation therefore fails
+softly: the outcome is dropped rather than raised, and the next author is
+never told what happened to the last edit.
+
+\paragraph{The safety clamp cannot engage on a small bed.} Rollback
+fires only when the pass \emph{rate} drops by at least $0.05$ \emph{and}
+the pass \emph{count} drops by at least $3$ against the last validated
+round (\texttt{run\_meta\_aegis.py:1425}). The conjunction is a property
+of the code: wherever fewer than three tasks were passing, the count
+condition cannot be met at all, and where exactly three were, only a
+total loss meets it. The clamp is arithmetically unreachable in exactly
+the situation --- new wiring, first exercised on a handful of tasks ---
+for which a clamp exists.
+
+\paragraph{A single lineage with no ratchet, guarded by a sentence.} The
+paper specifies a global monotone ratchet: no previously solved task may be
+given back. The code implements no such thing. What it has instead is an
+advisory watchlist over adjacent rounds, which the agent may overrule by
+declaring a regression transient; a counterfactual replay gate; and a
+post-hoc rollback triggered when a shipped candidate's prediction hit rate
+falls below $0.5$. None of these is a floor.
+
+That this matters is not our inference. The released tree guards its own
+worst known regression --- an Evolver edit that replaced the system-prompt
+builder and thereby deleted a 23K-character injected domain policy,
+recorded in the authors' own words as a ``catastrophic
+regression\ldots dropped 55\%'' --- with an instruction inside a prompt
+template rather than with a code path. And the only committed performance
+number anywhere in the repository is a commit message recording that two
+lineages \emph{never recovered} from one such crash \F{19}. A loop that
+cannot un-poison its own lineage is the strongest argument this thesis can
+make for attaching a readout to the retention decision, and
+\S\ref{sec:future} makes it there.
+
+% -------------------------------------------------------------------------
+\section{The measurement layer: three contamination sources}
+\label{sec:measurement}
+% -------------------------------------------------------------------------
+
+Before any claim can be read off this bed, three things have to be said
+about the bed itself. Each was found by running it; each was hardened; and
+every hardening was applied identically to both arms, so that none of them
+can be a source of between-arm difference.
+
+\paragraph{Judge false positives can flip the sign of a round.} Scoring is
+performed by an LLM judge, and an unhardened judge's false positives are
+large enough to reverse the sign of a round-over-round delta. The judge
+used here is structurally hardened, and \emph{every} between-arm comparison
+in this thesis uses audited scores only.
+
+\paragraph{The bed's ground truth is partly on the public web.} Of a
+49-task cohort assembled from the tasks that swing, thirteen are
+\emph{leak-route}: more than half of their passes touch benchmark
+artifacts, and reference answers appear verbatim inside solver
+trajectories \F{31}. The response was a leakage blocklist and a
+decontamination census. The residual risk is disclosed in
+\S\ref{sec:threats} rather than claimed away: both arms evaluate on the
+same fixed bed every round, so whatever drift toward the bed exists is
+shared, and the blocklist is the only held-out defence.
+
+\paragraph{Re-measuring the same configuration moves 20\% of the bed.}
+This is the finding that governs the design of every experiment in this
+thesis, and it is stated here only to establish the problem; the arithmetic
+is worked in \S\ref{sec:power}. Across the six ship-free windows of this
+campaign's sixteen-round readout, $21.0\%$ of task outcomes flip between
+two consecutive rounds running an identical configuration --- $126$ of
+$600$ task-pairs --- and the resulting total-score swing runs from $-4$ to
+$+5$ with no treatment applied at all \F{15}.
+
+The third source is not a defect that hardening removes. It is a property
+of the instrument, it replicates across three seeds
+(\S\ref{sec:replication}), and it is the reason this thesis ends where it
+does.
+
+% -------------------------------------------------------------------------
+\section{The evidence-pipeline audit}
+\label{sec:evidence-audit}
+% -------------------------------------------------------------------------
+
+This is the chapter's positive finding, and the one on which
+Chapters~\ref{ch:ghx} and \ref{ch:results} both depend.
+
+Every dossier the Digester produces carries, for each tool call, a verdict
+on whether the call's output was \emph{used}. That verdict is the loop's
+only signal about whether an action mattered. It is consumed by the
+Planner when ranking directions, quoted by the Evolver when justifying a
+candidate, and reviewed by the Critic when deciding whether to veto. Across
+the baseline campaign's sixteen scored rounds, the column judges only
+$8.1\%$ of payload calls to have been used \F{1}. Something is either badly wrong with the harness or badly wrong with
+the column.
+
+It is the column, and the defect can be established in three tiers of
+decreasing strength. \textbf{The thesis needs only the first two}, and
+says so, because the third rests on a premise the data cannot supply.
+
+\subsection*{(i) Construction}
+
+The column tests whether the \emph{immediately next} assistant message
+shares a verbatim substring of at least twenty characters with the tool
+output (\texttt{harnessx/\allowbreak aegis/\allowbreak stages/\allowbreak trace\_facts.py}). Three kinds of
+genuine use are therefore graded ``not referenced'' by construction, with
+no data required to see it: use that is paraphrased rather than quoted; use
+that occurs later than the next step; and use of any fact shorter than
+twenty characters.
+
+\subsection*{(ii) Blindness on this bed}
+
+The third of those is not a corner case here. GAIA final answers have a
+median length of \textbf{9} characters and a 90th percentile of
+\textbf{14} \F{3} --- both below the column's own floor. A tool call that
+retrieves a task's answer and hands it to a model that uses it correctly
+produces, in the next assistant message, a string too short to clear the
+threshold. \emph{On this bed, the column cannot register the use of an
+answer.}
+
+Tiers (i) and (ii) together settle the matter, and they settle it without
+any experiment: the first is a property of the code, the second a property
+of the benchmark. Neither depends on which arm was flown --- both were
+established on the no-graph baseline --- and neither depends on the model
+tier, since a twenty-character floor and a nine-character median answer are
+unchanged by whichever model reads the digest.
+
+\subsection*{(iii) Rate, and what it does not license}
+
+The rate is reported because the reach of the defect matters, and it is
+reported with its limit attached. Of the $559$ calls whose output literally
+contains the final answer of a rollout that passed, \textbf{419
+($75.0\%$)} are graded ``not referenced'', and $96.7\%$ of those carry an
+answer below the column's own minimum length \F{2}. The figure is robust
+across variants of the answer-length window at $73.8$--$75.1\%$ \F{2};
+the column's own twenty-character threshold was not swept, and by tier (i)
+it could not have been swept without changing the instrument.
+
+\emph{The limit, stated plainly}: a call whose output contains the answer,
+on a path that passed, is a call sitting on the successful path holding the
+answer. That is not the same as having caused the pass. The finding
+therefore rests on (i) and (ii), which need no causal premise, and the
+$75.0\%$ is reported as a property of the column's output --- the rate at
+which it applies its verdict to answer-carrying calls --- not as a count of
+tool calls wrongly dismissed.
+
+\subsection*{The disclaimer, and why it makes the case worse}
+
+The Digester's own text does carry a caveat. It reads:
+
+\begin{quote}\small
+\emph{Heuristic:} assistant message after the tool call does not contain
+any $\ge$20-char substring from the tool output. This is the single most
+common way a tool call ``fires but fails to affect the model'' --- e.g.\
+when protocol flattening drops multimodal content.
+\end{quote}
+
+The disclaimer is the defect in miniature. It names one failure mode ---
+multimodal flattening --- and never mentions that \emph{any answer under
+twenty characters is invisible to it}, on a bed whose median answer is
+nine. It describes the column as detecting calls that fire without
+affecting the model, which is precisely the interpretation tier (ii)
+forbids. And it does not travel with the verdict: the per-call rows in the
+dossier's main table carry a bare \textbf{NO}.
+
+\subsection*{Reach into decisions}
+
+The verdict is not inert. It reaches \textbf{86.0\%} of dossiers \F{4}, it
+is quoted verbatim inside three candidate documents \F{5}, and one
+candidate was shipped on it \F{6}.
+
+That shipped candidate named three tasks it expected to flip and hit none
+of them. \emph{This is reported as illustration, not as inference.} Against
+the round's base rate of $7/32$, a candidate with no effect whatever
+returns zero of three with probability $0.48$. The specimen shows how a
+false column propagated into a shipped decision; it says nothing about
+whether that decision was good. The same evidentiary standard that
+withdraws an $n{=}9$ comparison in \S\ref{sec:localization} applies with
+more force at $n{=}1$, and is applied here.
+
+% -------------------------------------------------------------------------
+\section{Decision-plane pathologies}
+\label{sec:decision}
+% -------------------------------------------------------------------------
+
+Two further properties of the decision plane were recorded; both are
+code-pinned.
+
+\paragraph{The cause-of-death ledger is written and never read.} The loop
+maintains a record of why each candidate died. Nothing consumes it. The
+write sites and the absent read sites are both given in
+Appendix~\ref{app:ledger}. This is the fourth broken delivery channel of
+\S\ref{sec:open-loop}, and the most direct: the loop keeps a diary of its
+own failures and does not open it.
+
+\paragraph{The aimer is never shown where its aims landed.} The Planner
+is structurally excluded from the loop's conversion priors --- the
+guidance rebind list omits it (\texttt{planner.py:30--46}), and this
+holds in every arm. The role that decides what to aim at is not shown
+where previous aims landed, so whatever the loop learns about which
+targets convert never reaches the stage that chooses targets.
+
+% -------------------------------------------------------------------------
+\section{The one real repair}
+\label{sec:one-repair}
+% -------------------------------------------------------------------------
+
+Against all of the above, one intervention in the baseline campaign
+demonstrably worked, and it is the most important single observation in
+this thesis --- not because of its size, but because it is the only event
+that calibrates the instrument.
+
+The defect was mundane. A shell-quoting bug in the harness's Bash tool
+caused commands to consume the round's token budget without producing
+useful output, so tasks were dying of budget starvation rather than of
+anything to do with their difficulty. The loop diagnosed this, authored a
+guard processor, and shipped it. In the round that followed,
+\texttt{budget\_exceeded} exits collapsed from $35$ to $4$; twelve of the
+sixteen tasks that newly passed had died of starvation in the round before;
+the GAIA difficulty tier 2 subset gained $16.3$ percentage points; and the total score
+rose by $9$ tasks, clearing the same-config band \F{39}. It is the largest
+single-round move that campaign makes after its baseline draw, and --- of
+the six above-band whole-bed moves in all six campaigns --- the only one
+whose mechanism is legible in the exit ledger \F{48}.
+
+\paragraph{Which number carries this section.} The mechanism endpoints,
+with the $+9$ beside them rather than under them. The collapse from $35$ to
+$4$ and the twelve-of-sixteen attribution identify the mechanism directly
+and need no dispersion argument at all. The $+9$ agrees with them and
+clears the same-config band.
+
+That the band was cleared is, on its own, weaker evidence than it looks. A
+sweep of every round pair in every campaign finds eleven above-band moves,
+six of which occur in rounds where nothing shipped \F{48}; and among the
+whole-bed rounds whose starvation count collapses by ten exits or more, the
+score moves by $+9$, $+4$, $+2$ and $-3$ \F{49}. \emph{It is the mechanism
+counts, not the band, that tie this move to this repair.} The band's role
+here is narrower and still necessary: it is what makes the score effect
+readable \emph{at all}, and the rest of this thesis is about how rarely
+that happens.
+
+\emph{The two calibers disagree about it, and the disagreement is stated
+rather than resolved in this thesis's favour.} A range drawn from six
+windows is not a standard deviation; the directly measured
+$\sigma = 3.70$ of \S\ref{sec:power} places $+9$ inside three sigma. The repair
+stands on the mechanism counts under either caliber. What the caliber
+changes is only how loud an effect must be before the score axis hears it
+--- and that question, not the repair, is the subject of this thesis.
+
+\paragraph{How to read it.} This is an engineering-defect repair, not a
+capability lift. The loop did not become better at solving GAIA tasks; it
+stopped wasting the budget it needed to solve them. But it is also the
+existence proof that the retention machinery is intact: the effect was
+large enough to be seen, it was seen, and the drug was kept for the rest of
+the campaign. Chapter~\ref{ch:results} returns to it twice --- once to show
+that it never reached a later campaign, because the inheritance channel
+does not exist \F{39}, and once because an intervention known to work is
+the only thing that can tell us what this bed's instrument is able to hear
+(\S\ref{sec:readout}).

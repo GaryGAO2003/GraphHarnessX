@@ -1,0 +1,49 @@
+diff --git a/recipe/gaia_evolver/run_meta.py b/recipe/gaia_evolver/run_meta.py
+index 7e0b256..3276683 100644
+--- a/recipe/gaia_evolver/run_meta.py
++++ b/recipe/gaia_evolver/run_meta.py
+@@ -214,9 +214,29 @@ async def _run_task(harness, task, label, *, pipeline_eval, harness_config=None)
+         if not isinstance(slots, dict):
+             slots = {}
+ 
++        # Harvest the LLMJudgeProcessor's verdict, using run.py's own idiom
++        # (run.py:1097-1110). run_meta.py appends that processor to every round's
++        # config at :845, so it fires on each rollout and spends an LLM call writing a
++        # structured verdict — cause / missing / lesson / missing_capability — into its
++        # own sink. Nothing here read it, so the call was paid for and thrown away.
++        judge_entry: dict = {}
++        if harness is not None:
++            from harnessx.processors.evaluation.llm_judge import LLMJudgeProcessor as _LJP
++
++            run_id = getattr(result, "run_id", "") or ""
++            try:
++                for _proc in harness._rt.processors.get("*", []):
++                    if isinstance(_proc, _LJP):
++                        judge_entry = _proc.get_verdict(run_id) or {}
++                        break
++            except Exception:  # noqa: BLE001 — a missing verdict never sinks a rollout
++                judge_entry = {}
++
+         record = {
+             "task_id": task_id,
+             "level": task.level,
++            "extracted_answer": judge_entry.get("extracted_answer") or "",
++            "llm_judge_verdict": judge_entry.get("verdict") or {},
+             "question": task.question[:150],
+             "expected": task.final_answer,
+             "output": output[:300],
+@@ -326,6 +346,14 @@ def _render_trajectory_frontmatter(record):
+         ("eval_passed", bool(record.get("passed") or False)),
+         ("eval_score", float(record.get("score") or 0.0)),
+     ]
++    # Emitted only when the judge actually produced something, so a run without it
++    # (or with it failing) writes frontmatter byte-identical to the official output.
++    judge_verdict = record.get("llm_judge_verdict") or {}
++    if judge_verdict:
++        fields.append(("llm_judge_verdict", judge_verdict))
++    extracted = record.get("extracted_answer") or ""
++    if extracted:
++        fields.append(("extracted_answer", extracted))
+     total_tokens = record.get("total_tokens")
+     if total_tokens is not None:
+         fields.insert(4, ("total_tokens", int(total_tokens)))

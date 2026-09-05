@@ -1,0 +1,58 @@
+diff --git a/harnessx/aegis/orchestrator.py b/harnessx/aegis/orchestrator.py
+index 2b14743..8a16dbf 100644
+--- a/harnessx/aegis/orchestrator.py
++++ b/harnessx/aegis/orchestrator.py
+@@ -127,6 +127,11 @@ class AegisOrchestrator:
+     min_actionability: float = 0.3
+     # Benchmark context string forwarded to the evolver template.
+     benchmark_context: str = ""
++    # Evolver tool-step ceiling. 200 is the official value; it is the constraint that
++    # actually binds (both Evolver runs of M13_pro_meta_103x3 hit exactly 200 steps
++    # while spending a quarter of their dollar cap), and it was previously unreachable
++    # from any caller. Leaving it unset reproduces the official build.
++    evolve_max_steps: int = 200
+     # TODO(stage5): ``adjudicate_previous_round`` is not called from ``run_round``.
+     # Stage 5 runs ACROSS rounds in the pilot driver (not inside this class).
+     # When the pilot loop is implemented, it should call
+@@ -432,6 +437,7 @@ class AegisOrchestrator:
+             digests_dir=round_dir / "digests",
+             model_config=self.model_config,
+             max_cost_usd=100.0,
++            max_steps=self.evolve_max_steps,
+             sessions_dir=round_dir / "meta_sessions" / "evolver",
+             benchmark_context=self.benchmark_context,
+         )
+diff --git a/harnessx/aegis/stages/propose.py b/harnessx/aegis/stages/propose.py
+index 655870f..c22fc97 100644
+--- a/harnessx/aegis/stages/propose.py
++++ b/harnessx/aegis/stages/propose.py
+@@ -34,6 +34,11 @@ async def run_stage_2(
+     digests_dir: Path,
+     model_config,
+     max_cost_usd: float = 100.0,
++    # The ceiling that actually binds. Both Evolver runs of M13_pro_meta_103x3 ended
++    # exit=budget_exceeded at exactly 200 steps while spending $24 of the $100 cap, so
++    # raising the dollar budget does nothing. 200 is the official default and leaving
++    # this unset reproduces it byte-for-byte.
++    max_steps: int = 200,
+     sessions_dir: Path | None = None,
+     benchmark_context: str = "",
+ ) -> dict:
+@@ -62,12 +67,15 @@ async def run_stage_2(
+                     f"K applied scratch dirs under {candidates_dir} / {applied_root}. "
+                     f"K is your choice based on evidence (K ≥ 0). Final_output alone "
+                     f"is discarded — only files written via write_tool survive. "
+-                    f"HARD LIMITS (not visible to you at runtime): 200 tool steps, "
++                    f"HARD LIMITS (not visible to you at runtime): {max_steps} tool steps, "
+                     f"${max_cost_usd:.0f} total. Draft every manifest EARLY and "
+                     f"reserve the final ~30 steps for finalizing manifests — an "
+                     f"unsubmitted candidate counts as zero."
+                 ),
+-                max_steps=200,
++                # Interpolated from the same value as the sentence above: two literal
++                # copies of the ceiling would drift the moment either is tuned, and the
++                # agent would be told a number it is not actually held to.
++                max_steps=max_steps,
+                 max_cost_usd=max_cost_usd,
+             )
+         )

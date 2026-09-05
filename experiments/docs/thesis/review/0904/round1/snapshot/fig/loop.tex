@@ -1,0 +1,50 @@
+% The official six-stage loop (top row) and the seams at which GHX attaches
+% (bottom row, dashed). Input from a figure environment; needs
+% \usetikzlibrary{positioning,arrows.meta,fit,calc}.
+\begin{tikzpicture}[
+  font=\footnotesize,
+  stage/.style={draw, rounded corners=2pt, align=center, minimum height=1.05cm,
+                text width=2.25cm, inner sep=3pt, fill=white},
+  ghx/.style={draw, dashed, rounded corners=2pt, align=center, minimum height=1.0cm,
+              text width=2.25cm, inner sep=3pt, fill=gray!8},
+  flow/.style={-{Latex[length=2mm]}, thick},
+  seam/.style={-{Latex[length=1.6mm]}, densely dotted, thick, gray!70!black},
+  node distance=0.34cm and 0.34cm]
+
+  % ---- official loop -----------------------------------------------------
+  \node[stage] (solver) {\textbf{Solver batch}\\100 tasks under\\config $C_k$};
+  \node[stage, right=of solver] (dig) {\textbf{Digester}\\one dossier\\per task};
+  \node[stage, right=of dig] (plan) {\textbf{Planner}\\one landscape};
+  \node[stage, right=of plan] (evo) {\textbf{Evolver}\\candidate edits\\(manifest + config)};
+  \node[stage, right=of evo] (crit) {\textbf{Critic}\\verdict; may\\ask the Evolver};
+  \node[stage, text width=2.55cm, right=of crit] (gates) {\textbf{Five gates}\\structure, novelty,\\canonicalize,\\counterfactual, replay};
+  \node[stage, right=of gates] (commit) {\textbf{Commit}\\ship $\mid$ no-op;\\rollback if\\hit rate $<0.5$};
+
+  \draw[flow] (solver) -- (dig);
+  \draw[flow] (dig) -- (plan);
+  \draw[flow] (plan) -- (evo);
+  \draw[flow] (evo) -- (crit);
+  \draw[flow] (crit) -- (gates);
+  \draw[flow] (gates) -- (commit);
+  \draw[flow] (commit.north) -- ++(0,0.45) -| node[pos=0.25, above, font=\scriptsize] {$C_{k+1}$: the next round's configuration} (solver.north);
+
+  % ---- GHX seams ---------------------------------------------------------
+  \node[ghx, below=0.8cm of solver] (rec) {\textbf{Recorder}\\composition graph $G$,\\execution DAG $U$\\(observed edges only)};
+  \node[ghx, below=0.8cm of $(dig)!0.5!(plan)$] (cone) {\textbf{Graph evidence}\\ancestor cones,\\pass/fail contrast,\\injection manifest};
+  \node[ghx, below=0.8cm of evo] (typed) {\textbf{Typed candidates}\\seven graph ops,\\atomic commit,\\nested hashes};
+  \node[ghx, below=0.8cm of gates] (six) {\textbf{Sixth gate}\\claimed node must be\\in the failure's graph;\\replay-gate record};
+  \node[ghx, below=0.8cm of commit] (lad) {\textbf{Readout ladder}\\L0--L2 live;\\L3 by hand};
+
+  \draw[seam] (solver.south) -- (rec.north);
+  \draw[seam] (rec.east) -- (cone.west);
+  \draw[seam] (cone.north) -- ($(dig.south east)!0.5!(plan.south west)$);
+  \draw[seam] (typed.north) -- (evo.south);
+  \draw[seam] (six.north) -- (gates.south);
+  \draw[seam] (lad.north) -- (commit.south);
+
+  % ---- legend, below everything ------------------------------------------
+  \node[anchor=north, align=center, font=\scriptsize, text width=11cm]
+    at ($(current bounding box.south)+(0,-0.15)$)
+    {solid boxes: the released loop, run unmodified in the no-graph arm;\ \ dashed boxes: GHX, attached at seams,
+     every flag off by default, every seam restored on exit};
+\end{tikzpicture}

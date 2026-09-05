@@ -1,0 +1,87 @@
+diff --git a/harnessx/aegis/stages/preprocess.py b/harnessx/aegis/stages/preprocess.py
+index a07de05..46e2d96 100644
+--- a/harnessx/aegis/stages/preprocess.py
++++ b/harnessx/aegis/stages/preprocess.py
+@@ -198,12 +198,19 @@ def aggregate_digests(
+     return {"actionability": score, "actionability_reason": reason}
+ 
+ 
+-async def _run_digester(inputs: DigesterInputs, harness) -> None:
++async def _run_digester(inputs: DigesterInputs, harness):
+     """Run a single digester invocation. Production path uses a real Harness;
+     tests monkey-patch this helper to bypass real LLM calls.
++
++    Returns the ``HarnessResult`` so the stage can account for what it spent. The
++    other three meta stages read ``total_cost_usd`` off exactly this object; this
++    one used to be typed ``-> None`` and drop it, which is why Stage P's spend
++    appears on no ledger — a round reports eval, Planner, Evolver and Critic in
++    dollars and this stage as nothing at all. Callers must tolerate ``None``,
++    which is what the no-harness path and every monkey-patching test return.
+     """
+     if harness is None:
+-        return
++        return None
+     from harnessx import BaseTask
+     task = BaseTask(
+         description=(
+@@ -216,7 +223,7 @@ async def _run_digester(inputs: DigesterInputs, harness) -> None:
+         max_steps=200,
+         max_cost_usd=100.0,
+     )
+-    await harness.run(task)
++    return await harness.run(task)
+ 
+ 
+ async def run_stage_p(
+@@ -269,6 +276,10 @@ async def run_stage_p(
+     # and no summary row, while `task_count` below still reports the full input set —
+     # a silently shortened evidence base reads downstream as a complete one.
+     missing: list[str] = []
++    # Per-digester spend. The stage's own total is not derivable anywhere else: the
++    # round summary sums eval + Planner + Evolver + Critic, and whatever this stage
++    # burned simply never enters that sum.
++    spend: list[tuple[float, int]] = []
+ 
+     async def _one(task_id: str, traj_paths: list[Path]) -> None:
+         async with sem:
+@@ -287,7 +298,14 @@ async def run_stage_p(
+                 trace_facts_md=facts_md,
+             )
+             harness = harness_factory(inputs) if harness_factory else None
+-            await _run_digester(inputs, harness)
++            result = await _run_digester(inputs, harness)
++            if result is not None:
++                spend.append(
++                    (
++                        float(getattr(result, "total_cost_usd", 0.0) or 0.0),
++                        int(getattr(result, "total_tokens", 0) or 0),
++                    )
++                )
+             digest_path = digests_dir / f"{task_id}.md"
+             if digest_path.exists():
+                 existing = digest_path.read_text(encoding="utf-8")
+@@ -313,6 +331,17 @@ async def run_stage_p(
+     import logging
+     from ..gates.structure import validate_digest_anchors
+     _log = logging.getLogger("aegis.stage_p")
++    stage_cost = sum(c for c, _ in spend)
++    stage_tokens = sum(t for _, t in spend)
++    # Same shape as the Planner/Evolver/Critic lines so a round's spend can be read
++    # off the log without joining anything.
++    _log.info(
++        "Stage P: digesters=%d/%d cost=$%.3f tokens=%d",
++        len(spend),
++        len(task_to_clean_paths),
++        stage_cost,
++        stage_tokens,
++    )
+     if missing:
+         _log.warning(
+             "Stage P produced no digest for %d/%d task(s): %s",
+@@ -352,4 +381,6 @@ async def run_stage_p(
+         "actionability_reason": aggregate_result.get("actionability_reason", ""),
+         "degraded_digest_count": len(degraded),
+         "missing_digest_count": len(missing),
++        "cost_usd": stage_cost,
++        "total_tokens": stage_tokens,
+     }

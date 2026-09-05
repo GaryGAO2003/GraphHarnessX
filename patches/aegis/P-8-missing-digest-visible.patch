@@ -1,0 +1,55 @@
+diff --git a/harnessx/aegis/stages/preprocess.py b/harnessx/aegis/stages/preprocess.py
+index b99db6f..a07de05 100644
+--- a/harnessx/aegis/stages/preprocess.py
++++ b/harnessx/aegis/stages/preprocess.py
+@@ -263,6 +263,13 @@ async def run_stage_p(
+ 
+     sem = asyncio.Semaphore(concurrency)
+ 
++    # A Digester whose session dies (provider error after its retry budget) returns
++    # a result instead of raising, so `_one` completes and simply writes no digest.
++    # Without this list the task vanishes from the round with no log line, no counter
++    # and no summary row, while `task_count` below still reports the full input set —
++    # a silently shortened evidence base reads downstream as a complete one.
++    missing: list[str] = []
++
+     async def _one(task_id: str, traj_paths: list[Path]) -> None:
+         async with sem:
+             pattern = classify_pattern(pass_flags_by_task.get(task_id, []))
+@@ -288,6 +295,8 @@ async def run_stage_p(
+                     digest_path.write_text(
+                         facts_md + "\n\n" + existing, encoding="utf-8"
+                     )
++            else:
++                missing.append(task_id)
+ 
+     await asyncio.gather(*[
+         _one(tid, paths) for tid, paths in task_to_clean_paths.items()
+@@ -304,6 +313,21 @@ async def run_stage_p(
+     import logging
+     from ..gates.structure import validate_digest_anchors
+     _log = logging.getLogger("aegis.stage_p")
++    if missing:
++        _log.warning(
++            "Stage P produced no digest for %d/%d task(s): %s",
++            len(missing),
++            len(task_to_clean_paths),
++            ", ".join(sorted(missing)),
++        )
++        with summary_path.open("a", encoding="utf-8") as fh:
++            fh.write(
++                f"\n\n## Missing digests ({len(missing)}/{len(task_to_clean_paths)} tasks)\n"
++                "The Digester produced no file for these tasks, so this round's evidence\n"
++                "covers fewer tasks than it was given. Absence here is *unknown*, not *clean*.\n"
++            )
++            for tid in sorted(missing):
++                fh.write(f"- `{tid}`\n")
+     # digest anchors are of the form [trajectories/<file>#<locator>] and
+     # validator resolves them as `digest_root / prefix / relpath`, so pass
+     # the round dir (parent of digests_dir) as digest_root.
+@@ -327,4 +351,5 @@ async def run_stage_p(
+         "actionability": aggregate_result.get("actionability", 0.0),
+         "actionability_reason": aggregate_result.get("actionability_reason", ""),
+         "degraded_digest_count": len(degraded),
++        "missing_digest_count": len(missing),
+     }

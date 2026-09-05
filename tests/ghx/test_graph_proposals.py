@@ -1,0 +1,1156 @@
+# Copyright 2026 Darwin-Agent
+# SPDX-License-Identifier: MIT
+"""L5 graph-native candidate surface -- session-scoped Evolver tools.
+
+Every mutation goes through the real ``transactional_apply(materialize=True)``
+transaction, and the two files a candidate produces (manifest ``.md``,
+``config.yaml``) are always machine-rewritten. The killer tests (6/7) feed the
+module's own output back through the REAL vendored parser/gates
+(``parse_candidate_manifest``, ``validate_candidate_manifest``,
+``validate_applied_config``) -- proof this module's artifacts are not just
+internally self-consistent but actually acceptable to the official pipeline.
+
+Fixture note: ``build_from_config`` (the S4 materialize build) never forwards a
+``_target_`` dict's ``_hook_``/``_order_``/``_singleton_group_``/``_after_`` fields
+to ``HarnessBuilder.add()`` -- only a processor CLASS's own ``_hook``/``_order``/
+``_singleton_group``/``_after`` attributes (no trailing underscore) survive a
+materialize round-trip; constructor kwargs do survive (verified empirically against
+``harnessx/core/builder.py`` before writing this fixture). So the probes below
+declare those as class attributes -- matching what the YAML also declares, for
+first-pass (pre-materialize) ``to_graph`` consistency -- and expose one real
+constructor kwarg (``tag``) as the thing REPLACE_SAME_GROUP actually changes.
+"""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import pytest
+import yaml
+
+from harnessx.aegis.agents.evolver import parse_candidate_manifest
+from harnessx.aegis.apply import validate_applied_config
+from harnessx.aegis.gates.structure import validate_candidate_manifest
+from harnessx.core.harness import HarnessConfig
+from harnessx.core.processor import MultiHookProcessor
+from harnessx.ghx.graph_proposals import (
+    FLAG,
+    ProposalPreflightError,
+    ProposalSession,
+    graph_proposals_enabled,
+)
+from harnessx.graph.identity import genotype_hash
+from harnessx.graph.snapshot import to_graph
+
+
+# ── real, importable fixture processors ────────────────────────────────────
+
+
+class _EchoProbe(MultiHookProcessor):
+    _order = 10
+    _singleton_group = "probe_sg"
+
+    def __init__(self, tag: str = "v1") -> None:
+        self.tag = tag
+
+    async def on_task_start(self, event):
+        yield event
+
+
+class _OrderedProbe(MultiHookProcessor):
+    _order = 20
+    _singleton_group = "ordered_sg"
+    _after = ("probe_sg",)
+
+    async def on_task_start(self, event):
+        yield event
+
+
+class _SlotProbe(MultiHookProcessor):
+    _order = 30
+    _singleton_group = "slot_sg"
+
+    async def on_step_end(self, event):
+        yield event
+
+
+_ECHO_TARGET = "tests.ghx.test_graph_proposals._EchoProbe"
+_ORDERED_TARGET = "tests.ghx.test_graph_proposals._OrderedProbe"
+_SLOT_TARGET = "tests.ghx.test_graph_proposals._SlotProbe"
+
+# 3 processors, singleton_group on every node, _after_ on the second. A dict
+# "plugins" entry proves non-processors top-level keys survive the merge
+# untouched (I3 / test 7) -- it is never imported (canonicalize doesn't
+# instantiate plugins, only the runtime build step would).
+_PARENT_YAML = f"""processors:
+  - _target_: {_ECHO_TARGET}
+    _hook_: "*"
+    _singleton_group_: probe_sg
+    _order_: 10
+    tag: v1
+  - _target_: {_ORDERED_TARGET}
+    _hook_: "*"
+    _singleton_group_: ordered_sg
+    _order_: 20
+    _after_: [probe_sg]
+  - _target_: {_SLOT_TARGET}
+    _hook_: "*"
+    _singleton_group_: slot_sg
+    _order_: 30
+plugins:
+  - _target_: tests.ghx.fixtures_stub.FakePlugin
+    note: keep-me-untouched
+"""
+
+_BAD_PARENT_YAML = """processors:
+  - _target_: totally.bogus.module.NotARealClass
+    _hook_: task_start
+    _singleton_group_: bogus_sg
+"""
+
+
+def _write(path: Path, text: str) -> Path:
+    path.write_text(text, encoding="utf-8", newline="\n")
+    return path
+
+
+def _make_session(tmp_path: Path, *, round_n: int = 7, parent_yaml: str = _PARENT_YAML) -> ProposalSession:
+    parent = _write(tmp_path / "parent.yaml", parent_yaml)
+    return ProposalSession(
+        parent_config_path=parent,
+        candidates_dir=tmp_path / "candidates",
+        applied_root=tmp_path / "applied",
+        round_n=round_n,
+    )
+
+
+def _tools(session: ProposalSession) -> dict:
+    return {t.name: t for t in session.make_tools()}
+
+
+def _node_ids(session: ProposalSession) -> dict:
+    """target -> node id, read off the session's own preflighted parent snapshot
+    (avoids hardcoding the M2a slug algorithm's exact output)."""
+    out = {}
+    for nid, node in session._parent_snapshot.nodes.items():
+        t = node.metadata.get("_target_")
+        if t:
+            out[t] = nid
+    return out
+
+
+def _echo_node_spec(tag: str) -> dict:
+    return {"_target_": _ECHO_TARGET, "_hook_": "*", "_singleton_group_": "probe_sg",
+            "_order_": 10, "tag": tag}
+
+
+# ── 1. preflight ──────────────────────────────────────────────────────────────
+
+
+def test_preflight_good_parent_succeeds(tmp_path: Path):
+    session = _make_session(tmp_path)
+    assert session._parent_hashes["genotype"]
+    assert "3 processor node(s)" in session.node_inventory_text()
+
+
+def test_preflight_bad_parent_raises_preflight_error(tmp_path: Path):
+    parent = _write(tmp_path / "parent.yaml", _BAD_PARENT_YAML)
+    with pytest.raises(ProposalPreflightError):
+        ProposalSession(
+            parent_config_path=parent,
+            candidates_dir=tmp_path / "candidates",
+            applied_root=tmp_path / "applied",
+            round_n=7,
+        )
+
+
+# ── 2. Open: cid format lock + skeleton passes the real parser ────────────────
+
+
+async def test_open_rejects_malformed_candidate_id(tmp_path: Path):
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+
+    bad_shape = await tools["GraphProposalOpen"].fn(candidate_id="C-R7-1", bucket="config")
+    assert bad_shape["ok"] is False
+    wrong_round = await tools["GraphProposalOpen"].fn(candidate_id="C-R8-01", bucket="config")
+    assert wrong_round["ok"] is False
+    # Nothing was written for either rejected attempt.
+    assert not (session.candidates_dir / "C-R7-1.md").exists()
+    assert not (session.candidates_dir / "C-R8-01.md").exists()
+
+
+async def test_open_accepts_correct_shape_and_writes_skeleton(tmp_path: Path):
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+
+    res = await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+    assert res["ok"] is True, res
+
+    manifest_path = session.candidates_dir / "C-R7-01.md"
+    draft_path = session.applied_root / "C-R7-01" / "C-R7-01.draft.md"
+    config_path = session.applied_root / "C-R7-01" / "config.yaml"
+    # Opening writes a skeleton, but beside the config -- NOT into candidates/,
+    # which Stage 2 globs. An opened-and-never-edited candidate reaching the
+    # Critic is how M16_L2_ghx5 R3 lost a round to two zero-edit drafts.
+    assert draft_path.exists()
+    assert not manifest_path.exists(), "an unedited draft must be invisible to Stage 2"
+    assert config_path.exists()
+
+    # Real vendored parser must eat the skeleton without raising.
+    text = draft_path.read_text(encoding="utf-8")
+    fm, body = parse_candidate_manifest(text)
+    assert fm["candidate_id"] == "C-R7-01"
+    assert fm["bucket"] == "config"
+    assert fm["capability_evidence"] == []  # required key present, legitimately empty
+    assert fm["file_changes"]  # never empty -- config.yaml entry always present
+
+    # The skeleton fails the real gate on CONTENT (no evidence anchor yet), never
+    # on the carrier (YAML parses, required keys are all present -- asserted above).
+    gate = validate_candidate_manifest(fm, body)
+    assert gate.ok is False
+    assert "zero evidence anchors" in gate.reason
+
+
+# ── 3. Edit success path: REPLACE_SAME_GROUP changes a parameter ──────────────
+
+
+async def test_edit_replace_same_group_success_writes_through_and_reconciles(tmp_path: Path):
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+
+    rp_id = _node_ids(session)[_ECHO_TARGET]
+    edits = [{"edit_type": "replace_same_group", "target_node_id": rp_id,
+              "node_spec": _echo_node_spec("v2")}]
+    res = await tools["GraphProposalEdit"].fn(candidate_id="C-R7-01", edits=edits, reason="bump tag")
+    assert res["ok"] is True, res
+    assert res["genotype"]
+    assert "tag='v2'" in res["node_inventory"]
+
+    jsonl_path = session.applied_root / "C-R7-01" / "graph_edits.jsonl"
+    lines = jsonl_path.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 1
+    rec = json.loads(lines[0])
+    assert rec["edit_type"] == "replace_same_group"
+    assert rec["reason"] == "bump tag"
+
+    # Post-write reload genotype must match what the tool reported.
+    config_path = session.applied_root / "C-R7-01" / "config.yaml"
+    reloaded = HarnessConfig.from_yaml_file(str(config_path)).canonicalize()
+    assert genotype_hash(to_graph(reloaded)) == res["genotype"]
+
+
+# ── 4. Edit failure path: illegal target_node_id ───────────────────────────────
+
+
+async def test_edit_illegal_target_node_id_is_structured_rejection(tmp_path: Path):
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+    before_genotype = genotype_hash(session._candidates["C-R7-01"].snapshot)
+
+    edits = [{
+        "edit_type": "replace_same_group",
+        "target_node_id": "proc:does_not_exist",
+        "node_spec": _echo_node_spec("v9"),
+    }]
+    res = await tools["GraphProposalEdit"].fn(candidate_id="C-R7-01", edits=edits)
+
+    assert res["ok"] is False
+    assert res["issues"]
+    for issue in res["issues"]:
+        assert set(issue) >= {"layer", "error_type", "message"}
+
+    assert genotype_hash(session._candidates["C-R7-01"].snapshot) == before_genotype
+    assert not (session.applied_root / "C-R7-01" / "graph_edits.jsonl").exists()
+
+
+async def test_edit_bad_edit_type_is_structured_rejection_not_a_raise(tmp_path: Path):
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+
+    res = await tools["GraphProposalEdit"].fn(
+        candidate_id="C-R7-01", edits=[{"edit_type": "not_a_real_edit_type"}],
+    )
+    assert res["ok"] is False
+    assert res["issues"][0]["layer"] == "parse"
+
+
+# ── 5. Atomic group: second edit illegal -> whole group rejected ──────────────
+
+
+async def test_edit_group_is_atomic_second_bad_edit_rejects_the_whole_group(tmp_path: Path):
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+    rp_id = _node_ids(session)[_ECHO_TARGET]
+    before_genotype = genotype_hash(session._candidates["C-R7-01"].snapshot)
+
+    bad_spec = _echo_node_spec("v3")
+    bad_spec["_singleton_group_"] = "WRONG_GROUP"
+    edits = [
+        {"edit_type": "replace_same_group", "target_node_id": rp_id, "node_spec": _echo_node_spec("v2")},
+        # Same node again, but a mismatched singleton_group -> GraphEditError
+        # inside apply_edits, which aborts the ENTIRE group.
+        {"edit_type": "replace_same_group", "target_node_id": rp_id, "node_spec": bad_spec},
+    ]
+    res = await tools["GraphProposalEdit"].fn(candidate_id="C-R7-01", edits=edits)
+
+    assert res["ok"] is False
+    assert genotype_hash(session._candidates["C-R7-01"].snapshot) == before_genotype
+    assert not (session.applied_root / "C-R7-01" / "graph_edits.jsonl").exists()
+
+
+# ── 6. KILLER TEST: machine-produced manifest passes the real structure gate ──
+
+
+async def test_killer_machine_manifest_passes_real_structure_gate(tmp_path: Path):
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+
+    rp_id = _node_ids(session)[_ECHO_TARGET]
+    edits = [{"edit_type": "replace_same_group", "target_node_id": rp_id,
+              "node_spec": _echo_node_spec("v2")}]
+    edit_res = await tools["GraphProposalEdit"].fn(candidate_id="C-R7-01", edits=edits, reason="tune tag")
+    assert edit_res["ok"] is True, edit_res
+
+    manifest_res = await tools["GraphProposalManifest"].fn(
+        candidate_id="C-R7-01",
+        capability_evidence=[{
+            "type": "builtin_tool", "claim": "uses only stdlib", "evidence": "no new imports added",
+        }],
+        predicted_impact={
+            "tasks_will_unlock": ["task_a"], "tasks_will_stabilize": [],
+            "tasks_at_risk": [], "tasks_will_pass": ["task_a"],
+        },
+        failure_evidence=(
+            "Observed a scheduling timeout in "
+            "`trajectories/abc123_r0.jsonl#step_5` -- raised probe tag to fix it."
+        ),
+        attribution_signature={
+            "type": "processor_invocation", "tool_name": "EchoProbe", "expected_min_calls": 1,
+        },
+    )
+    assert manifest_res["ok"] is True, manifest_res
+
+    # Feed the WRITTEN FILE back through the real vendored parser + gate.
+    manifest_path = session.candidates_dir / "C-R7-01.md"
+    text = manifest_path.read_bytes().decode("utf-8")
+    fm, body = parse_candidate_manifest(text)
+    gate = validate_candidate_manifest(fm, body)
+    assert gate.ok, gate.reason
+
+
+# ── 7. machine config passes the official applied-config validator ────────────
+
+
+async def test_config_passes_official_validate_applied_config_and_keeps_extra_keys(tmp_path: Path):
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+
+    rp_id = _node_ids(session)[_ECHO_TARGET]
+    edits = [{"edit_type": "replace_same_group", "target_node_id": rp_id,
+              "node_spec": _echo_node_spec("v2")}]
+    res = await tools["GraphProposalEdit"].fn(candidate_id="C-R7-01", edits=edits)
+    assert res["ok"] is True, res
+
+    config_path = session.applied_root / "C-R7-01" / "config.yaml"
+    result = validate_applied_config(config_path, expected_bucket="config")
+    assert result.canonicalized is True
+
+    raw = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    assert raw["plugins"] == [{"_target_": "tests.ghx.fixtures_stub.FakePlugin", "note": "keep-me-untouched"}]
+
+
+# ── 8. hand-written detection ──────────────────────────────────────────────────
+
+
+async def test_hand_written_config_detected_provenance_flips_and_diff_recorded(tmp_path: Path):
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+
+    config_path = session.applied_root / "C-R7-01" / "config.yaml"
+    raw = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    for entry in raw["processors"]:
+        if entry.get("_target_") == _ECHO_TARGET:
+            entry["tag"] = "hand-edited"
+    hand_text = yaml.safe_dump(raw, allow_unicode=True, sort_keys=False)
+    _write(config_path, hand_text)
+
+    rp_id = _node_ids(session)[_ECHO_TARGET]
+    edits = [{"edit_type": "replace_same_group", "target_node_id": rp_id,
+              "node_spec": _echo_node_spec("v2")}]
+    res = await tools["GraphProposalEdit"].fn(candidate_id="C-R7-01", edits=edits)
+    assert res["ok"] is True, res
+
+    candidate = session._candidates["C-R7-01"]
+    assert candidate.provenance == "hand_written_detected"
+    assert candidate.hand_written_events
+
+    lineage = json.loads((session.applied_root / "C-R7-01" / "graph_lineage.json").read_text(encoding="utf-8"))
+    assert lineage["provenance"] == "hand_written_detected"
+    assert lineage["hand_written_events"]
+    ev = lineage["hand_written_events"][0]
+    assert ev["kind"] == "config"
+    assert "derived_edits" in ev  # diff_graphs succeeded against the parseable hand edit
+
+
+# ── 9. zero-edit candidate ─────────────────────────────────────────────────────
+
+
+async def test_zero_edit_candidate_marks_lineage_and_manifest(tmp_path: Path):
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+
+    draft = session.applied_root / "C-R7-01" / "C-R7-01.draft.md"
+    manifest_text = draft.read_text(encoding="utf-8")
+    assert "ZERO CONFIG DELTA" in manifest_text
+    assert not (session.candidates_dir / "C-R7-01.md").exists()
+
+    lineage = json.loads((session.applied_root / "C-R7-01" / "graph_lineage.json").read_text(encoding="utf-8"))
+    assert lineage["zero_edit"] is True
+
+
+# ── 10. flag ────────────────────────────────────────────────────────────────────
+
+
+def test_flag_default_off_and_reads_env_live(monkeypatch):
+    monkeypatch.delenv(FLAG, raising=False)
+    assert graph_proposals_enabled() is False
+    monkeypatch.setenv(FLAG, "1")
+    assert graph_proposals_enabled() is True
+    monkeypatch.setenv(FLAG, "off")
+    assert graph_proposals_enabled() is False
+
+
+# ── 11. Windows: no CRLF in any emitted artifact ───────────────────────────────
+
+
+async def test_no_crlf_in_any_emitted_artifact(tmp_path: Path):
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+
+    rp_id = _node_ids(session)[_ECHO_TARGET]
+    edits = [{"edit_type": "replace_same_group", "target_node_id": rp_id,
+              "node_spec": _echo_node_spec("v2")}]
+    await tools["GraphProposalEdit"].fn(candidate_id="C-R7-01", edits=edits, reason="crlf check")
+
+    scratch = session.applied_root / "C-R7-01"
+    paths = [
+        session.candidates_dir / "C-R7-01.md",
+        scratch / "config.yaml",
+        scratch / "graph_edits.jsonl",
+        scratch / "graph_lineage.json",
+        scratch / "graph_lineage.md",
+    ]
+    for p in paths:
+        assert b"\r\n" not in p.read_bytes(), p
+
+
+# ── 12. reopen after crash: refuses, does not overwrite; jsonl accumulates ────
+
+
+async def test_reopen_existing_candidate_refuses_and_does_not_overwrite(tmp_path: Path):
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+    # The reopen guard now rests on the scratch dir alone, because an unedited
+    # candidate has nothing in candidates/ to test for.
+    draft_path = session.applied_root / "C-R7-01" / "C-R7-01.draft.md"
+    before = draft_path.read_bytes()
+
+    # A fresh ProposalSession over the same directories simulates a restarted
+    # process picking the round back up after a crash.
+    session2 = _make_session(tmp_path, round_n=7)
+    tools2 = _tools(session2)
+    res = await tools2["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+
+    assert res["ok"] is False
+    assert draft_path.read_bytes() == before  # untouched, not overwritten
+
+    status = await tools2["GraphProposalStatus"].fn(candidate_id="")
+    assert status["ok"] is True
+
+
+async def test_jsonl_accumulates_incrementally_across_edit_calls(tmp_path: Path):
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+    rp_id = _node_ids(session)[_ECHO_TARGET]
+
+    for tag in ("v2", "v3"):
+        edits = [{"edit_type": "replace_same_group", "target_node_id": rp_id,
+                  "node_spec": _echo_node_spec(tag)}]
+        res = await tools["GraphProposalEdit"].fn(candidate_id="C-R7-01", edits=edits, reason=f"tag->{tag}")
+        assert res["ok"] is True, res
+
+    jsonl_path = session.applied_root / "C-R7-01" / "graph_edits.jsonl"
+    lines = jsonl_path.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 2
+    assert json.loads(lines[0])["node_spec"]["tag"] == "v2"
+    assert json.loads(lines[1])["node_spec"]["tag"] == "v3"
+
+
+# ── extra: GraphProposalStatus (4th tool, not otherwise exercised above) ──────
+
+
+async def test_status_reports_checklist_missing_fields_and_gate(tmp_path: Path):
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+
+    status = await tools["GraphProposalStatus"].fn(candidate_id="C-R7-01")
+    assert status["ok"] is True
+    assert status["edit_count"] == 0
+    assert status["structure_gate_ok"] is False
+    assert "capability_evidence" in status["manifest_missing_fields"]
+    assert status["checklist"]
+
+    all_status = await tools["GraphProposalStatus"].fn(candidate_id="")
+    assert "C-R7-01" in all_status["candidates"]
+
+    missing = await tools["GraphProposalStatus"].fn(candidate_id="C-R9-99")
+    assert missing["ok"] is False
+
+
+# ── bucket derivation: the manifest must declare what compose can carry ───────
+#
+# Regression for the 08-13 L5_holdout6x3 R1 autopsy: C-R1-02 applied three
+# insert_node edits under a model-declared `bucket: config`. `_apply_config`
+# only rewrites kwargs of processors already present (compose.py:129-130), so
+# all three new nodes were silently dropped, merged.yaml came out semantically
+# equal to the parent, and a 5/5-gate-green ship landed nothing.
+
+
+class _InsertProbe(MultiHookProcessor):
+    _order = 40
+    _singleton_group = "insert_sg"
+
+    def __init__(self, tag: str = "new") -> None:
+        self.tag = tag
+
+    async def on_task_start(self, event):
+        yield event
+
+
+_INSERT_TARGET = "tests.ghx.test_graph_proposals._InsertProbe"
+
+
+class _BareEventFieldProbe(MultiHookProcessor):
+    """Reproduces the model-authored BashShieldProcessor from L5_holdout6x3_v2 R1.
+
+    ``_writes_event_fields`` names bare event fields instead of ``EventClass.field``.
+    The Evolver's node_spec never mentions them -- canonicalize lifts them off the
+    class -- so edit-time S3 has nothing to reject, and the genotype hash does not
+    cover them either. Only reading the persisted file back catches it.
+    """
+
+    _order = 5
+    _singleton_group = "bare_field_sg"
+    _writes_event_fields = ("tool_input", "approved", "synthetic_result")
+
+    async def on_before_tool(self, event):
+        yield event
+
+
+_BARE_FIELD_TARGET = "tests.ghx.test_graph_proposals._BareEventFieldProbe"
+
+
+async def _open_and_insert(session: ProposalSession) -> dict:
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+    edits = [{
+        "edit_type": "insert_node",
+        "target_node_id": "proc:__insert_probe",
+        "node_spec": {"_target_": _INSERT_TARGET, "_hook_": "*",
+                      "_singleton_group_": "insert_sg", "_order_": 40, "tag": "new"},
+    }]
+    return await tools["GraphProposalEdit"].fn(
+        candidate_id="C-R7-01", edits=edits, reason="wire an unshipped processor"
+    )
+
+
+async def test_write_verify_rejects_a_config_it_could_not_read_back(tmp_path: Path):
+    """Anything we write must pass the preflight we demand of anything we read.
+
+    Regression for L5_holdout6x3_v2 R1: the node shipped, ran a full round, and
+    then killed the next Evolver's ProposalSession at preflight -- the write path
+    only compared genotype hashes, which do not cover event-field metadata.
+    """
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="processor")
+    before = genotype_hash(session._candidates["C-R7-01"].snapshot)
+
+    res = await tools["GraphProposalEdit"].fn(
+        candidate_id="C-R7-01",
+        edits=[{"edit_type": "insert_node", "target_node_id": "proc:__bare_field_probe",
+                "node_spec": {"_target_": _BARE_FIELD_TARGET, "_hook_": "*",
+                              "_singleton_group_": "bare_field_sg", "_order_": 5}}],
+        reason="wire a model-authored processor with bare event-field names",
+    )
+
+    assert res["ok"] is False, res
+    blob = json.dumps(res)
+    assert "S0-S4 preflight" in blob or "bad_event_field" in blob, res
+    # Rejected while the model can still fix it: nothing advanced, nothing on disk.
+    assert genotype_hash(session._candidates["C-R7-01"].snapshot) == before
+    assert not (session.applied_root / "C-R7-01" / "graph_edits.jsonl").exists()
+
+    # And the parent stays loadable -- the whole point is that the next session's
+    # preflight is not poisoned by what this one wrote.
+    reopened = _make_session(tmp_path, round_n=7)
+    assert reopened._parent_hashes["genotype"]
+
+
+async def test_pycache_from_running_a_helper_does_not_fail_iv9(tmp_path: Path):
+    """Regression for L5_holdout6x3_v3 R2 (no-op'd a whole round).
+
+    The injected prompt tells the model a .py helper is legal under a processor
+    bucket. Importing that helper to test it makes CPython drop a .pyc beside it,
+    and declaring the .pyc in file_changes fails IV-9 -- no bucket whitelists it.
+    The vendored gate's own guard only skips the __pycache__ *directory*, so the
+    file inside it reaches the extension check.
+    """
+    session = _make_session(tmp_path, round_n=7)
+    res = await _open_and_insert(session)
+    assert res["ok"] is True, res
+    candidate = session._candidates["C-R7-01"]
+    scratch = candidate.config_path.parent
+
+    _write(scratch / "write_fallback.py", "VALUE = 1\n")
+    (scratch / "__pycache__").mkdir(exist_ok=True)
+    _write(scratch / "__pycache__" / "write_fallback.cpython-312.pyc", "\x00fake bytecode")
+    _write(scratch / "sidecar.yaml", "note: authored asset\n")
+
+    declared = [c["path"] for c in session._file_changes_for(candidate)]
+    assert not any(p.endswith(".pyc") for p in declared), declared
+    # Not over-filtered: both genuinely-authored assets still get declared.
+    assert any(p.endswith("write_fallback.py") for p in declared), declared
+    assert any(p.endswith("sidecar.yaml") for p in declared), declared
+
+    fm = session._build_frontmatter(candidate)
+    assert fm["bucket"] == "processor"
+    gate = validate_candidate_manifest(fm, session._build_body(candidate))
+    assert "IV-9" not in (gate.reason or ""), gate.reason
+
+
+async def test_insert_node_derives_processor_bucket_overriding_declared_config(tmp_path: Path):
+    session = _make_session(tmp_path, round_n=7)
+    res = await _open_and_insert(session)
+    assert res["ok"] is True, res
+
+    candidate = session._candidates["C-R7-01"]
+    assert candidate.bucket == "config"          # what the model declared
+    assert session._landing_buckets(candidate) == ["processor"]
+
+    fm = session._build_frontmatter(candidate)
+    assert fm["bucket"] == "processor"           # what goes into the manifest
+
+    manifest_text = (session.candidates_dir / "C-R7-01.md").read_text(encoding="utf-8")
+    assert "bucket: processor" in manifest_text
+
+
+async def test_kwargs_only_change_derives_config_bucket(tmp_path: Path):
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="prompt")
+
+    rp_id = _node_ids(session)[_ECHO_TARGET]
+    res = await tools["GraphProposalEdit"].fn(
+        candidate_id="C-R7-01",
+        edits=[{"edit_type": "replace_same_group", "target_node_id": rp_id,
+                "node_spec": _echo_node_spec("v2")}],
+    )
+    assert res["ok"] is True, res
+    assert session._landing_buckets(session._candidates["C-R7-01"]) == ["config"]
+
+
+def test_prompt_branch_needs_template_path_to_be_the_only_change():
+    """``_apply_prompt`` copies only ``system_builder.template_path``; anything
+    else on the prompt node has to travel as ``config`` or it is dropped."""
+    from harnessx.ghx.graph_proposals import _prompt_change_is_template_only
+
+    base = {"_target_": "x.SystemPromptProcessor",
+            "system_builder": {"_target_": "x.B", "template_path": "/a.md"}}
+    swapped = {"_target_": "x.SystemPromptProcessor",
+               "system_builder": {"_target_": "x.B", "template_path": "/b.md"}}
+    also_builder = {"_target_": "x.SystemPromptProcessor",
+                    "system_builder": {"_target_": "x.OTHER", "template_path": "/b.md"}}
+
+    assert _prompt_change_is_template_only(base, swapped) is True
+    assert _prompt_change_is_template_only(base, also_builder) is False
+
+
+async def test_edge_only_candidate_cannot_finalize_and_status_says_why(tmp_path: Path):
+    """A ``change_dependency`` edit applies cleanly through the S4 transaction but
+    leaves no trace in the composed config -- compose never reads edges. Such a
+    candidate must be stopped before it can collect manifest fields."""
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="processor")
+
+    ids = _node_ids(session)
+    res = await tools["GraphProposalEdit"].fn(
+        candidate_id="C-R7-01",
+        edits=[{"edit_type": "change_dependency",
+                "edge_source_id": ids[_ECHO_TARGET],
+                "edge_target_id": ids[_ORDERED_TARGET],
+                "edge_type": "after", "add_edge": False}],
+        reason="drop the ordering edge",
+    )
+    assert res["ok"] is True, res  # the transaction itself is legal
+    assert session._landing_buckets(session._candidates["C-R7-01"]) == []
+
+    status = await tools["GraphProposalStatus"].fn(candidate_id="C-R7-01")
+    assert status["landing_buckets"] == []
+    assert status["declared_bucket"] == "processor"
+    assert any("land nothing" in c for c in status["checklist"])
+
+    blocked = await tools["GraphProposalManifest"].fn(
+        candidate_id="C-R7-01", capability_evidence=[{"type": "filesystem", "claim": "c", "evidence": "e"}]
+    )
+    assert blocked["ok"] is False
+    assert "land NOTHING" in blocked["error"]
+    # F2 contract: a refused call leaves the model-supplied fields untouched.
+    assert "capability_evidence" not in session._candidates["C-R7-01"].fields_set
+
+
+async def test_derived_bucket_actually_lands_through_the_real_composer(tmp_path: Path):
+    """End-to-end against vendored ``compose_shipped_configs``: the derived bucket
+    puts the new processor into merged.yaml, the declared one drops it."""
+    from harnessx.aegis.compose import compose_shipped_configs
+
+    session = _make_session(tmp_path, round_n=7)
+    res = await _open_and_insert(session)
+    assert res["ok"] is True, res
+
+    candidate = session._candidates["C-R7-01"]
+    derived = session._build_frontmatter(candidate)["bucket"]
+    parent_path = session.parent_config_path
+    applied_path = candidate.config_path
+
+    def _targets(out_path: Path) -> set[str]:
+        merged = yaml.safe_load(out_path.read_text(encoding="utf-8")) or {}
+        return {p.get("_target_") for p in merged.get("processors") or [] if isinstance(p, dict)}
+
+    good = tmp_path / "merged_derived.yaml"
+    compose_shipped_configs(parent_path, [("C-R7-01", derived, applied_path)], good)
+    assert _INSERT_TARGET in _targets(good)
+
+    # The declared bucket used to drop the node silently, and this probe asserted that
+    # so a change in vendored compose would surface here. It has changed twice since,
+    # both by design. P-9 made the config applier raise rather than skip, because the
+    # silent skip is invisible downstream — the candidate is already accepted, ranked
+    # and written into decision.md by then. P-18 then moved where that refusal
+    # surfaces: compose catches it per candidate and reports it, so one mis-derived
+    # bucket no longer takes the round's other ships with it.
+    #
+    # What the derivation is being probed for is unchanged: the declared bucket must
+    # NOT quietly land the node.
+    bad = tmp_path / "merged_declared.yaml"
+    rejected = compose_shipped_configs(parent_path, [("C-R7-01", "config", applied_path)], bad)
+    assert rejected.landed == []
+    assert [cid for cid, _ in rejected.rejected] == ["C-R7-01"]
+    assert "cannot add a processor" in rejected.rejected[0][1]
+    assert not bad.exists(), "a refused candidate must leave no merged config behind"
+
+
+async def test_prompt_swap_survives_a_config_bucket_co_ship(tmp_path: Path):
+    """The other half of the R1 autopsy, pinned as a live vendored behaviour probe.
+
+    ``_apply_config`` diffs the candidate against the *running base* rather than
+    the frozen parent (``compose.py:116`` is ``del parent``), so a config-bucket
+    candidate reverts an earlier prompt-bucket candidate's change. Accurate
+    derivation is what keeps a pure-insert candidate out of the ``config`` bucket
+    and therefore out of this collision. Recorded as P-7 for the launch gate.
+    """
+    from harnessx.aegis.compose import compose_shipped_configs
+
+    session = _make_session(tmp_path, round_n=7)
+    res = await _open_and_insert(session)
+    assert res["ok"] is True, res
+    candidate = session._candidates["C-R7-01"]
+    derived = session._build_frontmatter(candidate)["bucket"]
+    assert derived == "processor"
+
+    # A second candidate that only bumps tag v1 -> v2 on the shared echo node.
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-02", bucket="config")
+    bump = await tools["GraphProposalEdit"].fn(
+        candidate_id="C-R7-02",
+        edits=[{"edit_type": "replace_same_group",
+                "target_node_id": _node_ids(session)[_ECHO_TARGET],
+                "node_spec": _echo_node_spec("v2")}],
+    )
+    assert bump["ok"] is True, bump
+    second = session._candidates["C-R7-02"]
+    assert session._landing_buckets(second) == ["config"]
+
+    out = tmp_path / "merged_two.yaml"
+    compose_shipped_configs(
+        session.parent_config_path,
+        [("C-R7-01", derived, candidate.config_path),
+         ("C-R7-02", "config", second.config_path)],
+        out,
+    )
+    merged = yaml.safe_load(out.read_text(encoding="utf-8")) or {}
+    by_target = {p.get("_target_"): p for p in merged.get("processors") or [] if isinstance(p, dict)}
+    # Both land: the insert survives because it travelled as `processor`, and the
+    # kwarg bump lands because that is exactly what `config` carries.
+    assert _INSERT_TARGET in by_target
+    assert by_target[_ECHO_TARGET]["tag"] == "v2"
+
+
+# ── 13. F2: _edit write-phase failure rolls back, genotype UNCHANGED ──────────
+
+
+async def test_edit_write_config_verified_failure_rolls_back_and_retry_succeeds(
+    tmp_path: Path, monkeypatch,
+):
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+    rp_id = _node_ids(session)[_ECHO_TARGET]
+    candidate = session._candidates["C-R7-01"]
+    before_genotype = genotype_hash(candidate.snapshot)
+
+    monkeypatch.setattr(ProposalSession, "_write_config_verified", lambda self, cand: (False, "boom"))
+
+    edits = [{"edit_type": "replace_same_group", "target_node_id": rp_id,
+              "node_spec": _echo_node_spec("v2")}]
+    res = await tools["GraphProposalEdit"].fn(candidate_id="C-R7-01", edits=edits, reason="flaky write")
+
+    assert res["ok"] is False
+    assert res["genotype"] == before_genotype
+    assert genotype_hash(candidate.snapshot) == before_genotype  # session snapshot unchanged
+    jsonl_path = session.applied_root / "C-R7-01" / "graph_edits.jsonl"
+    assert not jsonl_path.exists()  # no new edit line recorded
+
+    monkeypatch.undo()  # un-patch -- back to the real _write_config_verified
+    res2 = await tools["GraphProposalEdit"].fn(candidate_id="C-R7-01", edits=edits, reason="retry")
+    assert res2["ok"] is True, res2
+
+
+async def test_edit_manifest_write_oserror_rolls_back_config_bytes_on_disk(
+    tmp_path: Path, monkeypatch,
+):
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+    rp_id = _node_ids(session)[_ECHO_TARGET]
+    candidate = session._candidates["C-R7-01"]
+
+    config_path = session.applied_root / "C-R7-01" / "config.yaml"
+    before_bytes = config_path.read_bytes()
+    before_genotype = genotype_hash(candidate.snapshot)
+
+    def _boom(self, cand):
+        raise OSError("disk full")
+
+    monkeypatch.setattr(ProposalSession, "_write_manifest", _boom)
+
+    edits = [{"edit_type": "replace_same_group", "target_node_id": rp_id,
+              "node_spec": _echo_node_spec("v2")}]
+    res = await tools["GraphProposalEdit"].fn(candidate_id="C-R7-01", edits=edits, reason="manifest boom")
+
+    assert res["ok"] is False
+    assert res["genotype"] == before_genotype
+    assert genotype_hash(candidate.snapshot) == before_genotype
+    assert config_path.read_bytes() == before_bytes  # rolled back to pre-edit bytes ON DISK
+
+
+async def test_manifest_write_failure_leaves_fields_set_unchanged(tmp_path: Path, monkeypatch):
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+    candidate = session._candidates["C-R7-01"]
+
+    def _boom(self, cand):
+        raise OSError("disk full")
+
+    monkeypatch.setattr(ProposalSession, "_write_manifest", _boom)
+
+    res = await tools["GraphProposalManifest"].fn(
+        candidate_id="C-R7-01", failure_evidence="trajectories/abc.jsonl#step_1",
+    )
+    assert res["ok"] is False
+    assert "failure_evidence" not in candidate.fields_set
+    assert candidate.failure_evidence_body == ""
+
+
+# ── 14. F9: _open write-phase failure cleans up, cid is not a dead end ────────
+
+
+async def test_open_write_failure_cleans_up_and_retry_succeeds(tmp_path: Path, monkeypatch):
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+
+    def _boom(self, cand):
+        raise OSError("disk full")
+
+    monkeypatch.setattr(ProposalSession, "_write_manifest", _boom)
+
+    res = await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+    assert res["ok"] is False
+    assert "C-R7-01" not in session._candidates
+    assert not (session.candidates_dir / "C-R7-01.md").exists()
+    assert not (session.applied_root / "C-R7-01").exists()  # scratch dir cleaned up too
+
+    monkeypatch.undo()  # un-patch -- back to the real _write_manifest
+    res2 = await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+    assert res2["ok"] is True, res2
+
+
+# ── 15. F4: bookkeeping exclusion is scratch-ROOT only, not by bare name ──────
+
+
+async def test_bookkeeping_exclusion_is_scratch_root_only(tmp_path: Path):
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+    candidate = session._candidates["C-R7-01"]
+
+    sub = session.applied_root / "C-R7-01" / "sub"
+    sub.mkdir(parents=True, exist_ok=True)
+    nested = sub / "config.yaml"
+    nested.write_text("note: nested-asset\n", encoding="utf-8", newline="\n")
+
+    changes = session._file_changes_for(candidate)
+    paths = {c["path"]: c for c in changes}
+    assert str(nested) in paths
+    assert paths[str(nested)]["action"] == "create"
+
+    # The scratch-ROOT config.yaml is still excluded (it already has its own "modify"
+    # entry from the top of _file_changes_for) -- exactly one entry for it, not two.
+    root_config = str(candidate.config_path)
+    assert sum(1 for c in changes if c["path"] == root_config) == 1
+
+
+# ── zero-edit drafts must not become candidates (M16_L2_ghx5 R3) ──────────────
+
+
+async def test_an_unedited_candidate_never_reaches_the_critic(tmp_path: Path):
+    """M16_L2_ghx5 R3, reproduced.
+
+    The Evolver opened two candidates, edited neither, and the round ended with
+    two manifests in candidates/ carrying `capability_evidence: []` and a body
+    this module had itself filled in with "call GraphProposalEdit ... before this
+    candidate is reviewable". The Critic read both and returned no_op. A whole
+    round of a 103-task arm, spent on candidates that changed nothing.
+
+    It was not carelessness. The vendored prompt tells the Evolver to draft
+    manifests early, that a thin draft is reviewable, and that an unwritten
+    manifest wastes the session — `capability_evidence: []` is that instruction's
+    own wording. Opening satisfied it.
+    """
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+
+    # Stage 2 globs exactly this.
+    assert list(session.candidates_dir.glob("C-R7-*.md")) == []
+
+
+async def test_the_manifest_call_refuses_while_the_edit_count_is_zero(tmp_path: Path):
+    """The sibling guard covered "edits that land nothing" and required
+    edits_log to be non-empty, so the strictly worse case walked through the
+    hole the weaker one was blocked by."""
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+
+    res = await tools["GraphProposalManifest"].fn(
+        candidate_id="C-R7-01",
+        capability_evidence=[{"type": "builtin_tool", "claim": "x", "evidence": "y"}],
+    )
+    assert res["ok"] is False
+    assert "no applied edits" in res["error"]
+    assert "GraphProposalEdit" in res["error"], "the refusal has to name the way out"
+    assert list(session.candidates_dir.glob("C-R7-*.md")) == []
+
+
+async def test_one_edit_promotes_the_draft_into_candidates(tmp_path: Path):
+    """The edit, not the draft, is when the candidate starts existing."""
+    session = _make_session(tmp_path, round_n=7)
+    draft = session.applied_root / "C-R7-01" / "C-R7-01.draft.md"
+
+    res = await _open_and_insert(session)  # opens C-R7-01 and lands one insert_node
+    assert res["ok"] is True, res
+
+    promoted = session.candidates_dir / "C-R7-01.md"
+    assert promoted.exists(), "an edited candidate belongs in candidates/"
+    assert not draft.exists(), "the draft must not linger beside the promoted manifest"
+    assert "ZERO CONFIG DELTA" not in promoted.read_text(encoding="utf-8")
+
+
+def test_the_prompt_contradicts_the_base_rule_out_loud():
+    """Saying only "the tools emit manifests" left the base prompt's claim about
+    what counts as DONE standing, and that is the half the Evolver acted on."""
+    from harnessx.ghx.proposal_seam import _DRAFT_IS_NOT_A_DELIVERABLE
+
+    text = _DRAFT_IS_NOT_A_DELIVERABLE
+    assert "Draft manifests EARLY" in text, "name the rule being overridden"
+    assert "NOT reviewable" in text and "NOT a deliverable" in text
+    assert "GraphProposalEdit" in text, "say what makes it a deliverable"
+    # Overriding one point, not discarding the rule wholesale.
+    assert "still" in text
+
+
+# ── M23: mutate_params through the full transaction ───────────────────────────
+
+
+async def test_mutate_params_end_to_end_derives_config_bucket(tmp_path: Path):
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+
+    rp_id = _node_ids(session)[_ECHO_TARGET]
+    res = await tools["GraphProposalEdit"].fn(
+        candidate_id="C-R7-01",
+        edits=[{"edit_type": "mutate_params", "target_node_id": rp_id,
+                "node_changes": {"tag": "v2"}}],
+        reason="one-op kwargs change",
+    )
+    assert res["ok"] is True, res
+    assert "tag='v2'" in res["node_inventory"]
+    assert session._landing_buckets(session._candidates["C-R7-01"]) == ["config"]
+
+
+async def test_mutate_params_refuses_underscore_metadata_structurally(tmp_path: Path):
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+
+    rp_id = _node_ids(session)[_ECHO_TARGET]
+    res = await tools["GraphProposalEdit"].fn(
+        candidate_id="C-R7-01",
+        edits=[{"edit_type": "mutate_params", "target_node_id": rp_id,
+                "node_changes": {"_order_": 99}}],
+    )
+    assert res["ok"] is False
+    assert any("underscore" in i["message"] or i["error_type"] == "underscore_params" for i in res["issues"])
+
+
+# ── M23: predicted-impact cone discipline (core/halo) ─────────────────────────
+
+
+async def test_predicted_split_core_halo_travels_in_manifest_and_return(tmp_path: Path):
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+
+    rp_id = _node_ids(session)[_ECHO_TARGET]
+    ev_dir = session.candidates_dir.parent / "graph_evidence"
+    ev_dir.mkdir(parents=True, exist_ok=True)
+    (ev_dir / "cone_sigs.json").write_text(
+        json.dumps({
+            "round": 7,
+            "failing": {"task-core": [rp_id, "tool:Bash"], "task-halo": ["tool:WebFetch"]},
+            "passing": {},
+        }),
+        encoding="utf-8",
+    )
+
+    await tools["GraphProposalEdit"].fn(
+        candidate_id="C-R7-01",
+        edits=[{"edit_type": "mutate_params", "target_node_id": rp_id,
+                "node_changes": {"tag": "v2"}}],
+    )
+    ret = await tools["GraphProposalManifest"].fn(
+        candidate_id="C-R7-01",
+        predicted_impact={"tasks_will_pass": ["task-core", "task-halo", "task-nocone"]},
+        failure_evidence="see `digests/task-core.md` for the mechanism.",
+    )
+    assert ret["ok"] is True, ret
+    assert ret["predicted_split"] == {
+        "core": ["task-core"], "halo": ["task-halo"], "no_cone": ["task-nocone"],
+    }
+    assert "majority HALO" in ret.get("warning", "")
+    assert "structure_gate_ok" in ret  # shift-left: the gate verdict is visible NOW
+
+    manifest_text = (session.candidates_dir / "C-R7-01.md").read_text(encoding="utf-8")
+    assert "predicted_core" in manifest_text and "task-core" in manifest_text
+    assert "predicted_halo" in manifest_text
+
+    status = await tools["GraphProposalStatus"].fn(candidate_id="C-R7-01")
+    assert any("halo" in item for item in status["checklist"])
+
+
+async def test_predicted_split_absent_without_cone_sigs(tmp_path: Path):
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="config")
+    rp_id = _node_ids(session)[_ECHO_TARGET]
+    await tools["GraphProposalEdit"].fn(
+        candidate_id="C-R7-01",
+        edits=[{"edit_type": "mutate_params", "target_node_id": rp_id,
+                "node_changes": {"tag": "v2"}}],
+    )
+    ret = await tools["GraphProposalManifest"].fn(
+        candidate_id="C-R7-01",
+        predicted_impact={"tasks_will_pass": ["task-x"]},
+    )
+    assert ret["ok"] is True
+    assert "predicted_split" not in ret  # no cone data → no fabricated all-halo verdict
+    assert "predicted_core" not in (session.candidates_dir / "C-R7-01.md").read_text(encoding="utf-8")
+
+
+# ── M23: IV-11 escape hatch through the machine manifest ──────────────────────
+
+
+async def test_infeasibility_note_renders_the_iv11_marker_section(tmp_path: Path):
+    """Three identical IV-11 deaths in M23_L2 (R7/R9/R13) exposed a deadlock: the
+    Planner kept flagging `tools`, graph edits cannot express a tools-bucket
+    candidate, and the machine body had no way to carry the escape-hatch section
+    the gate accepts. The manifest tool now takes infeasibility_note and renders
+    IV-11's exact marker heading."""
+    from harnessx.aegis.gates.structure import validate_candidate_manifest
+
+    session = _make_session(tmp_path, round_n=7)
+    tools = _tools(session)
+    await tools["GraphProposalOpen"].fn(candidate_id="C-R7-01", bucket="processor")
+    rp_id = _node_ids(session)[_ECHO_TARGET]
+    await tools["GraphProposalEdit"].fn(
+        candidate_id="C-R7-01",
+        edits=[{"edit_type": "mutate_params", "target_node_id": rp_id,
+                "node_changes": {"tag": "v2"}}],
+    )
+    ret = await tools["GraphProposalManifest"].fn(
+        candidate_id="C-R7-01",
+        failure_evidence="see `digests/x.md`.",
+        infeasibility_note=(
+            "The flagged tools bucket needs a tool_registry change; graph edits "
+            "operate on the processor list only, so no edit in this surface can "
+            "produce a tools-bucket diff."
+        ),
+    )
+    assert ret["ok"] is True, ret
+    assert "infeasibility_note" in ret["updated_fields"]
+
+    body = (session.candidates_dir / "C-R7-01.md").read_text(encoding="utf-8")
+    assert "## Why flagged direction is infeasible" in body
+
+    # The REAL gate accepts it: flagged bucket not targeted + note present → ok.
+    fm = session._build_frontmatter(session._candidates["C-R7-01"])
+    body_md = session._build_body(session._candidates["C-R7-01"])
+    gate = validate_candidate_manifest(fm, body_md, strategy_concern_flagged={"tools"})
+    assert gate.ok, gate.reason
+
+    # Without the note the same candidate is refused — pins that the note is
+    # what flips the verdict, not some other field.
+    session._candidates["C-R7-01"].manifest_fields.pop("infeasibility_note")
+    gate2 = validate_candidate_manifest(
+        session._build_frontmatter(session._candidates["C-R7-01"]),
+        session._build_body(session._candidates["C-R7-01"]),
+        strategy_concern_flagged={"tools"},
+    )
+    assert not gate2.ok and "IV-11" in gate2.reason

@@ -1,0 +1,155 @@
+# Copyright 2026 Darwin-Agent
+# SPDX-License-Identifier: MIT
+"""Read-scope gate processor for the meta-agent.
+
+Blocks Read / Grep / Glob / Bash calls that target restricted root
+directories, with explicit per-file exceptions.  Intended to prevent the
+meta-agent from spending steps deep-diving into harnessx source code
+when the SKILL.md files already provide the necessary API surface, AND
+to prevent cross-experiment leakage (e.g. reading archived prior runs'
+data into a fresh run's decision-making context).
+"""
+
+from __future__ import annotations
+
+import dataclasses
+import re
+from pathlib import Path
+
+from ...core.events import ToolCallEvent
+from ...core.processor import MultiHookProcessor
+
+
+def _resolve(value: str) -> Path | None:
+    raw = (value or "").strip()
+    if not raw:
+        return None
+    p = Path(raw)
+    if not p.is_absolute():
+        return None
+    try:
+        return p.resolve()
+    except Exception:
+        return None
+
+
+# Match absolute POSIX-style paths inside a Bash command string. Meta-agents
+# are trusted, not adversarial, so a plain regex is enough — we don't try to
+# unpack shell expansions, subshells, or obfuscated path construction. The
+# goal is "catch the common case where the agent Cats or Greps an archive
+# directory directly", not "defeat a determined bypass attempt".
+_ABS_PATH_RE = re.compile(r"(?<![A-Za-z0-9_])(/[A-Za-z0-9_][A-Za-z0-9_./\-]*)")
+
+# Windows-style absolute paths (drive letter + separator, mixed \\ or /).
+# Kept separate from the POSIX matcher so POSIX behavior is untouched; on
+# non-Windows hosts these tokens simply fail _resolve()'s is_absolute() check.
+_WIN_ABS_PATH_RE = re.compile(r"(?<![A-Za-z0-9_])([A-Za-z]:[\\/][A-Za-z0-9_.\\/-]*)")
+
+
+class ReadScopeGateProcessor(MultiHookProcessor):
+    """Block tool calls that target restricted root directories.
+
+    Paths listed in ``allowed_files`` are always permitted even if they fall
+    under a ``blocked_roots`` entry.  All other paths under ``blocked_roots``
+    are rejected with a helpful error message pointing the agent at the
+    relevant SKILL.md instead.
+
+    Coverage:
+
+    - ``Read``: checks ``file_path`` argument.
+    - ``Grep`` / ``Glob``: checks ``path`` argument.
+    - ``Bash``: extracts every absolute path token from the ``command``
+      string via regex and checks each. Substring-level check — does not
+      attempt to expand ``$VAR``, subshells, or tilde resolution. This is
+      adequate for trusted-agent scoping (keep meta-agent out of archived
+      runs' directories), not adversarial sandboxing.
+    """
+
+    _singleton_group = "meta_read_scope_gate"
+    _order = 4  # before write-scope gate (order 5)
+
+    def __init__(
+        self,
+        blocked_roots: "tuple[str, ...] | None" = None,
+        allowed_files: "tuple[str, ...] | None" = None,
+        hint_message: str = "",
+    ) -> None:
+        self._blocked_roots: tuple[Path, ...] = tuple(Path(x).resolve() for x in (blocked_roots or ()) if x)
+        # Keep allowed_files in their original string form so the processor
+        # serializes the caller's paths verbatim (Windows callers may pass
+        # mixed \\ and / separators); resolve lazily only for membership.
+        self._allowed_files: tuple[str, ...] = tuple(str(x) for x in (allowed_files or ()) if x)
+        self._allowed_resolved: frozenset = frozenset(Path(x).resolve() for x in self._allowed_files)
+        self._hint = hint_message
+
+    def _is_blocked(self, path: Path) -> bool:
+        resolved = path.resolve()
+        if resolved in self._allowed_resolved:
+            return False
+        for root in self._blocked_roots:
+            try:
+                resolved.relative_to(root)
+                return True
+            except ValueError:
+                continue
+        return False
+
+    def _blocked_msg(self, path: str) -> str:
+        allowed = ", ".join(self._allowed_files) or "(none)"
+        msg = f"Read-scope gate: access to `{path}` is restricted.\n"
+        if self._hint:
+            msg += f"{self._hint}\n"
+        msg += f"Allowed exceptions: {allowed}"
+        return msg
+
+    async def on_before_tool(self, event: ToolCallEvent):
+        tool = event.tool_name
+        if tool not in {"Read", "Grep", "Glob", "Bash"}:
+            yield event
+            return
+
+        tool_input = event.tool_input or {}
+
+        if tool == "Read":
+            fp = tool_input.get("file_path", "")
+            if isinstance(fp, str):
+                p = _resolve(fp)
+                if p is not None and self._is_blocked(p):
+                    yield dataclasses.replace(
+                        event,
+                        approved=False,
+                        synthetic_result=self._blocked_msg(fp),
+                    )
+                    return
+
+        elif tool in {"Grep", "Glob"}:
+            path_val = tool_input.get("path", "")
+            if isinstance(path_val, str) and path_val.strip():
+                p = _resolve(path_val)
+                if p is not None and self._is_blocked(p):
+                    yield dataclasses.replace(
+                        event,
+                        approved=False,
+                        synthetic_result=self._blocked_msg(path_val),
+                    )
+                    return
+
+        elif tool == "Bash":
+            cmd = tool_input.get("command", "")
+            if isinstance(cmd, str) and cmd:
+                # Extract every absolute path token from the command and
+                # reject if any resolves under a blocked root. Trusted-agent
+                # scoping — doesn't try to defeat obfuscation.
+                for regex in (_ABS_PATH_RE, _WIN_ABS_PATH_RE):
+                    for abs_path_match in regex.finditer(cmd):
+                        candidate = abs_path_match.group(1)
+                        p = _resolve(candidate)
+                        if p is not None and self._is_blocked(p):
+                            yield dataclasses.replace(
+                                event,
+                                approved=False,
+                                synthetic_result=self._blocked_msg(candidate),
+                            )
+                            return
+
+        yield event

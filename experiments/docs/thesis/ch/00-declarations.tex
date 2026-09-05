@@ -1,0 +1,32 @@
+% =========================================================================
+% Declarations (unnumbered, front matter, roman pages).
+% =========================================================================
+
+\section*{Declaration of generative-AI use}
+\addcontentsline{toc}{section}{Declaration of generative-AI use}
+
+This dissertation was written with Claude Code (Anthropic,
+\url{https://claude.com/claude-code}), using Claude models (Opus~4.x,
+Sonnet~4.x/5, Fable~5.1) during 2026, as a coding and writing assistant
+under the author's direction: implementing GHX and the analysis scripts,
+running and monitoring the campaigns, drafting and editing this text, and
+simulating reviewer feedback. Experimental design, the evidence-whitelist
+and exclusion rulings, the interpretation of results and every final
+wording decision are the author's; every number in the text carries a
+ledger anchor and, where classed \cls{A}, is reproduced by a script in the
+repository. The LLMs inside the system under study --- the solver and the
+four meta-roles, DeepSeek models served through a LiteLLM gateway --- are
+the object of the experiments (Chapters~\ref{ch:baseline}
+and~\ref{ch:design}), not part of this declaration.
+
+\section*{Code and data access}
+\addcontentsline{toc}{section}{Code and data access}
+
+The vendored system and this thesis's own code live at
+\url{https://github.com/GaryGAO2003/GraphHarnessX}, branch
+\texttt{main}, tagged \texttt{thesis-2026-09} in that repository at the
+point of submission. Recompute scripts are under
+\texttt{experiments/analysis/}; thesis sources under
+\texttt{experiments/docs/thesis/}; the fact ledger is
+Appendix~\ref{app:ledger}. The six whitelisted run archives are large
+trajectory stores and are available from the author on request.

@@ -1,0 +1,169 @@
+"""HarnessX Graph IR — typed graph representation of agent harness configurations.
+
+The graph IR sits between evolution and execution: evolution reads graph
+snapshots, produces typed graph edits, validates via ``build()``, and
+uses selective retest (danger-edges ∩ task-footprint) instead of
+full-task-bed measurement.
+
+Core API
+--------
+.. code-block:: python
+
+    from harnessx.graph import to_graph, genotype_hash, GraphSnapshot, Node, Edge
+
+    snapshot = to_graph(harness_config)
+    ghash = genotype_hash(snapshot)
+"""
+
+from .declaration import (
+    ComponentDecl,
+    DeclarationSource,
+    WELL_KNOWN_DECLARATIONS,
+    backfill_declarations,
+    citation_gate,
+    cited_well_known,
+    is_cited,
+    merge_declarations,
+    validate_declarations,
+)
+from .backlink import (
+    BacklinkIndex,
+    BacklinkRef,
+    observation_node_id,
+    resolve_journal_line,
+    uuid_at_line,
+)
+from .bom import graph_bom
+from .bootstrap import bootstrap_declaration, bootstrap_well_known
+from .dfa import DfaReport, DfaWitness, lifecycle_dfa_check
+from .edit import GraphEdit, GraphEditType, apply_edits, diff_graphs
+from .footprint import CoverageFootprint, FootprintStore, compute_footprint
+from .identity import DedupRegistry, deployment_hash, genotype_hash, phenotype_hash
+from .impact import danger_edge_set, forward_slice, influence_cone, intersects_footprint
+from .observer import HookObservation, ObservationProcessor, TaskTrace
+from .reconciliation import (
+    ConvergenceReport,
+    ReconciliationCategory,
+    ReconciledEdge,
+    reconcile,
+)
+from .operators import (
+    InsertProcessor,
+    MutateProcessorParams,
+    OperatorError,
+    RemoveProcessor,
+    ReplaceSameSingletonGroup,
+    RewireOrdering,
+    SwapBundle,
+    apply_operator,
+)
+from .snapshot import assign_processor_node_ids, to_graph
+from .binding import build_node_binding
+from .transform import graph_to_config_dict
+from .validate import (
+    ValidationIssue,
+    ValidationReport,
+    transactional_apply,
+    validate_edit_preconditions,
+    validate_snapshot,
+)
+from .types import (
+    SKELETON_HOOK_NAMES,
+    DataChannel,
+    Edge,
+    EdgeFamily,
+    EdgeType,
+    GraphSnapshot,
+    Node,
+    NodeType,
+    edge_family,
+)
+
+__all__ = [
+    # types
+    "NodeType",
+    "EdgeType",
+    "Node",
+    "Edge",
+    "GraphSnapshot",
+    "SKELETON_HOOK_NAMES",
+    # edge vocabulary (Δ7)
+    "EdgeFamily",
+    "DataChannel",
+    "edge_family",
+    "graph_bom",
+    # snapshot
+    "to_graph",
+    "assign_processor_node_ids",
+    # node binding (M2a)
+    "build_node_binding",
+    # identity
+    "genotype_hash",
+    "deployment_hash",
+    "phenotype_hash",
+    "DedupRegistry",
+    # declaration (S3)
+    "ComponentDecl",
+    "DeclarationSource",
+    "WELL_KNOWN_DECLARATIONS",
+    "backfill_declarations",
+    "merge_declarations",
+    "validate_declarations",
+    # citation gate (Δ9)
+    "is_cited",
+    "citation_gate",
+    "cited_well_known",
+    # observer (S4)
+    "ObservationProcessor",
+    "HookObservation",
+    "TaskTrace",
+    # footprint (S4)
+    "CoverageFootprint",
+    "FootprintStore",
+    "compute_footprint",
+    # reconciliation (S4)
+    "ConvergenceReport",
+    "ReconciliationCategory",
+    "ReconciledEdge",
+    "reconcile",
+    # edit (S5)
+    "GraphEdit",
+    "GraphEditType",
+    "apply_edits",
+    "diff_graphs",
+    # impact (S5)
+    "forward_slice",
+    "danger_edge_set",
+    "influence_cone",
+    "intersects_footprint",
+    # transform (S5)
+    "graph_to_config_dict",
+    # validate (P3)
+    "ValidationIssue",
+    "ValidationReport",
+    "validate_snapshot",
+    "validate_edit_preconditions",
+    "transactional_apply",
+    # dfa (Δ8)
+    "DfaReport",
+    "DfaWitness",
+    "lifecycle_dfa_check",
+    # backlink (Δ11)
+    "BacklinkIndex",
+    "BacklinkRef",
+    "observation_node_id",
+    "resolve_journal_line",
+    "uuid_at_line",
+    # bootstrap (Δ17)
+    "bootstrap_declaration",
+    "bootstrap_well_known",
+    # operators (P3)
+    "OperatorError",
+    "MutateProcessorParams",
+    "InsertProcessor",
+    "RemoveProcessor",
+    "ReplaceSameSingletonGroup",
+    "RewireOrdering",
+    "SwapBundle",
+    "apply_operator",
+]

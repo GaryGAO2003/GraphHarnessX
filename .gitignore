@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Virtual environments / secrets
+.venv*/
+venv/
+.env
+.env.*
+!.env.example
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.idea/
+.vscode/
+.claude/
+.DS_Store
+*.swp
+
+# Agent run outputs (the whitelisted campaign archives live here on disk;
+# they are several GB and are distributed separately, see recipe/gaia_evolver/runs/README.md)
+recipe/gaia_evolver/runs/*
+!recipe/gaia_evolver/runs/README.md
+runs/
+traces/
+sessions/
+checkpoints*
+logs/
+*.log
+meta_rounds/
+experiments/overnight/
+
+# GAIA benchmark data: gated on HuggingFace, must not be redistributed.
+# Rebuild locally with: python experiments/build_gaia_subset.py
+recipe/gaia_evolver/data/
+
+# Analysis outputs (recomputable from the run archives)
+experiments/analysis/out/
+
+# Browser screenshots
+screenshots/
+*.png
+*.jpg
+*.jpeg
+!experiments/docs/thesis/*.png
+!experiments/docs/thesis/fig/*.jpg
+
+# LaTeX build products
+experiments/docs/thesis/*.aux
+experiments/docs/thesis/*.log
+experiments/docs/thesis/*.out
+experiments/docs/thesis/*.toc
+experiments/docs/thesis/*.lof
+experiments/docs/thesis/*.lot
+experiments/docs/thesis/*.pdf
+experiments/docs/thesis/*.zip
