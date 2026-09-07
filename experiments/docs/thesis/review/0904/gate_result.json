@@ -5,7 +5,7 @@
   "errors": 0,
   "overfull_hbox": 0,
   "overfull_vbox": 0,
-  "seconds": 1.9,
+  "seconds": 1.7,
   "fails": []
  },
  "abstract": {
@@ -137,12 +137,13 @@
   "fails": []
  },
  "scores": {
-  "status": "PASS",
-  "seconds": 1.0,
+  "status": "SKIP",
   "fails": []
  },
  "_meta": {
-  "time": "2026-09-07 02:15:08",
-  "argv": []
+  "time": "2026-09-07 02:21:26",
+  "argv": [
+   "--no-regen"
+  ]
  }
 }

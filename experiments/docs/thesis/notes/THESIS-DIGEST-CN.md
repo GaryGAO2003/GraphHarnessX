@@ -933,7 +933,7 @@ P1 26 项里 22 项夜间闭合，其余为只有作者能定的项（见晨报�
   入库记录与裁决同一提交（55533cf，数据后两分钟），未做外部注册。F32/F33/F34 台账行各加 *Record* 字段。
 - §5.1 删去无出处的 1.3×/2.4×，只留价格页背书的 3.1× 列价。
 - §7.2 删去"向维护者报告缺陷"段（作者裁定不报，段落随之无根据）。
-- 09-07：论文只指 GraphHarnessX（private，考官按请求授权）；正文与台账里的提交号移除，改引仓库内 `docs/provenance/prespecification.md`（工作仓库日志与计划原文的摘录）；台账/附录 B 的跑库名改为 baseline-seedN / ghx-seedN。
+- 09-07：论文只指 GraphHarnessX（仓库后续公开，声明页不写访问条款）；正文与台账里的提交号移除，改引仓库内 `docs/provenance/prespecification.md`（工作仓库日志与计划原文的摘录）；台账/附录 B 的跑库名改为 baseline-seedN / ghx-seedN。
 
 ## 附录 C · 事实台账
 
