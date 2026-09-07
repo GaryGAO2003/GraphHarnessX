@@ -1,0 +1,24 @@
+% =========================================================================
+% macros.tex --- this document's own commands.
+%   \F{n}      ledger anchor: every number in the text carries one (Appendix C)
+%   \claim{}   the one sentence a chapter is accountable for
+%   \cls{A|B|C} source class of a stated fact (recomputable / recorded / judged)
+%   \FIELD{}   unfilled submission field, printed as [[ ... ]]
+% =========================================================================
+% --- ledger anchor: every number in this thesis carries one --------------
+\newcommand{\F}[1]{\textup{\footnotesize(F#1)}}
+
+% --- chapter claim: the one sentence a chapter is accountable for --------
+\newcommand{\claim}[1]{%
+  \begingroup\small
+  \noindent\rule{\textwidth}{0.4pt}\par\vspace{2pt}
+  \noindent\textbf{Chapter claim.}\ \emph{#1}\par\vspace{2pt}
+  \noindent\rule{\textwidth}{0.4pt}\par
+  \endgroup\medskip}
+
+% --- source class of a stated fact (A recomputable / B recorded / C judged)
+\newcommand{\cls}[1]{\textup{\footnotesize[#1]}}
+
+% --- UNFILLED SUBMISSION FIELDS ------------------------------------------
+% These print in the PDF as [[ ... ]] so that none can be submitted blank.
+\newcommand{\FIELD}[1]{\textbf{[[#1]]}}

@@ -11,7 +11,7 @@ re-ran the previous configuration. The grey band is the arm's R3--R15
 plateau mean +/- the directly measured per-round SD of 3.70 tasks (F15),
 so that a reader can see every round sit inside it.
 
-Writes experiments/docs/thesis/fig/scores.pdf and fig/scores-table.tex.
+Writes experiments/docs/thesis/figures/scores.pdf and figures/scores-table.tex.
 Read-only over runs/.
 
 Usage:  python experiments/analysis/plot_campaign_scores.py
@@ -28,7 +28,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
 ROOT = REPO / "recipe" / "gaia_evolver"
-OUT = REPO / "experiments" / "docs" / "thesis" / "fig"
+OUT = REPO / "experiments" / "docs" / "thesis" / "figures"
 RUNS = [("baseline-seed1", "No-graph", 1, 15), ("baseline-seed2", "No-graph", 2, None), ("baseline-seed3", "No-graph", 3, None),
         ("ghx-seed1", "Graph", 1, None), ("ghx-seed2", "Graph", 2, None), ("ghx-seed3", "Graph", 3, None)]
 SD = 3.70

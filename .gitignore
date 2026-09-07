@@ -48,7 +48,7 @@ screenshots/
 *.jpg
 *.jpeg
 !experiments/docs/thesis/*.png
-!experiments/docs/thesis/fig/*.jpg
+!experiments/docs/thesis/figures/*.jpg
 
 # LaTeX build products
 experiments/docs/thesis/*.aux
@@ -59,3 +59,9 @@ experiments/docs/thesis/*.lof
 experiments/docs/thesis/*.lot
 experiments/docs/thesis/*.pdf
 experiments/docs/thesis/*.zip
+experiments/docs/thesis/*.bbl
+experiments/docs/thesis/*.blg
+experiments/docs/thesis/*.fls
+experiments/docs/thesis/*.fdb_latexmk
+experiments/docs/thesis/*.synctex.gz
+experiments/docs/thesis/review/0904/gate_result.json

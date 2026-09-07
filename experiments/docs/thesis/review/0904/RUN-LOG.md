@@ -27,3 +27,19 @@
 | 2026-09-04 08:05 | 1 | check | checker VERDICT FAIL（5 项小缺陷：A 的 correct 未替换、2 个重复锚点警告、术语表 level-2 缺第三义、GAIA 层拼写三种、摘要一句并列结构）；EIC 复审 Minor Revision，P1 22/26 完全解决，NEW-1..7 | FAIL | round 2 |
 | 2026-09-04 08:20 | 2 | fix | 编排者施 round-2 补丁：§7.1 补引 2607.12227；A/B 排除判据改为带日期的修复集；GAIA difficulty tier 2 统一；术语表三义；hypertexnames=false + roman 前置（重复锚点 0）；摘要并列句拆分并削词回单页（487 词）；附录全部单倍行距 | PASS 117 页 | sonnet 复核中；zip 已重打 |
 | 2026-09-04 08:45 | 2 | check | sonnet 复核：六项全部 FULLY_ADDRESSED，仅剩 ch1:136 / ch5:35 两处 'graph layer was correct' → 已改为带日期修复集 + 附录 A 指向；全文 0 命中；gate 全绿 117 页；zip 重打 | PASS | 停止条件 1 达成：[W]/[R] 清零，开放项全为 [D] |
+
+## Round 3 · 2026-09-06 · 作者裁定（[D] 项）
+
+- 作者裁定：[D]-3 预注册记录 → 全文 "pre-registered"→"pre-specified"（含副标题）；[D]-4 1.3×/2.4× → 删；[D]-5 披露段 → 删（作者不报）。
+- git 取证：seed-1 图战役 R0=08-23 02:47；9713d33（08-25 01:30）先于 F32/F33 数据（02:04–02:14）写明设计与 ±3 门槛；
+  F34 规则与裁决同在 55533cf（04:56），数据 04:44/04:54。ch1 "before the graph campaign" 两处时间表述无记录支撑，删。
+- 补丁：scratchpad/patch_round3.py + patch_round3b.py（THESIS.tex、abstract、ch1/5/6/7/8、A、C-ledger、outline、digest）。
+- gate：见下方结果行。
+
+## 2026-09-07 - package layout (professional multi-file tree)
+
+- THESIS.tex + ch/ + fig/ -> main.tex, preamble.tex, macros.tex, frontmatter/, chapters/, appendices/, bibliography/, figures/, notes/ (working docs), latexmkrc, README.md.
+- gate_checks.py: MAIN=main, sources from the four .tex dirs, ledger=appendices/ledger.tex, bib=bibliography/references.tex, scores table under figures/; compile loop now reruns until the auxiliary files are stable (a from-scratch build had left a stale Glossary page number in the TOC after three passes).
+- build_zip.py -> thesis-overleaf.zip (25 entries); plot_campaign_scores.py writes to figures/.
+- figures/harnessx_architecture.jpg was never tracked (global *.jpg rule): re-included via .gitignore negation.
+- Verification: gate PASS from scratch, 117 pages; pdftotext of the new build is byte-identical to the pre-restructure build (0 diff lines); latexmk -pdf main.tex builds with the latexmkrc.

@@ -260,7 +260,7 @@ second benchmark's runs are git-ignored; the only number in the whole
 repository is in a commit message. \emph{Sample:} audit of the three
 official branches. \emph{Class:} \cls{B}, archived diff.
 
-\item[\textbf{F20}\quad Pre-registered predictions, adjudicated.]
+\item[\textbf{F20}\quad Pre-specified predictions, adjudicated.]
 P1 (a candidate citing the flip ledger) \textbf{did not occur};
 P2 (the loop authoring an in-flight rule) \textbf{occurred at round 10}.
 \emph{Class:} \cls{B}, acceptance document and runbook.
@@ -320,7 +320,7 @@ recorded trial output under \texttt{quarantine\_PROBE\_TWIN7/}:
 
 \item[\textbf{F27}\quad Episodic dossier probe, isolated re-run.]
 Fed one task's whole history (55 attempts across four campaigns, answers
-redacted), the loop reaches all three registered milestones, including
+redacted), the loop reaches all three milestones set for it, including
 inventing a \texttt{PythonRun} tool that structurally removes the shell
 quoting layer, and writing unprompted that ``no shipped change in four
 campaigns has eliminated this failure mode''. \textbf{Both resulting doses
@@ -394,17 +394,20 @@ campaign's close at 16/16 rounds and is withdrawn.
 $+1$, wrong-closure cluster $+2$ --- both below the $\pm 3$ resolution
 floor, hence indistinguishable. Firing autopsy at graph level: verify-first
 engages $100\%$, the archive tool is in use, steering fires occasionally.
-\emph{Verdict:} engaged but unreadable. \emph{Class:} \cls{B}, recorded
+\emph{Verdict:} engaged but unreadable. \emph{Record:} design and $\pm 3$
+floor committed before the data; excerpt in \texttt{docs/provenance/}.
+\emph{Class:} \cls{B}, recorded
 trial output (\texttt{PROBE\_DOSSIER6/trial\_applied\_transfer.json},
 \texttt{trial\_parent\_transfer.json}).
 
 \item[\textbf{F33}\quad Canary, for harmlessness.]
 8 always-passing tasks: parent 23/24 against applied 24/24 --- zero
 collateral damage from the global prompt drug. \emph{Sample:} 8 tasks
-$\times$ 3 repetitions $\times$ 2 arms. \emph{Class:} \cls{A},
+$\times$ 3 repetitions $\times$ 2 arms. \emph{Record:} design committed
+before the data; excerpt in \texttt{docs/provenance/}. \emph{Class:} \cls{A},
 \texttt{proof\_stats.py} (canary batch).
 
-\item[\textbf{F34}\quad Pre-registered efficacy verdict.]
+\item[\textbf{F34}\quad Efficacy verdict on the pre-specified test.]
 Prospective batch (7 clean tasks $\times 10 \times 2$, same window):
 \textbf{$+1/-4$, sign test $p = 0.97$} (parent 29/70, applied 21/70).
 Pooling every clean same-window pair, \textbf{174 pairs: parent 75/174
@@ -416,7 +419,9 @@ score effect}, and the preceding four apparent wins were window noise, each
 killed by a different instrument. \emph{Resolution law for this bed:} a
 single task's base rate swings $\pm 50$ points on a half-hour scale, and a
 single-window $\Delta \le 5$ is unreadable. \emph{Sample:} 174 pairs, the
-two leakage-cluster tasks excluded. \emph{Class:} \cls{A},
+two leakage-cluster tasks excluded. \emph{Record:} rules written in the
+working notes before launch, committed together with the verdict; see
+\S\ref{sec:efficacy-protocol} and \texttt{docs/provenance/}. \emph{Class:} \cls{A},
 \texttt{proof\_stats.py}.
 
 \item[\textbf{F35}\quad Episodic-notes arm, the one survivor.]
@@ -471,8 +476,8 @@ round-0 graphs with false-positive counts, decision ``accept, ship alone'';
 graph campaign. The same families are reinvented from the baseline campaign
 onward --- \textbf{a drug-level treadmill}. \emph{Sample:} candidate cards
 and decision files across three campaigns, each round's card plus its
-\texttt{decision.md}: \texttt{M22\_L0\_ghx0} R3 (\texttt{C-R3-02.md}),
-\texttt{M26\_100x16} R1 (\texttt{C-R1-02.md}), \texttt{M26\_100x16b} R9
+\texttt{decision.md}: \texttt{baseline-seed1} R3 (\texttt{C-R3-02.md}),
+\texttt{ghx-seed1-partial} R1 (\texttt{C-R1-02.md}), \texttt{ghx-seed1} R9
 (\texttt{C-R9-01.md}). \emph{Class:} \cls{B}.
 
 \item[\textbf{F39}\quad The one drug with a readable effect, and its
@@ -672,10 +677,11 @@ it takes effect, R5$\to$R6 starvation moves $8 \to 7$.
 Counting rounds and fresh (non-carried) rows from the task history of each
 claim-bearing campaign, every one read over its formal sixteen-round window
 R0--R15: \textbf{6 campaigns, 96 rounds, 8{,}393 fresh evaluations}
-(M22 16/1{,}648, M26b 16/1{,}084, M28\_L0\_s2 16/1{,}648,
-M28\_GHX\_s2 16/1{,}230, M29\_L0\_s3 16/1{,}621, M29\_GHX\_s3 16/1{,}162).
+(no-graph seeds 1--3: 16/1{,}648, 16/1{,}648, 16/1{,}621; graph seeds
+1--3: 16/1{,}084, 16/1{,}230, 16/1{,}162).
 Two executed rounds fall outside that window and are excluded with it:
-M22's R16 and the graph campaign's one-round aborted first launch. Neither
+the no-graph seed-1 campaign's R16 and the graph seed-1 campaign's
+one-round aborted first launch. Neither
 holds a ship, a candidate or a uniquely-solved task --- checked directly:
 the aborted launch writes no scoreboard and no ship record, and neither
 round solves a task nothing else solves --- so excluding them moves no
@@ -738,7 +744,7 @@ $20.1$ and $19.2\%$ flip rates are the macroscopic projection of this
 structure. The reachability side of the same census is F16, which agrees
 with this row exactly because both are now computed on this scope. \emph{Class:} \cls{A},
 \texttt{audit\_candidate\_bucket\_and\_aim.py}. The superseded total
-of 9{,}700 evaluations included a seventeenth M22 round (R16) outside
+of 9{,}700 evaluations included a seventeenth no-graph seed-1 round (R16) outside
 the thesis's sixteen-round window and is withdrawn.
 
 \item[\textbf{F55}\quad Cone size, and the rendered cone against the
@@ -750,7 +756,7 @@ anchors plus intervention nodes) has \textbf{48} nodes and its data
 cone \textbf{42} --- about $4\%$ of the invocation's nodes. The rendered
 cone injected into a role's context is a median \textbf{15.5\,kB}
 against the \textbf{87.4\,kB} trajectory of the same task, ratio
-$0.12$ ($n{=}44$, R1). \emph{Sample:} M26b R0--R1 failed fresh tasks
+$0.12$ ($n{=}44$, R1). \emph{Sample:} graph seed-1 R0--R1 failed fresh tasks
 with a resolvable $U$; R1 injection manifests. \emph{Class:} \cls{A}
 for the cone table, \texttt{cone\_size\_recompute\_m26b.py}; \cls{B}
 for the rendered-cone bytes, read from the R1 injection manifests. The
@@ -799,7 +805,7 @@ whitelist campaigns. \emph{Class:} \cls{A},
 
 \item[\textbf{F59}\quad Campaign calendar: order and overlap.]
 By \texttt{audit.jsonl}'s recorded \texttt{ts} field (all six campaigns
-resolve at class A; no mtime fallback needed): M22 (no-graph, seed 1) runs
+resolve at class A; no mtime fallback needed): the no-graph seed-1 campaign runs
 2026-08-17--18, alone. The graph seed-1 campaign (2026-08-23--27) overlaps
 both seed-2 campaigns, no-graph (2026-08-26--27) and graph (2026-08-26),
 which overlap each other in turn. The seed-3 pair runs concurrently with
@@ -898,7 +904,7 @@ word is \emph{unmeasured}, with a minimum detectable lift near $1.46$.
 two-cluster bootstrap is degenerate and is refused an interval; the number
 neither favours nor opposes.
 
-\item[Five pre-registered criteria, as a section] $\to$ \textbf{section
+\item[Five pre-specified criteria, as a section] $\to$ \textbf{section
 removed}. What is retained: F34's prospective efficacy batch remains the
 thesis's one confirmatory test, with its stopping rule; every other
 $p$-value is labelled exploratory.
@@ -912,7 +918,7 @@ still, so the difference predates the treatment.
 stable tasks have zero variance and the 79 that can move are the ones that
 move by themselves; no subset is both reliable and informative.
 
-\item[``H1 is falsified'', unqualified] $\to$ H1's registered endpoint is
+\item[``H1 is falsified'', unqualified] $\to$ H1's original endpoint is
 the localization face, and that face is \emph{unmeasurable} here.
 Replacement: \textbf{H1 is rejected on its declared surrogate endpoints}
 --- archaeology (strongest, and independent of any lift number), efficacy,

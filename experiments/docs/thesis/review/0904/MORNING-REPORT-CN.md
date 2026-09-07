@@ -52,3 +52,10 @@ GAIA / 2607.12227 / 2607.13285 / Falconer–Mackay / Hutcheon / ICH E10 引用�
 - 评审与 loop 记录：`experiments/docs/thesis/review/0904/`。
 - 中文精读版已加"09-04 过夜评审后的变更"一节。
 - 改动的脚本：`experiments/analysis/plot_campaign_scores.py`（落地轮）、`audit_m28_seed2_flips.py`（100 子集）、`audit_candidate_bucket_and_aim.py`（M22 R15）；新增 `audit_flip_rate_cluster_ci.py`、`audit_fresh_carried_plateau.py`、`audit_campaign_calendar.py`、`audit_spearman_brown.py`。
+
+## 6. 09-06 作者裁定（补记）
+
+- [D]-3 预注册记录：改 "pre-specified"，§5.4 写明记录（F32/F33 设计先于数据入库 9713d33；F34 规则在笔记、入库与裁决同提交 55533cf）。副标题同步改为 "a Pre-Specified Falsification"。
+- [D]-4 1.3×/2.4×：删，只留 3.1× 列价。
+- [D]-5 §7.2 披露段：删（作者不报）。
+- 仍待作者：push + tag、声明页模型清单、是否 commit。

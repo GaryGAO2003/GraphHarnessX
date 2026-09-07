@@ -34,19 +34,21 @@ implication --- that every surveyed loop selects on aggregate score
 (\S\ref{sec:self-evolving}) and is therefore exposed to the same
 arithmetic on any bed with a comparable flip rate --- is an \emph{inference}
 and is flagged as one. It rests on the scan of Chapter~\ref{ch:related}:
-160 papers screened, 18 close-read.
+160 papers screened, 18 close-read. An independent, contemporaneous
+critique of how harness evolution is evaluated reaches a convergent
+conclusion under a different evaluation design~\cite{rethink-harness-eval}.
 
 \subsection*{Formal spine, borrowed rather than invented}
 
 Quantitative genetics already has the equation. The response to selection
-is given by the breeder's equation,
+is given by the breeder's equation~\cite{falconer-mackay},
 \[
   R \;=\; h^2 S ,
 \]
 gain per generation equals heritability times the selection differential.
 When selection acts on a \emph{measured} phenotype rather than the true
 one, $h^2$ is attenuated by the measurement's reliability --- classical
-regression dilution:
+regression dilution~\cite{hutcheon-dilution}:
 \[
   h^2_{\text{realized}} \;=\; h^2_{\text{true}}\,\rho ,
   \qquad
@@ -57,13 +59,16 @@ Instantiated on this bed: the per-edit effect is $|\delta| \lesssim 3$
 tasks, and the per-round readout noise is $\sigma_\varepsilon \approx
 3.70$ tasks (\S\ref{sec:power}), giving $\rho \lesssim 0.4$. That is
 an \emph{upper} bound, because $|\delta|$ is a magnitude bound standing in
-for a standard deviation.
+for a standard deviation. The bound itself comes from the hand-run drug
+trials \F{34}\F{36} --- a small, non-random set chosen because a family
+looked repeatedly prescribed, not a random sample of the six campaigns'
+shipped candidates.
 
 \paragraph{The dynamics claim.} A ratchet drives both its accept arm and
 its rollback arm from the same measured signal. The false-kill rate of true
 gains therefore scales with $1-\rho$, while retained noise accumulates on
-the other side. Expected cumulative gain over $R$ rounds is consequently
-non-positive \emph{regardless of variation quality} --- which is why better
+the other side. Expected cumulative gain over $R$ rounds can be non-positive under this
+bed's parameter regime \emph{regardless of variation quality} --- which is why better
 candidate generation, the axis the entire self-evolution literature
 optimizes, cannot rescue a loop in this regime.
 
@@ -139,7 +144,7 @@ a test:
         retained \F{39}. A capability wall that admits this counter-example
         is no longer the claim that the action space cannot reach lesions;
         it is the narrower claim that it cannot reach the \emph{dominant}
-        family --- wrong-closure, 16 of the 44 swing tasks \F{31} --- which
+        family --- wrong-closure, 18 of the 49 swing tasks \F{31} --- which
         this thesis accepts (\S\ref{sec:future}).
   \item \textbf{The drug that worked was then lost for a reason unrelated
         to capability.} It reached no later campaign because its target is
@@ -155,8 +160,8 @@ a test:
 
 So the honest summary is: the capability wall explains why the loop does
 not solve the hard family. It does not explain the loss of the one drug
-that worked, and it does not explain the treadmill. Those two are
-readout and inheritance failures, and they are what the proposition
+that worked, and it does not explain the treadmill. Those two read as
+readout and inheritance failures, which is what the proposition
 addresses.
 
 \paragraph{The discriminating experiment, named rather than claimed.}
@@ -210,7 +215,7 @@ Every cross-arm reading in this thesis is recomputed on the common 100-task
 subset from \texttt{task\_history}, never taken from \texttt{curves.json},
 which records whichever bed each round actually flew \F{46}.
 
-\paragraph{Leak-route contamination.} Twelve of the 44 swing tasks are
+\paragraph{Leak-route contamination.} Thirteen of the 49 swing tasks are
 leak-route \F{31}. Both arms evaluate on the same fixed bed every round, so
 drift toward the bed is shared; the blocklist is the only held-out defence.
 
@@ -239,7 +244,7 @@ not prescribe cause-aware drugs, which its own archives falsified
 
 \subsection*{The cost work is not a contribution of the graph}
 
-Noop-round batching (\$36.3 to \$11.8 per round \F{13}), single-shot
+Noop-round batching (\$38.1 to \$11.8 per round \F{13}), single-shot
 digestion, the zero-cache-hit repair and the retention policy are
 \emph{harness-level} mechanisms. Each runs on the unmodified official
 system and none needs an execution graph. This thesis found and implemented
@@ -306,7 +311,7 @@ This is also the discriminating experiment of \S\ref{sec:proposition}.
 blocklist and result caching at the measured variance injection point ---
 a web search, in 76 of 79 cases \F{25} --- are direct and cheap. Reliability
 engineering should target the volatile family, where flips concentrate at
-$1.6$ to $2.1$ times the bed rate \F{41}\F{44}\F{45}, rather than the whole
+$1.6$ to $2.0$ times the bed rate \F{41}\F{44}\F{45}, rather than the whole
 bed.
 
 \emph{But the census bounds what that can buy} (\S\ref{sec:power}, \F{54}):
@@ -314,8 +319,10 @@ bed.
 ones that move unaided. Item selection cannot produce a bed that is both
 reliable and informative. The purchasable fix is repetitions --- price it
 with Spearman--Brown against the measured per-task flip rate before
-committing budget --- and the alternative is the readout itself, which is
-why item 1 comes first.
+committing budget: a single draw prices at reliability $0.57$, and
+\textbf{four} averaged repeats are the first integer count crossing this
+thesis's own $0.80$ ``reliable'' bar \F{60} --- and the alternative is the
+readout itself, which is why item 1 comes first.
 
 \paragraph{3. Replicate the episodic-note channel} under a pre-registered,
 budget-bounded protocol \F{35}. It is solver-level and bypasses all four

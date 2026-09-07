@@ -59,3 +59,9 @@ ef、Table 2.1 短图注、RQ 列表、结构段、术语表、
 
 ## 预算与硬停
 - 轮数上限 4 · token 硬顶：剩余 < 11.5M 停 · 开放项 hash 连续两轮相同即停 · 不 commit / 不改主张 / 不起实验
+
+## Round 3 (2026-09-06) — author rulings applied
+
+- Closed: [D] pre-registration record (→ pre-specified + record paragraph in 5.4), [D] 1.3×/2.4× (deleted), [D] disclosure paragraph (deleted).
+- Still open (author-only): push branch + tag `thesis-2026-09`; confirm model list in `ch/00-declarations.tex`; commit decision.
+- Not done by design: carbon/compute sentence, ledger trim P2-01, ladder mini-figure P3-01.

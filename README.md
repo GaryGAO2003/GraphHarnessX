@@ -53,8 +53,13 @@ labels to archive directories is in `recipe/gaia_evolver/runs/README.md`.
 
 ## Thesis
 
-Sources are under `experiments/docs/thesis/` (`THESIS.tex` plus `ch/`).
-Compile with two passes of `pdflatex THESIS.tex`; there is no bibtex step.
+Sources are under `experiments/docs/thesis/`: `main.tex` with `preamble.tex`, `macros.tex`,
+`frontmatter/`, `chapters/`, `appendices/` (A deviations, B operations, C fact ledger),
+`bibliography/references.tex` and `figures/`; see the README there. Build with
+`latexmk -pdf main.tex` (or two passes of `pdflatex main.tex`; no bibtex step), and run
+`bash review/0904/verify-gate.sh` before any submission: it compiles, checks the page count,
+and verifies that every `\F{n}` anchor in the text has a ledger row, that every citation
+resolves, and that the score table is byte-identical to a fresh regeneration.
 
 ## Installation
 

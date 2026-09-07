@@ -7,12 +7,12 @@ Checks
   compile     pdflatex (up to 3 passes): zero "! " errors, zero undefined refs/citations,
               zero multiply-defined labels, zero overfull \\hbox, 30 <= pages <= 120
   abstract    physical page 2 starts with "Abstract", page 3 with "Contents" (abstract fits one page)
-  exclusion   no banned campaign names or banned numbers anywhere in ch/*.tex (comments stripped);
+  exclusion   no banned campaign names or banned numbers anywhere in the .tex sources (comments stripped);
               lines mentioning shakedown/smoke/commissioning must not carry a measurement
   anchors     every \\F{n} used in the body has a ledger row; no duplicate rows (uncited rows = WARN)
   bib         every \\cite key is a \\bibitem; every \\bibitem is cited
   unanchored  WARN only: sentences with a percentage / dollar / count and no \\F{n} anchor
-  scores      fig/scores-table.tex is byte-identical to what plot_campaign_scores.py regenerates
+  scores      figures/scores-table.tex is byte-identical to what plot_campaign_scores.py regenerates
               from the whitelist runs (skip with --no-regen)
 """
 from __future__ import annotations
@@ -34,11 +34,13 @@ PDFTOTEXT = MIKTEX / "pdftotext.exe"
 PLOT = REPO / "experiments" / "analysis" / "plot_campaign_scores.py"
 RESULT = HERE / "gate_result.json"
 
-CH = sorted((THESIS / "ch").glob("*.tex"))
-LEDGER = THESIS / "ch" / "C-ledger.tex"
-BIB = THESIS / "ch" / "99-bibliography.tex"
-BODY = [p for p in CH if p.name not in ("99-bibliography.tex",)]
-PROSE = [p for p in CH if p.name not in ("99-bibliography.tex", "C-ledger.tex")]
+MAIN = "main"                                 # main.tex -> main.log / main.pdf
+SRC_DIRS = ("frontmatter", "chapters", "appendices", "bibliography")
+CH = sorted(p for d in SRC_DIRS for p in (THESIS / d).glob("*.tex"))
+LEDGER = THESIS / "appendices" / "ledger.tex"
+BIB = THESIS / "bibliography" / "references.tex"
+BODY = [p for p in CH if p != BIB]
+PROSE = [p for p in CH if p not in (BIB, LEDGER)]
 
 HARD_BANNED = [
     r"\bM24\b", r"\bM25\b", r"28\.8", r"(?<![\d.])0/6\b", r"(?<![\d.])4/4\b",
@@ -74,17 +76,27 @@ def check_compile(compile_: bool = True) -> dict:
     t0 = time.time()
     log = ""
     logdir = OUTDIR or THESIS
-    for _ in range(3 if compile_ else 1):
+
+    def aux_state() -> str:   # latexmk's criterion: stop when the auxiliary files stop changing
+        return "".join(read(logdir / f"{MAIN}.{ext}") if (logdir / f"{MAIN}.{ext}").exists() else ""
+                       for ext in ("aux", "toc", "lof", "lot", "out"))
+
+    before = aux_state() if compile_ else ""
+    for _ in range(4 if compile_ else 1):
         if compile_:
             cmd = [str(PDFLATEX), "-interaction=nonstopmode"]
             if OUTDIR:
                 OUTDIR.mkdir(parents=True, exist_ok=True)
                 cmd.append(f"-output-directory={OUTDIR}")
-            subprocess.run(cmd + ["THESIS.tex"], cwd=THESIS, capture_output=True, text=True,
+            subprocess.run(cmd + [MAIN + ".tex"], cwd=THESIS, capture_output=True, text=True,
                            errors="replace", timeout=600)
-        log = read(logdir / "THESIS.log")
-        if "Rerun to get" not in log and "Label(s) may have changed" not in log:
+        log = read(logdir / (MAIN + ".log"))
+        if not compile_:
             break
+        after = aux_state()
+        if after == before and "Rerun to get" not in log and "Label(s) may have changed" not in log:
+            break
+        before = after
     errors = [l for l in log.splitlines() if l.startswith("! ")]
     undefined_refs = "There were undefined references." in log
     undefined_list = re.findall(r"(?:Reference|Citation) `([^']+)'[^\n]*\n?[^\n]*?undefined", log)
@@ -92,7 +104,7 @@ def check_compile(compile_: bool = True) -> dict:
     overfull_h = re.findall(r"Overfull \\hbox \(([\d.]+)pt too wide\)", log)
     overfull_v = len(re.findall(r"Overfull \\vbox", log))
     # with -output-directory the path precedes the name and the log wraps at 79 columns
-    m = re.search(r"Output written on .{0,400}?THESIS\.pdf\s*\((\d+)\s*pages", log, re.S)
+    m = re.search(r"Output written on .{0,400}?" + re.escape(MAIN) + r"\.pdf\s*\((\d+)\s*pages", log, re.S)
     pages = int(m.group(1)) if m else None
     fails = []
     if errors:
@@ -114,7 +126,7 @@ def check_compile(compile_: bool = True) -> dict:
 
 def check_abstract() -> dict:
     def first_line(page: int) -> str:
-        pdf = str((OUTDIR or THESIS) / "THESIS.pdf")
+        pdf = str((OUTDIR or THESIS) / (MAIN + ".pdf"))
         p = subprocess.run([str(PDFTOTEXT), "-f", str(page), "-l", str(page), pdf, "-"],
                            cwd=THESIS, capture_output=True, text=True, errors="replace")
         return next((l.strip() for l in p.stdout.splitlines() if l.strip()), "")
@@ -128,7 +140,7 @@ def check_abstract() -> dict:
 def check_layout() -> dict:
     """Body pages must look like 12pt at 1.5 spacing: 18–36 text lines on a full page.
     Guards against an unscoped size/spacing switch shrinking the whole document."""
-    pdf = str((OUTDIR or THESIS) / "THESIS.pdf")
+    pdf = str((OUTDIR or THESIS) / (MAIN + ".pdf"))
     counts = []
     for page in (30, 35, 40, 45, 50, 55):
         p = subprocess.run([str(PDFTOTEXT), "-f", str(page), "-l", str(page), "-layout", pdf, "-"],
@@ -208,7 +220,7 @@ def check_unanchored() -> dict:
 def check_scores(regen: bool) -> dict:
     if not regen:
         return {"status": "SKIP", "fails": []}
-    table = THESIS / "fig" / "scores-table.tex"
+    table = THESIS / "figures" / "scores-table.tex"
     before = read(table)
     t0 = time.time()
     p = subprocess.run([sys.executable, str(PLOT)], cwd=REPO, capture_output=True, text=True,
@@ -219,7 +231,7 @@ def check_scores(regen: bool) -> dict:
         fails.append(f"plot_campaign_scores.py exit {p.returncode}: {(p.stderr or p.stdout)[-300:]}")
     elif before != after:
         table.write_text(before, encoding="utf-8", newline="\n")  # restore; the maker must regenerate on purpose
-        fails.append("fig/scores-table.tex differs from a fresh regeneration (restored the checked-in version)")
+        fails.append("figures/scores-table.tex differs from a fresh regeneration (restored the checked-in version)")
     return {"status": "FAIL" if fails else "PASS", "seconds": round(time.time() - t0, 1), "fails": fails}
 
 
@@ -227,7 +239,7 @@ def check_scores(regen: bool) -> dict:
 def main(argv: list[str]) -> int:
     global OUTDIR, RESULT
     regen = "--no-regen" not in argv
-    compile_ = "--no-compile" not in argv      # --no-compile: judge the existing THESIS.log / THESIS.pdf
+    compile_ = "--no-compile" not in argv      # --no-compile: judge the existing main.log / main.pdf
     if "--outdir" in argv:                     # private build directory (makers working in parallel)
         OUTDIR = Path(argv[argv.index("--outdir") + 1]).resolve()
         RESULT = OUTDIR / "gate_result.json"

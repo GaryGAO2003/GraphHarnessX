@@ -1,0 +1,6 @@
+# latexmk configuration for the thesis (Overleaf reads this file as well).
+# pdflatex only: the reference list is a manual thebibliography, so there is no bibtex/biber pass.
+$pdf_mode = 1;
+$pdflatex = 'pdflatex -interaction=nonstopmode -file-line-error -synctex=1 %O %S';
+@default_files = ('main.tex');
+$clean_ext = 'synctex.gz';

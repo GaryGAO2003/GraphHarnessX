@@ -1,0 +1,53 @@
+% =========================================================================
+% preamble.tex --- packages and document-wide settings.
+% The first block is the UCL postgraduate project report template
+% ("project_report - pg.tex"); the second block is what this document adds.
+% =========================================================================
+% --- from the UCL template ------------------------------------------------
+\usepackage{setspace}
+\pagestyle{plain}
+\usepackage{amssymb,graphicx,color}
+\usepackage{amsfonts}
+\usepackage{latexsym}
+\usepackage{a4wide}
+\usepackage{amsmath}
+
+% --- added for this document ----------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,fit,calc}
+\usepackage[hidelinks,hypertexnames=false]{hyperref}
+
+\setlist[itemize]{leftmargin=1.5em,itemsep=3pt,topsep=4pt,parsep=0pt}
+\setlist[enumerate]{leftmargin=1.8em,itemsep=3pt,topsep=4pt,parsep=0pt}
+
+% --- last-resort stretch: script names and anchor runs are unbreakable ---
+\emergencystretch=2.5em
+
+% --- theorem environments carried over from the UCL template --------------
+\newtheorem{theorem}{THEOREM}
+\newtheorem{lemma}[theorem]{LEMMA}
+\newtheorem{corollary}[theorem]{COROLLARY}
+\newtheorem{proposition}[theorem]{PROPOSITION}
+\newtheorem{remark}[theorem]{REMARK}
+\newtheorem{definition}[theorem]{DEFINITION}
+\newtheorem{fact}[theorem]{FACT}
+\newtheorem{problem}[theorem]{PROBLEM}
+\newtheorem{exercise}[theorem]{EXERCISE}
+\def \set#1{\{#1\} }
+\newenvironment{proof}{PROOF:\begin{quotation}}{$\Box$ \end{quotation}}
+\newcommand{\nats}{\mbox{\( \mathbb N \)}}
+\newcommand{\rat}{\mbox{\(\mathbb Q\)}}
+\newcommand{\rats}{\mbox{\(\mathbb Q\)}}
+\newcommand{\reals}{\mbox{\(\mathbb R\)}}
+\newcommand{\ints}{\mbox{\(\mathbb Z\)}}
+
+% --- amssymb's \checkmark is math-only; make it safe in table cells ------
+\let\amscheckmark\checkmark
+\renewcommand{\checkmark}{\ensuremath{\amscheckmark}}

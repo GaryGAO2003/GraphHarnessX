@@ -1,12 +1,13 @@
-"""Rebuild THESIS-overleaf.zip from the thesis sources (THESIS.tex, ucl_logo.png, ch/*.tex, fig/*)."""
+"""Rebuild thesis-overleaf.zip from the thesis sources (main.tex and everything it inputs)."""
 from pathlib import Path
 import zipfile
 
 THESIS = Path(__file__).resolve().parents[2]
-OUT = THESIS / "THESIS-overleaf.zip"
-files = [THESIS / "THESIS.tex", THESIS / "ucl_logo.png"]
-files += sorted((THESIS / "ch").glob("*.tex"))
-files += sorted(p for p in (THESIS / "fig").iterdir() if p.is_file())
+OUT = THESIS / "thesis-overleaf.zip"
+files = [THESIS / "main.tex", THESIS / "preamble.tex", THESIS / "macros.tex", THESIS / "latexmkrc"]
+for d in ("frontmatter", "chapters", "appendices", "bibliography"):
+    files += sorted((THESIS / d).glob("*.tex"))
+files += sorted(p for p in (THESIS / "figures").iterdir() if p.is_file())
 with zipfile.ZipFile(OUT, "w", zipfile.ZIP_DEFLATED) as z:
     for f in files:
         z.write(f, f.relative_to(THESIS).as_posix())

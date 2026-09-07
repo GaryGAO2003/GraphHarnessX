@@ -5,7 +5,7 @@
 
 \claim{Power arithmetic precedes endpoints: on a bed whose same-config flip
 rate is $20\%$, total-score deltas of five tasks or fewer are unreadable
---- so the design pairs, pre-registers, interleaves windows, counts
+--- so the design pairs, pre-specifies, interleaves windows, counts
 firings, and audits the evaluator itself.}
 
 Most experimental sections describe what was measured. This one begins by
@@ -32,8 +32,9 @@ once.
 Six campaigns are claim-bearing: the no-graph baseline, the post-fix graph
 campaign, and two replication pairs re-flying both arm configurations
 unmodified for sixteen rounds each \F{44}\F{45}. Two earlier graph
-campaigns, flown before the graph layer was correct, are excluded from
-every number and every narrative by a scope ruling (\S\ref{sec:scope}).
+campaigns, flown before the graph-layer fixes of 19--26 August 2026
+(Appendix~\ref{app:deviations}), are excluded from every number and every
+narrative by a scope ruling (\S\ref{sec:scope}).
 Scoring is audited throughout.
 
 \subsection*{One denominator for everything}
@@ -79,19 +80,29 @@ campaign flew, for five reasons, in the order they weighed.
         to this bed, Pro scores $83.4$, near the open-model ceiling; a
         solver that strong would flatten the window in which a harness
         effect could show at all. Flash sits mid-curve --- $53.5$ at high
-        effort, $73.2$ at maximum --- which leaves an effect somewhere to appear.
-  \item \textbf{Cost.} Pro's list price is $3.1\times$ Flash's; after
-        Flash's roughly $1.3\times$ longer outputs the per-task ratio is
-        near $2.4\times$, which over thousands of rollouts is the
-        difference between the replication in \S\ref{sec:replication}
-        being affordable and not.
+        effort, $73.2$ at maximum --- which leaves an effect somewhere to
+        appear.\footnote{DeepSeek-V4 model card, Hugging Face:
+        \url{https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash},
+        accessed 4 September 2026; BrowseComp (Pass@1), V4-Pro Max
+        $83.4$, V4-Flash High $53.5$, V4-Flash Max $73.2$.}
+  \item \textbf{Cost.} Pro's list price is $3.1\times$ Flash's.\footnote{DeepSeek
+        API pricing page: \url{https://deepseek.ai/pricing}, accessed 4
+        September 2026; list price per million tokens (cache-miss input /
+        output), deepseek-v4-flash \$0.14 / \$0.28 against
+        deepseek-v4-pro \$0.435 / \$0.87.} Over thousands of rollouts,
+        that is the difference between the replication in
+        \S\ref{sec:replication} being affordable and not.
   \item \textbf{Failure signature.} Third-party measurement reported
         Flash's tool calling as clean --- no runaway retries, no malformed
         arguments --- with its failures falling on substantive correctness
         and long-context retrieval. Those are failures a harness can act
         on; protocol failures are not.
   \item \textbf{The one documented hard limit is avoided.} Flash collapses
-        on long context with thinking off (MRCR-1M $37.5$); thinking is on
+        on long context with thinking off (MRCR-1M $37.5$).\footnote{DeepSeek-V4
+        model card, Hugging Face:
+        \url{https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash},
+        accessed 4 September 2026; MRCR 1M, V4-Flash Non-Think $37.5$.}
+        Thinking is on
         in every trajectory here, and every trajectory carries a
         non-empty thinking block.
   \item \textbf{Two unknowns were left to the pilot} rather than
@@ -124,8 +135,10 @@ six such windows in the baseline campaign's sixteen-round readout,
 Wilson interval $[17.9\%, 24.4\%]$ \F{15}. The other two seeds give
 $20.1\%$ and $19.2\%$, and pooled over all twenty windows the figure is
 \textbf{20.1\%} on $402/2{,}000$ pairs, $[18.4\%, 21.9\%]$, with the three
-per-seed intervals overlapping heavily \F{9e}. \emph{The noise floor is a
-property of the bed, not of a run.}
+per-seed intervals overlapping heavily \F{9e}. A task-clustered bootstrap
+--- resampling the 100 tasks rather than the pairs, since flip propensity
+is a property of the task --- widens this to $[16.5\%, 23.9\%]$ \F{57}.
+\emph{The noise floor is a property of the bed, not of a run.}
 
 Over those windows, $52.3\%$ of task-campaign pairs flip at least once.
 The resulting total-score swing for a single window runs from $-8$ to
@@ -152,7 +165,7 @@ the reason \S\ref{sec:efficacy-protocol} exists.
 
 The swing is quoted throughout as an \emph{observed range} over ship-free
 windows, and the range depends on how many windows were drawn:
-$-4\ldots{+}5$ on seed 1 (6 windows), $-4\ldots{+}2$ on seed 2 (8
+$-4\ldots{+}5$ on seed 1 (6 windows), $-4\ldots{+}2$ on seed 2 (7
 windows), and $-8\ldots{+}5$ on seed 3 (6 windows) \F{15}\F{44}\F{45}.
 The band used for every readability judgment in this thesis is the union,
 $\mathbf{-8\ldots{+}5}$ tasks, quoted that way everywhere; per-seed
@@ -187,7 +200,10 @@ it removes the instrument.
 Bed reliability here cannot be bought by item selection. It can be bought
 in repetitions --- a Spearman--Brown calculation prices that against the
 measured per-task flip rate --- or by changing the readout, which is this
-thesis's own route (\S\ref{sec:future}).
+thesis's own route (\S\ref{sec:future}). Priced: a single draw's
+reliability is $0.57$, and \textbf{four} averaged repeats are the first
+integer count reaching this thesis's own $0.80$ ``reliable'' bar
+(F16/F54) \F{60}.
 
 \subsection*{Same data, two verdicts}
 
@@ -206,7 +222,11 @@ wrong reading axis.
 % -------------------------------------------------------------------------
 
 Level 3 of the readout ladder --- did firing change outcomes --- was not
-available from the loop, so it was built by hand. The protocol below is
+available from the loop, so it was built by hand, following the
+\emph{add-on} design of clinical-trial methodology~\cite{ich-e10}: the
+graph mechanism is added on top of the base loop and read against the
+base loop alone, rather than either arm forgoing a standard-of-care
+control. The protocol below is
 what a manual L3 readout costs, and it is offered as a specification for
 the automated version \S\ref{sec:future} calls for.
 
@@ -248,6 +268,11 @@ indistinguishable, and \S\ref{sec:clinic} reports one of each.
 \label{sec:resolution}
 % -------------------------------------------------------------------------
 
+\emph{Resolution}, throughout this thesis, names a minimum detectable
+effect --- the smallest score movement this design can tell apart from
+noise --- and not the metrology sense in which resolution is an
+instrument's smallest distinguishable increment (VIM).
+
 The bed-level flip rate of \S\ref{sec:power} is the mild face of the
 problem. At task level it is worse: per-task base rates swing by up to
 $\pm 50$ percentage points between half-hour windows \F{34}. Two
@@ -260,13 +285,28 @@ claim requires pooling across windows.
 There is \textbf{exactly one confirmatory test} in this thesis: the
 \emph{prospective} efficacy batch of $n{=}70$ pairs --- 7 clean tasks
 $\times$ 10 repetitions $\times$ 2 arms --- which is the test the stopping
-rule was registered against \F{34}. The pooled 174-pair reading is a
+rule was fixed against \F{34}. The pooled 174-pair reading is a
 \emph{supporting} estimate over all clean same-window pairs, reported
-because it agrees, not because it was registered.
+because it agrees, not because it was pre-specified.
+
+What \emph{pre-specified} rests on is stated here, because no external
+registry was used. The cluster-transfer and canary designs, with their
+$\pm 3$ floor and their sample sizes, were written into the working notes
+and committed to the author's working repository before their data
+existed (25 August 2026, 01:30; the trial files are stamped 02:04--02:14)
+\F{32}\F{33}. The rules of the prospective batch --- seven fixed clean
+tasks, one of them a known negative case that could not be dropped, a
+sign test, at most two batches --- were written in the working notes
+before the batch was launched, but their committed record was made
+together with the verdict, after the batch had run. That batch's
+pre-specification therefore rests on the notes, not on a timestamp
+\F{34}. The log excerpts and the plan text are reproduced in the released
+repository under \texttt{docs/provenance/}.
 
 Every other $p$-value in this document is exploratory. That includes the
 McNemar window of \S\ref{sec:power} \F{21}, the same-window controls
-\F{36}, the notes channel \F{35}, and the cluster transfer \F{32}. Each is
+\F{36}, the notes channel \F{35}, the cluster transfer \F{32}, and the
+within-campaign slope permutation of \S\ref{sec:trend} \F{47}. Each is
 labelled exploratory at its point of use as well as here, and no
 family-wise correction is claimed.
 
@@ -274,7 +314,7 @@ This matters because of what the instruments actually did during the study.
 Four successive apparent wins --- $+7$, $+5$, $+4$, $+6$ --- were executed
 one at a time, by three different instruments. Those four are serial
 re-tests of a single hypothesis, which is exactly why the confirmatory
-endpoint is the pre-registered prospective batch and not any of them.
+endpoint is the pre-specified prospective batch and not any of them.
 
 % -------------------------------------------------------------------------
 \section{Evaluator-bias controls}
