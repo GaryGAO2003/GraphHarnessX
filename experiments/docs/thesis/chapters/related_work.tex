@@ -9,9 +9,9 @@ score, the signal this thesis demonstrates deaf on noisy beds.}
 
 The four routes are \S\ref{sec:self-evolving}--\S\ref{sec:structured-spaces}.
 \S\ref{sec:graph-memory} covers an adjacent line on graph memory, included
-only to mark where the boundary of this work runs, not as a fifth route.
-\S\ref{sec:positioning} states the position, names the systems that come
-closest, and concedes what each of them already holds.
+to mark the boundary of this work rather than as a fifth route.
+\S\ref{sec:positioning} states the position and what the nearest systems
+already hold.
 
 % -------------------------------------------------------------------------
 \section{Self-evolving agent harnesses}
@@ -49,8 +49,7 @@ candidates through an interface smoke test and a Pareto fitness. Same
 problem, opposite route. It has no typed build-time validation, no
 graph-hash identity, and no reconciliation between what a candidate
 declares and what execution observed --- and it trains, where GHX is
-training-free and structural. It is named here as the nearest neighbour
-rather than left for a reader to discover.
+training-free and structural.
 
 \paragraph{The harness-level line in 2026.} The object of this thesis
 acquired a literature of its own during the year it was written, and the
@@ -60,8 +59,8 @@ interpreted at runtime, cutting harness tokens by $95\%$ and beating a
 code harness on Live-SWE; its own appendix concedes that natural-language
 imprecision is ``under-specified, interpreted differently across models,
 or weakened by paraphrase'' --- there is no machine-checkable constraint.
-It is the representational rival of this thesis: same pain, opposite
-remedy, and \S\ref{sec:positioning} takes the conflict head-on.
+It is the representational rival of this thesis --- same problem, opposite
+remedy --- and the conflict is taken up in \S\ref{sec:positioning}.
 \textbf{SIGIL}~\cite{sigil} goes the other way, compiling prose skills
 into a typed harness behind a compile gate that refuses any rule without
 a source citation --- the nearest precedent for a build-time gate, on a
@@ -88,8 +87,7 @@ failures to a workflow node and its mechanism before repairing it ---
 both are steps toward an admission that reads evidence rather than
 score, and neither reads the executed graph.
 
-\paragraph{Generation against admission.} One distinction runs through this
-entire section and is easy to lose. GEPA \emph{reads execution traces} ---
+\paragraph{Generation against admission.} GEPA \emph{reads execution traces} ---
 but only to \emph{generate} candidates; admission remains Pareto on scores.
 Several systems use trace text to propose. \textbf{None admits a candidate
 on the grounds that its mechanism actually fired in execution.} Selection
@@ -106,7 +104,10 @@ concern this thesis's own evidence argument echoes inside one system
 rather than across a leaderboard. \textbf{Harness
 Handbook}~\cite{harness-handbook} makes an evolving harness's own
 artifacts readable, navigable and editable by a human, a different axis
-this thesis does not attempt.
+this thesis does not attempt. None of the harness-level works surveyed
+here reports an independent execution of another group's released loop,
+and to our knowledge the AEGIS release had not been re-executed outside
+its authors' group before Chapter~\ref{ch:baseline}.
 
 % -------------------------------------------------------------------------
 \section{Failure attribution: from flat logs to causal graphs}
@@ -122,8 +123,8 @@ AgenTracer~\cite{agentracer} and RAFFLES~\cite{raffles} refine the
 approach. TRAIL~\cite{trail} reports its best model at roughly
 \textbf{11\%} localization on its own 148-trace benchmark.
 
-These are the field's own numbers on the field's own benchmarks, and they
-are the reason the route moved.
+These are the field's own numbers on its own benchmarks, and the reason
+the route moved to structure.
 
 \subsection*{The field's own answer is structure}
 
@@ -134,8 +135,7 @@ direct ancestor of the declaration-against-observation reconciliation of
 \S\ref{sec:unfolded}, and evidence that reconstruction error is a
 recognized cost in this line.
 
-This thesis is not alone in demanding structure. The route converged on it
-independently.
+The route converged on structure independently of this thesis.
 
 \subsection*{The nearest counter-examples, named}
 
@@ -160,10 +160,9 @@ our own reading it stops at diagnosis and was not reproduced in a live
 system. It enters this thesis only as a transplant donor
 (\S\ref{sec:positioning}).
 
-\subsection*{The gap, at the precision the counter-examples force}
+\subsection*{The gap, in four parts}
 
-Against those four, the position has to be stated in four parts rather than
-one:
+Against those four the position separates into four parts:
 
 \begin{enumerate}
   \item \textbf{Native recording.} $U$ is written by the harness runtime;
@@ -194,25 +193,22 @@ the fact from a single trace, its intervention is a one-off re-run of that
 trace, nothing it learns persists into a harness, and nothing is
 re-judged next round. GHX records the edges as they happen, aggregates
 over the bed, writes the edit into the configuration, and re-judges it
-every round. Against FlowFixer the distance is narrower and is stated as
-such: it is symbolic and judge-free, which GHX's gates also are, and its
+every round. Against FlowFixer the distance is narrower: it is symbolic and judge-free, which GHX's gates also are, and its
 $71.3\%$ repair success is a number this thesis does not have an
 equivalent for. What FlowFixer does not have is residence: its repair is
 validated once, on one platform's trace, and does not survive into a
 loop that would re-judge it.
 
 A 2026 survey~\cite{survey-attr-evolve} states directly that attribution
-and self-evolution are unconnected lines. That sentence is the one this
-chapter is built around, and the join below is what it leaves undone.
+and self-evolution are unconnected lines.
 
-\paragraph{And the join this thesis supplies.} The literature measures
+\paragraph{The join.} The literature measures
 attribution accuracy \emph{offline, on benchmarks built for it}, and
 reports 14.2\% to roughly 11\%. Chapter~\ref{ch:baseline} measures
 something the field has not: what happens when a signal of that quality is
 wired into a \emph{live retention loop} --- consumed by the Planner, quoted
 verbatim in candidate documents, and shipped on. The field has quantified
-the instrument. The consequence of deploying it has not been quantified
-before.
+the instrument; the consequence of deploying it has not.
 
 % -------------------------------------------------------------------------
 \section{Execution provenance and AgentOps}
@@ -230,18 +226,15 @@ that survey as of its cutoff, rather than asserted here as a universal
 claim: \textbf{no published work closes provenance into an automated
 improvement loop.}
 
-That sentence is the direct motivation for GHX, and it is the one place in
-this chapter where the gap is stated by someone other than us.
+That finding is the direct motivation for GHX.
 
 % -------------------------------------------------------------------------
 \section{Structured candidate spaces}
 \label{sec:structured-spaces}
 % -------------------------------------------------------------------------
 
-Two systems in this line are donors to GHX rather than neighbours, and
-each is analysed here to the level of what was taken and what was
-changed, because the honest statement of the contribution depends on
-that level.
+Two systems in this line are donors to GHX rather than neighbours; each is
+analysed by what was taken and what was changed.
 
 \paragraph{MermaidFlow: what was taken, what was changed.}
 MermaidFlow~\cite{mermaidflow} represents a workflow as a Mermaid graph
@@ -267,10 +260,9 @@ implementation re-runs the whole checker on every candidate --- no
 incremental revalidation, no graph-hash identity, and no reconciliation
 of what a candidate declares against what execution observed, because
 there is no execution trace in the system at all. Those three are what
-GHX adds, and the head-on conflict is stated: the ``free of
-revalidation'' design does not hold at the composition layer, where an
-edit to one processor's ordering changes what every later processor
-sees.
+GHX adds. The ``free of revalidation'' design does not hold at the
+composition layer, where an edit to one processor's ordering changes what
+every later processor sees.
 
 \paragraph{AgentFlow: what was taken, what was changed.}
 AgentFlow's agent dependency graph~\cite{agentflow} recovers, from
@@ -293,9 +285,8 @@ person; $U$ is read by an acceptance gate. And its node vocabulary is
 deliberately not adopted, because it describes a design space, whereas
 GHX's has to describe one running harness, so the node types are the
 harness's own: hook points, processors, slots, bundles, skills, tools.
-The relation is the one this chapter uses for the attribution line too:
-AgentFlow is the static over-approximation; GHX is its dynamic,
-single-trace counterpart.
+AgentFlow is the static over-approximation; GHX its dynamic, single-trace
+counterpart.
 
 Modular design-space systems --- AgentSquare~\cite{agentsquare} and
 EvoFlow~\cite{evoflow} --- type candidates at module level and search a
@@ -321,9 +312,8 @@ MEGA~\cite{mega} is the only neighbour satisfying all three of the criteria
 fixed before scoring --- an evidence graph, refinement over it, and
 cross-round persistence. Its graph, however, is LLM-distilled
 \emph{knowledge} and is not interventionable; GHX's is execution-level and
-supports do-style queries. \emph{The differentiation is in what can be
-asked of the graph, not in a measured downstream gain}, which is consistent
-with this thesis's own claim of legality and identity rather than reach.
+supports do-style queries. The differentiation is in what can be asked of the graph, not in a
+measured downstream gain.
 
 GraphMind~\cite{graphmind} reuses winning subgraphs, and feeds one of GHX's
 guidance channels. EXG~\cite{exg} organizes execution history as an
@@ -331,9 +321,9 @@ experience graph --- but the object is retrieval memory, not an executable
 task graph, and reuse is retrieval rather than admission.
 
 \paragraph{Boundary.} This line evolves what the agent \emph{remembers};
-GHX evolves what the harness \emph{is}. The distinction is worth holding,
-because \S\ref{sec:survivor} reports that the one channel which produced a
-positive result in this study fell on the memory side of it.
+GHX evolves what the harness \emph{is}. \S\ref{sec:survivor} reports that
+the one channel which produced a positive result in this study fell on the
+memory side of that distinction.
 
 % -------------------------------------------------------------------------
 \section{Positioning}
@@ -346,8 +336,8 @@ into a persisted harness (edit), closed into one loop. \textbf{The claim is
 that no prior system holds all of these at once --- not that any one of
 them is new.}
 
-Stated without a table, ``unoccupied'' is the sentence a committee breaks.
-Table~\ref{tab:position} is that table, with the concessions written in.
+Table~\ref{tab:position} sets the nearest systems against the four
+properties, with the concessions written in.
 
 \begin{table}[t]
 \centering\small
@@ -363,6 +353,7 @@ AgentDebug~\cite{agentdebug}     & reconstructed & --         & --            & 
 DoVer~\cite{dover}               & reconstructed & --         & --            & --         \\
 CausalFlow~\cite{causalflow}     & reconstructed & --         & --            & --         \\
 FlowFixer~\cite{flowfixer}       & symbolic      & partial    & --            & --         \\
+AEGIS release~\cite{aegis}      & --            & prose      & \checkmark    & \checkmark \\
 \midrule
 \textbf{GHX} (this work)         & \checkmark    & \checkmark & \checkmark    & \checkmark \\
 \bottomrule
@@ -374,13 +365,15 @@ write back, but into an untyped text triple with no build-time validation
 and no graph-hash identity; FlowFixer does aggregate, but across platforms
 rather than across a bed inside one evolving system. Every attribution
 system in the table holds the diagnosis leg and part of the recording leg;
-none of them writes into a harness that persists.}
+none of them writes into a harness that persists. The AEGIS release, the
+substrate GHX attaches to, holds the two right-hand legs and neither of the
+left: its record is a flat log and its aggregation is prose over dossiers.}
 \label{tab:position}
 \end{table}
 
-\subsection*{Head-on conflicts, stated}
+\subsection*{Head-on conflicts}
 
-Four conflicts are taken directly rather than routed around: free-code
+Four conflicts are taken directly: free-code
 candidate spaces~\cite{adas,dgm}, where this thesis argues the candidate
 should be typed; natural-language harnesses~\cite{nlah}, where it argues
 that a harness whose constraints cannot be machine-checked cannot be
@@ -396,8 +389,7 @@ test of the wrong quantity.
 \subsection*{Transplant registry}
 
 Eleven mechanisms are borrowed from outside this thesis's own line, each
-named with its donor, so that no borrowed idea is presented as invented
-here: an in-run redundancy guard~\cite{ledger-t17}; a groundless-answer
+named with its donor: an in-run redundancy guard~\cite{ledger-t17}; a groundless-answer
 gate~\cite{mapgraph}; model-node intent annotation~\cite{aer};
 winning-subgraph feedback~\cite{graphmind}; typed evidence
 atoms~\cite{mega}; symptom-to-bucket mapping~\cite{harnessfix}; anchored

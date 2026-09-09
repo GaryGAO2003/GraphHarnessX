@@ -8,10 +8,8 @@ rate is $20\%$, total-score deltas of five tasks or fewer are unreadable
 --- so the design pairs, pre-specifies, interleaves windows, counts
 firings, and audits the evaluator itself.}
 
-Most experimental sections describe what was measured. This one begins by
-establishing what \emph{could} have been measured, because on this bed that
-question has an uncomfortable answer and every subsequent design decision
-follows from it.
+This chapter begins with what \emph{could} have been measured on this bed,
+because every subsequent design decision follows from that answer.
 
 % -------------------------------------------------------------------------
 \section{Beds, arms, and the switch ladder}
@@ -56,11 +54,10 @@ Of those 100 tasks, \textbf{97 are reachable}: three are never solved in
 9{,}600 task evaluations across the six campaigns and contribute no
 variance at all, so every \emph{difference} reported in this thesis is
 identical whether computed on 97 or on 100, and only the percentages would
-shift \F{54}. The 100-task denominator is kept anyway, because dropping
-tasks on the basis of their outcomes is selection, however harmless it
-looks.
+shift \F{54}. The 100-task denominator is kept regardless: dropping tasks
+on the basis of their outcomes is selection.
 
-\subsection*{Models, and why this pair}
+\subsection*{Models}
 
 Every campaign runs the same two models through a LiteLLM gateway, and the
 runbooks record the pair on every launch line: the \textbf{solver} is
@@ -72,16 +69,15 @@ weaker task tier, Claude Opus over Sonnet, GPT and Qwen --- on a different
 benchmark, so the comparison across the two is one of form, not of
 number.
 
-The solver tier was fixed on the published model cards before any
-campaign flew, for five reasons, in the order they weighed.
+The solver tier was fixed on the published model cards before any campaign
+flew, for five reasons.
 
 \begin{enumerate}
   \item \textbf{Headroom.} On BrowseComp, the published benchmark closest
         to this bed, Pro scores $83.4$, near the open-model ceiling; a
         solver that strong would flatten the window in which a harness
-        effect could show at all. Flash sits mid-curve --- $53.5$ at high
-        effort, $73.2$ at maximum --- which leaves an effect somewhere to
-        appear.\footnote{DeepSeek-V4 model card, Hugging Face:
+        effect could show. Flash sits mid-curve --- $53.5$ at high effort,
+        $73.2$ at maximum.\footnote{DeepSeek-V4 model card, Hugging Face:
         \url{https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash},
         accessed 4 September 2026; BrowseComp (Pass@1), V4-Pro Max
         $83.4$, V4-Flash High $53.5$, V4-Flash Max $73.2$.}
@@ -113,13 +109,11 @@ campaign flew, for five reasons, in the order they weighed.
 
 The meta tier was set to Pro so that diagnosis quality would not be the
 bottleneck when the treated arm was read: if graph evidence failed to help
-a strong reader, the failure could not be blamed on the reader. The
-expectation stated before the campaigns was therefore modest and
-directional --- a mid-curve solver with room to improve, a strong meta
-tier, and an effect, if the evidence mattered, that would show on the
-score. Claims are scoped to this pair and stated that way. It is recorded
-as a fact about the experiment rather than as a threat to it, because no
-claim in this thesis is made about model tiers.
+a strong reader, the failure could not be attributed to the reader. The
+expectation stated before the campaigns was directional --- a mid-curve
+solver with room to improve, a strong meta tier, and an effect, if the
+evidence mattered, visible on the score. Claims are scoped to this pair;
+no claim in this thesis concerns model tiers.
 
 % -------------------------------------------------------------------------
 \section{Power arithmetic first}
@@ -137,14 +131,14 @@ $20.1\%$ and $19.2\%$, and pooled over all twenty windows the figure is
 \textbf{20.1\%} on $402/2{,}000$ pairs, $[18.4\%, 21.9\%]$, with the three
 per-seed intervals overlapping heavily \F{9e}. A task-clustered bootstrap
 --- resampling the 100 tasks rather than the pairs, since flip propensity
-is a property of the task --- widens this to $[16.5\%, 23.9\%]$ \F{57}.
-\emph{The noise floor is a property of the bed, not of a run.}
+is a property of the task --- widens this to $[16.5\%, 23.9\%]$ \F{57}. The noise floor is a property of the bed, not
+of a run.
 
 Over those windows, $52.3\%$ of task-campaign pairs flip at least once.
 The resulting total-score swing for a single window runs from $-8$ to
 $+5$ tasks \F{15}\F{44}\F{45}.
 
-\subsection*{The arithmetic, walked slowly}
+\subsection*{The arithmetic}
 
 \begin{enumerate}
   \item One fifth of task outcomes flip on re-measurement with no treatment
@@ -157,9 +151,9 @@ $+5$ tasks \F{15}\F{44}\F{45}.
         per-round effects of the size this loop produces.
 \end{enumerate}
 
-Step 4 is the one that matters, and it is not a complaint about sample
-size. It is a statement about what this instrument can resolve, and it is
-the reason \S\ref{sec:efficacy-protocol} exists.
+Step 4 is a statement about what this instrument can resolve rather than
+about sample size, and it is the reason \S\ref{sec:efficacy-protocol}
+exists.
 
 \subsection*{One envelope, one caliber}
 
@@ -171,31 +165,26 @@ The band used for every readability judgment in this thesis is the union,
 $\mathbf{-8\ldots{+}5}$ tasks, quoted that way everywhere; per-seed
 ranges appear only where a seed is being described.
 
-\emph{A range over a handful of windows is not a standard deviation, and
-the difference is not cosmetic.} With all three seeds on one bed there are
-twenty same-config windows, which is enough to estimate the per-round score
-SD directly rather than convert a range: it is $\mathbf{3.70}$ tasks, so
-three sigma is $\pm 11.1$ --- \emph{wider} than the observed band
-\F{15}. Every ``unreadable'' verdict in this thesis is therefore
-conservative in the direction that makes separation \emph{easier} to
-claim, not harder.
-Where the two calibers disagree about a specific number, the disagreement
-is stated at that number rather than resolved silently; the one case that
-arises is the $+9$ of \S\ref{sec:one-repair}, and it is discussed there and
-in \S\ref{sec:readout}.
+A range over a handful of windows is not a standard deviation. With all
+three seeds on one bed there are twenty same-config windows, enough to
+estimate the per-round score SD directly: it is $\mathbf{3.70}$ tasks, so
+three sigma is $\pm 11.1$, \emph{wider} than the observed band \F{15}.
+Every ``unreadable'' verdict in this thesis is therefore conservative in
+the direction that makes separation easier to claim. The one number on
+which the two calibers disagree is the $+9$ of \S\ref{sec:one-repair},
+discussed there and in \S\ref{sec:readout}.
 
 \subsection*{There is no informative-and-reliable subset of this bed}
 
 The natural response to a noisy bed is to find its reliable core and
-measure there. On this bed that response fails, and the census says so
-directly. Across the six whitelist campaigns on the 100-task subset ---
+measure there. The census forecloses it. Across the six whitelist campaigns on the 100-task subset ---
 9{,}600 task evaluations --- \textbf{3} tasks are never solved,
 \textbf{18} always pass, and \textbf{79 are volatile} \F{54}.
 
-The 21 stable tasks contribute no variance and can therefore register no
-treatment effect. The 79 that \emph{can} move are precisely the ones that
-move unaided. Removing the volatile family does not clean the instrument;
-it removes the instrument.
+The 21 stable tasks contribute no variance and can register no treatment
+effect; the 79 that \emph{can} move are the ones that move unaided.
+Removing the volatile family removes the instrument rather than cleaning
+it.
 
 Bed reliability here cannot be bought by item selection. It can be bought
 in repetitions --- a Spearman--Brown calculation prices that against the
@@ -207,14 +196,14 @@ integer count reaching this thesis's own $0.80$ ``reliable'' bar
 
 \subsection*{Same data, two verdicts}
 
-The design answer is to stop reading totals and start reading pairs. One
-window makes the point sharply: a round whose \emph{total} delta was $+7$
---- inside the band, and therefore unreadable --- decomposes into 8 tasks
+The design answer is to read pairs rather than totals. One window makes
+the point: a round whose \emph{total} delta was $+7$
+--- at the $\pm 7$ single-pair ceiling \F{14}, and therefore unreadable as a
+total --- decomposes into 8 tasks
 fixed and 1 broken, which under an exact McNemar test gives $p \approx
 0.039$ \F{21}.
 
-Same data, two verdicts. The problem was never too little data. It was the
-wrong reading axis.
+The limitation is the reading axis, not the quantity of data.
 
 % -------------------------------------------------------------------------
 \section{The efficacy-trial protocol}
@@ -226,14 +215,14 @@ available from the loop, so it was built by hand, following the
 \emph{add-on} design of clinical-trial methodology~\cite{ich-e10}: the
 graph mechanism is added on top of the base loop and read against the
 base loop alone, rather than either arm forgoing a standard-of-care
-control. The protocol below is
-what a manual L3 readout costs, and it is offered as a specification for
-the automated version \S\ref{sec:future} calls for.
+control. The protocol below is what a manual L3 readout costs, and serves
+as a specification for the automated version \S\ref{sec:future} calls
+for.
 
 \begin{itemize}
   \item \textbf{Arms are interleaved within the same window.} Running arms
-        serially confounds arm with time window. This rule was learned by
-        having a result destroyed by its absence \F{36}.
+        serially confounds arm with time window; its absence destroyed one
+        result here \F{36}.
   \item \textbf{True completions are counted before anything is scored.}
         Launch-spike deaths and phantom runs are excluded by inspection.
         This is registry error 14.
@@ -259,9 +248,9 @@ the automated version \S\ref{sec:future} calls for.
 \end{itemize}
 
 The last item is what makes the protocol able to return an interpretable
-null. Scores flat with mechanism flat is a true zero. Scores moving with
-mechanism flat is a noise finding. Without the second endpoint the two are
-indistinguishable, and \S\ref{sec:clinic} reports one of each.
+null: scores flat with mechanism flat is a true zero, scores moving with
+mechanism flat a noise finding. Without the second endpoint the two are
+indistinguishable; \S\ref{sec:clinic} reports one of each.
 
 % -------------------------------------------------------------------------
 \section{Resolution laws as design inputs}
@@ -273,11 +262,10 @@ effect --- the smallest score movement this design can tell apart from
 noise --- and not the metrology sense in which resolution is an
 instrument's smallest distinguishable increment (VIM).
 
-The bed-level flip rate of \S\ref{sec:power} is the mild face of the
-problem. At task level it is worse: per-task base rates swing by up to
-$\pm 50$ percentage points between half-hour windows \F{34}. Two
-consequences are treated as design constraints rather than as findings:
-single-window deltas of five or fewer are unreadable, and any efficacy
+At task level the flip rate of \S\ref{sec:power} is worse: per-task base
+rates swing by up to $\pm 50$ percentage points between half-hour windows
+\F{34}. Two consequences are treated as design constraints rather than as
+findings: single-window deltas of five or fewer are unreadable, and any efficacy
 claim requires pooling across windows.
 
 \subsection*{Multiplicity, declared}
@@ -289,8 +277,8 @@ rule was fixed against \F{34}. The pooled 174-pair reading is a
 \emph{supporting} estimate over all clean same-window pairs, reported
 because it agrees, not because it was pre-specified.
 
-What \emph{pre-specified} rests on is stated here, because no external
-registry was used. The cluster-transfer and canary designs, with their
+No external registry was used, so what \emph{pre-specified} rests on is
+stated here. The cluster-transfer and canary designs, with their
 $\pm 3$ floor and their sample sizes, were written into the working notes
 and committed to the author's working repository before their data
 existed (25 August 2026, 01:30; the trial files are stamped 02:04--02:14)
@@ -310,11 +298,10 @@ within-campaign slope permutation of \S\ref{sec:trend} \F{47}. Each is
 labelled exploratory at its point of use as well as here, and no
 family-wise correction is claimed.
 
-This matters because of what the instruments actually did during the study.
 Four successive apparent wins --- $+7$, $+5$, $+4$, $+6$ --- were executed
-one at a time, by three different instruments. Those four are serial
-re-tests of a single hypothesis, which is exactly why the confirmatory
-endpoint is the pre-specified prospective batch and not any of them.
+one at a time, by three different instruments. They are serial re-tests of
+a single hypothesis, which is why the confirmatory endpoint is the
+pre-specified prospective batch and none of them.
 
 % -------------------------------------------------------------------------
 \section{Evaluator-bias controls}
@@ -326,20 +313,17 @@ rule mechanically to the baseline campaign's seed round moved its recorded
 score from 67 to \textbf{57}: $k$-mixing had gifted the seed ten free
 passes.
 
-The correction is stated here rather than left for a reader to find,
-because of the direction it moves. Lowering the seed \emph{enlarges} the
-campaign's apparent gain --- the correction flatters this thesis's own
-baseline campaign. The rule is applied mechanically in both directions, and
-this instance is disclosed precisely because it is the instance where the
-mechanical rule happens to help.
+The direction of the correction matters: lowering the seed \emph{enlarges}
+the campaign's apparent gain, so the rule, applied mechanically in both
+directions, happens here to flatter this thesis's own baseline campaign.
 
 \paragraph{The error registry.} Fifteen errors of measurement and design
-were logged during this work, with forced re-checks after each. Both bias
-directions are documented. Three of the fifteen --- errors 13, 14 and 15,
-all of which appear in \S\ref{sec:efficacy-protocol} --- were caught not by
-the author but by the supervisor, and the root cause common to them is
-recorded as \emph{stopping the check too early}.
+were logged during this work, with forced re-checks after each; both bias
+directions are documented. Errors 13, 14 and 15, all in
+\S\ref{sec:efficacy-protocol}, were each caught on a later re-check rather
+than by the check that should have caught them, and their common root
+cause is recorded as \emph{stopping the check too early}
+(Appendix~\ref{app:deviations}).
 
 The registry is treated as a result in its own right and is discussed in
-\S\ref{sec:threats}. A study whose evaluator is not itself audited has no
-grounds for the confidence intervals it reports.
+\S\ref{sec:threats}.

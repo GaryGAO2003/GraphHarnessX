@@ -3,7 +3,8 @@
 \label{app:ledger}
 % =========================================================================
 
-Every number in this thesis carries an \F{} anchor into this ledger. Each
+Every number in the body of this thesis carries an \F{} anchor into this
+ledger; the abstract restates body figures without anchors. Each
 row states the fact, its value, the \emph{sample and scope} it was computed
 over, and its source class:
 
@@ -132,7 +133,9 @@ tests whether a cited graph node exists, a criterion \emph{unrelated to
 predictive accuracy}, so it thins the sample without selecting on it.
 \emph{(iv) Window-dependent:} the graph arm moves $0.78 \to 1.23$ and
 $n: 9 \to 2$ across window readings, so even the sign of a difference
-depends on which rounds are admitted. \emph{Conclusion:} the localization
+depends on which rounds are admitted. \emph{(v) Different prediction
+semantics:} graph-arm lists are nine tenths \emph{halo} --- tasks whose
+cone the edit does not touch \F{64}. \emph{Conclusion:} the localization
 face is \textbf{not adjudicable} on this bed --- not a clean null, a design
 that does not support the comparison. \emph{Class:} \cls{A} for the
 components, \cls{C} for the conclusion.
@@ -826,6 +829,82 @@ this thesis's own $0.80$ ``reliable'' bar} \F{16}\F{54} ($r_4=0.840$).
 \emph{Sample:} as F9e --- three no-graph seeds, same windows, common
 100-task subset. \emph{Class:} \cls{A}, \texttt{audit\_spearman\_brown.py}.
 
+\item[\textbf{F61}\quad Proposal bucket census --- what the Evolver wrote.]
+Primary bucket of every candidate card, evolve rounds R1--R15, six whitelist
+campaigns, quarantined directories never opened. No-graph 86 cards: tools 19
+($22.1\%$), processor 30 ($34.9\%$), prompt 19 ($22.1\%$), config 18; by seed
+25/36/25 cards, tools $20.0/25.0/20.0\%$. Graph 79: tools 35 ($44.3\%$),
+processor 21 ($26.6\%$), prompt 11 ($13.9\%$), config 12; by seed 30/27/22,
+tools $40.0/48.1/45.5\%$. Every graph seed exceeds every no-graph seed: exact
+one-sided permutation $p = 1/20 = 0.05$. Multi-bucket cards 6/86 against
+0/79. \emph{Class:} \cls{A}, \texttt{audit\_proposal\_face.py}.
+
+\item[\textbf{F62}\quad Where the bucket shift sits: written, not filtered.]
+Critic acceptance per bucket is alike (tools $15/19$ against $25/35$, prompt
+$17/19$ against $9/11$); the sixth gate's 18 refusals, all ``edited but
+never ran'', fall tools 9, processor 6, config 2, prompt 1 ($9/22$ and
+$6/13$); landed ships no-graph 37 (tools 11, processor 13, prompt 10,
+config 3), graph 29 (13, 7, 6, 3). A flagged \texttt{tools} bucket was
+relayed in 9 and 10 rounds; tools cards in those rounds $3/17$ against
+$11/18$, elsewhere $16/69$ against $24/61$. The rule is the release's
+(\texttt{aegis/gates/structure.py:198}, IV-11); only the graph arm's
+Evolver is told it before writing (\texttt{harnessx/ghx/cheatsheet.py}).
+\emph{Sample:} as F61; gate files; every \texttt{landscape.md}.
+\emph{Class:} \cls{A}, as F61.
+
+\item[\textbf{F63}\quad What the cards cite; the operations written.]
+Regex census per card: trajectory step anchors $6.03$ on $97\%$ of no-graph
+cards against $6.08$ on $89\%$; node names on $0\%$ against $65\%$ of cards;
+\emph{lift} $1\%$ against $37\%$; cone, unfold and motif terms $1\%$ against
+$89\%$; \emph{replay} $1\%$ against $20\%$; prompt and template mentions
+$2.81$ per card on $58\%$ against $1.00$ on $23\%$. Typed operations, three
+graph seeds: \texttt{insert\_tool} 37, \texttt{mutate\_params} 27,
+\texttt{insert\_node} 23, \texttt{remove\_tool} 3, \texttt{remove\_node} 1,
+\texttt{replace\_same\_group} 1, the three restructuring operations never.
+Cards naming one of the round's three top-lift nodes $7/30$, $6/27$, $9/22$;
+the top node $1/30$, $1/27$, $5/22$. \emph{Class:} \cls{A}, as F61.
+
+\item[\textbf{F64}\quad Predictions per card; core against halo.]
+\texttt{tasks\_will\_unlock} per card: no-graph $3.1/2.6/3.4$ (pooled
+$2.99$); graph $5.5/5.2/5.5$ (pooled $5.41$, maximum 26). Each graph card's
+list is machine-split against the tasks' failure cones
+(\texttt{\_predicted\_split}) into a \emph{core}, an edited node in the
+task's cone, and a \emph{halo}, none: core $0.6/1.1/1.1$ (pooled $0.91$),
+halo $5.0/4.9/4.4$ (pooled $4.81$, $89\%$). F9 rule, landed ships, three
+graph seeds: core $4/27$ ($15\%$), halo $50/145$ ($34\%$), passive base pool
+$172/530$ ($32\%$). \emph{Claimed:} no detectable efficacy information in
+cone touch ($n{=}27$, not less than chance); a hit rate over a list nine
+tenths halo is not the no-graph arm's quantity, F9c(v). \emph{Class:}
+\cls{A}, as F61.
+
+\item[\textbf{F65}\quad Digester failure-tag vocabulary.]
+Free-text \texttt{failure\_mode} tags on failing dossiers, R0--R15: no-graph
+1{,}585 dossiers, 1{,}431 distinct tags, 1{,}379 used once ($96\%$), top
+three $3\%$; graph 1{,}079 dossiers, 850 tags, 816 used once ($96\%$), top
+three $17\%$ --- \texttt{budget\_no\_commit} 111,
+\texttt{final\_answer\_brittle} 38, \texttt{ungrounded\_commit} 31, the
+first and third the motif names of \S\ref{sec:evidence-integration}.
+\emph{Sample:} every whitelist round's \texttt{summary.md}. \emph{Class:}
+\cls{A}, as F61.
+
+\item[\textbf{F66}\quad Regressions surfaced, decisions taken, rollbacks.]
+R1--R15: regression files with a hard regression $13/13$, $14/15$, $13/14$
+(no-graph), $14/15$, $14/15$, $13/14$ (graph), $81/86$; mean per round
+$9.1/9.1/9.4$ against $6.5/6.8/6.7$ (graph rounds include 25-task audit
+batches, F58); decisions 65 \texttt{ship}, 10 \texttt{no\_op}, 0
+\texttt{rollback}; ``regression is acceptable'' in 18 no-graph and 8 graph
+decisions. \emph{Class:} \cls{A}, as F61.
+
+\item[\textbf{F67}\quad Loop bookkeeping census.]
+Tools cards over distinct tool names: no-graph $5/4$, $9/5$, $5/2$ (one tool
+authored four times); graph $12/10$, $13/6$, $10/6$ (three tools three times
+each on one seed). Rejected candidates: no-graph 45, 3 revived; graph 49,
+none. Tasks without a dossier, R0--R15: $1/5/1$ against $0/0/0$ (visible
+since P-8, Appendix~\ref{app:deviations}). Enrichment of volatile-class
+targets over the failing set $1.07/1.02/0.94$ and $1.00/1.05/1.05$:
+class-uniform aim in every arm, compatible with F9a. \emph{Sample:} as F61;
+classes from F54. \emph{Class:} \cls{A}, as F61.
+
 \end{description}
 
 % -------------------------------------------------------------------------
@@ -920,7 +999,8 @@ move by themselves; no subset is both reliable and informative.
 
 \item[``H1 is falsified'', unqualified] $\to$ H1's original endpoint is
 the localization face, and that face is \emph{unmeasurable} here.
-Replacement: \textbf{H1 is rejected on its declared surrogate endpoints}
+Replacement: \textbf{H1 is not supported on its declared substitute
+endpoints}
 --- archaeology (strongest, and independent of any lift number), efficacy,
 and the outcome face.
 

@@ -24,10 +24,9 @@ retention degenerates into drift, and no improvement in variation quality
 recovers it.
 \end{quote}
 
-It is called a \emph{proposition}, not a theorem, and the reason is
-methodological honesty rather than modesty: as stated in words it restates
-power analysis, and what makes it non-trivial is a dynamics argument, given
-below, that a single-test power calculation does not supply.
+It is a proposition rather than a theorem: as stated in words it restates
+power analysis, and what makes it non-trivial is the dynamics argument
+below, which a single-test power calculation does not supply.
 
 The claim is made for this bed and this system class. The field-level
 implication --- that every surveyed loop selects on aggregate score
@@ -38,7 +37,7 @@ and is flagged as one. It rests on the scan of Chapter~\ref{ch:related}:
 critique of how harness evolution is evaluated reaches a convergent
 conclusion under a different evaluation design~\cite{rethink-harness-eval}.
 
-\subsection*{Formal spine, borrowed rather than invented}
+\subsection*{Formal spine}
 
 Quantitative genetics already has the equation. The response to selection
 is given by the breeder's equation~\cite{falconer-mackay},
@@ -64,26 +63,25 @@ trials \F{34}\F{36} --- a small, non-random set chosen because a family
 looked repeatedly prescribed, not a random sample of the six campaigns'
 shipped candidates.
 
-\paragraph{The dynamics claim.} A ratchet drives both its accept arm and
-its rollback arm from the same measured signal. The false-kill rate of true
+\paragraph{The dynamics claim.} A retention rule drives both its accept
+arm and its rollback arm from the same measured signal. The false-kill rate of true
 gains therefore scales with $1-\rho$, while retained noise accumulates on
 the other side. Expected cumulative gain over $R$ rounds can be non-positive under this
 bed's parameter regime \emph{regardless of variation quality} --- which is why better
 candidate generation, the axis the entire self-evolution literature
 optimizes, cannot rescue a loop in this regime.
 
-\paragraph{Boundary condition, supplied by this thesis's own evidence.} The
-breeder's equation governs the \emph{mean} response.
-\S\ref{sec:archaeology} shows gains on this bed arriving as rare tail
-events from a single mechanism family. The proposition therefore constrains
-the mean and is silent on the tail --- a boundary worth stating, because
-the tail is where this thesis's one positive result lives.
+\paragraph{Boundary condition.} The breeder's equation governs the
+\emph{mean} response, and \S\ref{sec:archaeology} shows gains on this bed
+arriving as rare tail events from a single mechanism family. The
+proposition therefore constrains the mean and is silent on the tail, where
+this thesis's one positive result lives.
 
 \subsection*{The calibration that motivates all of it}
 
-The argument above would be arithmetic without an anchor. The anchor is the
-budget-starvation repair (\S\ref{sec:one-repair}), and it functions here as
-a \emph{positive control} in the clinical sense --- what ICH~E10 calls
+The anchor for that arithmetic is the budget-starvation repair
+(\S\ref{sec:one-repair}), which functions here as a \emph{positive
+control} in the clinical sense --- what ICH~E10 calls
 assay sensitivity, the property that lets a trial distinguish an effective
 treatment from an ineffective one, without which a null cannot be
 interpreted.
@@ -95,8 +93,8 @@ and twelve of the sixteen newly passing tasks had died of starvation in the
 round before. Its $+9$ cleared the same-config band, and it is the largest
 single-round move that campaign makes after its baseline draw \F{39}.
 
-\emph{That recovery is the calibration, not the reassurance.} The effect
-had to reach $+9$ tasks to clear a band of $-8\ldots{+}5$, while the
+\emph{That recovery is the calibration, not the reassurance} --- one
+event, found after the fact, with no interval. The effect had to reach $+9$ tasks to clear a band of $-8\ldots{+}5$, while the
 per-edit effects this loop actually produces are $|\delta| \lesssim 3$
 tasks. \textbf{The assay's detection limit sits at roughly three times the
 size of the effects being selected on.}
@@ -121,7 +119,7 @@ uninterpretable --- \emph{including this thesis's own} --- and the field's
 universal selection signal is being read at a resolution its own effect
 sizes do not reach.
 
-\subsection*{The rival hypothesis, stated and weighed}
+\subsection*{The rival hypothesis}
 
 Every null in this thesis admits a simpler explanation than the readout
 proposition: \textbf{the loop's action space cannot reach the lesions.}
@@ -129,14 +127,13 @@ This is the capability wall, and it is the primary layer in the mortality
 account \F{40}. If the drugs are placebos because the disease is out of
 reach, no readout is needed to explain a flat outcome axis.
 
-\emph{On the outcome axis the two are observationally equivalent}, and this
-thesis does not pretend otherwise. Level 3 was exercised by hand
+On the outcome axis the two are observationally equivalent. Level 3 was
+exercised by hand
 \F{34}\F{36} and never wired into retention, so no experiment here
 separates them.
 
-They are not, however, equivalent on all of the evidence, and the
-separation is worth stating even though it is \cls{C} judgment rather than
-a test:
+They are not equivalent on all of the evidence. The separation is \cls{C}
+judgment rather than a test:
 
 \begin{enumerate}
   \item \textbf{The actuator demonstrably reached a lesion at least once.}
@@ -158,16 +155,22 @@ a test:
         \emph{remember}.
 \end{enumerate}
 
-So the honest summary is: the capability wall explains why the loop does
-not solve the hard family. It does not explain the loss of the one drug
+In summary: the capability wall explains why the loop does not solve the
+hard family. It does not explain the loss of the one drug
 that worked, and it does not explain the treadmill. Those two read as
 readout and inheritance failures, which is what the proposition
 addresses.
 
-\paragraph{The discriminating experiment, named rather than claimed.}
-Attach the level-3 readout to the retention decision and re-fly. If
+\paragraph{The discriminating experiment.} Attach the level-3 readout to the retention decision and re-fly. If
 retention still drifts, the actuator was the bottleneck after all. This is
 why \S\ref{sec:future} leads with it.
+
+The proposal face (\S\ref{sec:proposal-face}) adds one reading: fed
+node-shaped evidence, the loop writes node-shaped repairs --- twice the
+tool additions, a third of the prompt talk, prediction lists nine tenths
+of which the edit does not touch \F{61}\F{63}\F{64}. That is neither gain
+nor loss on the score axis; it is how a representation reaches a
+prescription, and why a readout must sit between them.
 
 % -------------------------------------------------------------------------
 \section{Governance: necessary, not sufficient}
@@ -183,11 +186,10 @@ into a benchmark-lookup cheat tool, and that tool passed the Critic and
 \emph{every} landing gate \F{37}. Nothing in the ladder asks where a
 capability came from.
 
-Two fixes follow, and the second has an in-house origin worth recording. A
-leakage blocklist addresses the bed side. A gate forbidding candidates from
-reading adjudication files addresses the loop side --- and it exists
-because registry error 13 was exactly that failure committed by us: an
-adjudication file left readable in a run root, a role that read the answer
+Two fixes follow. A leakage blocklist addresses the bed side. A gate
+forbidding candidates from reading adjudication files addresses the loop
+side, and exists because registry error 13 was that failure committed in
+this study: an adjudication file left readable in a run root, a role that read the answer
 sheet, and a round of rulings voided. The governance gap and the evaluator
 gap are the same gap seen from two sides.
 
@@ -197,8 +199,8 @@ gap are the same gap seen from two sides.
 % -------------------------------------------------------------------------
 
 \paragraph{Attribution is arm-level.} No single-factor attribution is
-claimed anywhere \F{9c}, and the reason no component ablation was run is
-given in \S\ref{sec:localization} rather than left implicit.
+claimed anywhere \F{9c}; the reason no component ablation was run is given
+in \S\ref{sec:localization}.
 
 \paragraph{The localization metric is post-hoc}, defined over predictions
 that were written before the outcome was known but scored under a rule
@@ -219,20 +221,21 @@ which records whichever bed each round actually flew \F{46}.
 leak-route \F{31}. Both arms evaluate on the same fixed bed every round, so
 drift toward the bed is shared; the blocklist is the only held-out defence.
 
-\paragraph{Operational deviations.} One killed evolve stage and one killed
-batch on the second seed; a gateway outage with five poisoned rounds on the
-third; five meta-chain holes; three \texttt{--start-round} re-flights across
-the four replication arms (\S\ref{sec:replication}). The flip statistics use
-only verified clean same-config pairs, and non-adjacent pairs are left
-unpooled.
+\paragraph{Operational deviations.} Disclosed and isolated in
+\S\ref{sec:replication}: a machine restart, a gateway outage, five
+meta-chain holes and three re-flights; only verified clean same-config
+pairs enter the flip statistics.
 
 \paragraph{Windows frictions} are symmetric across arms and disclosed.
 \textbf{Judge residual risk} remains after hardening.
 
-\paragraph{The evaluator.} The fifteen-error registry is reported as part
-of the threats rather than hidden in an appendix, with both bias directions
-documented and \emph{stopping the check too early} named as the common root
-cause. A retraction registry is maintained and nothing in it is re-cited
+\paragraph{The calibration event is one round pair,} found by a sweep, not
+pre-specified; its ``three times'' is a point ratio without an interval
+(\F{39}\F{49}).
+
+\paragraph{The evaluator.} The fifteen-error registry is reported here,
+with both bias directions documented and \emph{stopping the check too
+early} named as the common root cause. A retraction registry is maintained and nothing in it is re-cited
 --- including this thesis's own earlier claim that the official loop could
 not prescribe cause-aware drugs, which its own archives falsified
 (\S\ref{sec:archaeology}).
@@ -247,11 +250,10 @@ not prescribe cause-aware drugs, which its own archives falsified
 Noop-round batching (\$38.1 to \$11.8 per round \F{13}), single-shot
 digestion, the zero-cache-hit repair and the retention policy are
 \emph{harness-level} mechanisms. Each runs on the unmodified official
-system and none needs an execution graph. This thesis found and implemented
-them, and crediting them to GHX would be a contribution in disguise. The
-switch ledger already classifies them this way: the profit-and-loss
-account's cost column is labelled \emph{portable} \F{12}. They are
-described in Appendix~\ref{app:cost}, as engineering.
+system and none needs an execution graph. They were found and implemented
+here, but crediting them to GHX would overstate the graph; the
+profit-and-loss account's cost column labels them \emph{portable} \F{12}.
+They are described in Appendix~\ref{app:cost}, as engineering.
 
 \subsection*{What the graph layer costs is unknown}
 
@@ -263,49 +265,46 @@ the admissible campaigns the task-side spend per fresh evaluation is
 \$0.503 against \$0.461, \$0.538, \$0.544) \F{13}.
 
 That comparison settles nothing either, because it excludes the meta tier
---- which is exactly where graph work would appear, and for which no
-admissible per-role accounting exists. \emph{The honest entry is a blank,
-not a minus.}
+--- which is where graph work would appear, and for which no admissible
+per-role accounting exists. The entry is a blank, not a minus.
 
 \subsection*{The graph layer's one measured liability}
 
 It is operational rather than financial. A crash family introduced by the
 recorder --- binary content reaching the raw JSONL and killing the evolve
 stage --- produced 164 tracebacks across the three graph seeds against 5
-across the three no-graph seeds, together with five meta-chain holes \F{56}. It
-cost metadata rather than scores, since the task batches ran regardless.
-It is a real debit and is entered as one.
+across the three no-graph seeds, together with five meta-chain holes
+\F{56}. It cost metadata rather than scores, the task batches having run
+regardless.
 
 \subsection*{The switch ledger, and what replication cost}
 
 Twenty-one switches were built and each is classified: 2 quality gains, 2
 portable cost gains, 2 measured negatives, 3 measured zeros, 3 exercised
-but unproven, 2 substrate, and 7 capability-only \F{12}. \emph{None
-constitutes a measured behavioural improvement}, and the ledger says so in
-its own column rather than in a caveat.
+but unproven, 2 substrate, and 7 capability-only \F{12}. None constitutes
+a measured behavioural improvement, and the ledger's own column says so.
 
-Replication was priced rather than omitted: the second seed-pair cost
+Replication was priced: the second seed-pair cost
 \$886 plus \$581 and the third \$882 plus \$584 in clean spend, with
 gateway-poisoned rounds excluded --- \$1{,}467 and \$1{,}466 per replicated
-seed-pair \F{44}\F{45}. That is the price of the noise geometry the whole
-readout argument stands on, and it is the single most load-bearing purchase
-this project made.
+seed-pair \F{44}\F{45}. That is the price of the noise geometry the
+readout argument stands on.
 
 % -------------------------------------------------------------------------
 \section{Future work}
 \label{sec:future}
 % -------------------------------------------------------------------------
 
-Each item below is attached to a measured gap in this thesis, and they are
-ordered by what the evidence says matters.
+Each item is attached to a measured gap and ordered by what the evidence
+says matters.
 
 \paragraph{1. Readout-first self-evolution.} Attach level 3 to the
 retention decision. The ingredients are already in the literature ---
 paired prefix replay~\cite{shepherd,car}, sibling-rollout
 controls~\cite{craft}, anytime-valid sequential tests~\cite{pace}. This
-thesis's contribution is not the ingredients; it is \emph{where to attach
-them}, and the evidence that attaching them anywhere else is premature.
-This is also the discriminating experiment of \S\ref{sec:proposition}.
+thesis contributes \emph{where to attach them}, and the evidence that
+attaching them elsewhere is premature. This is also the discriminating
+experiment of \S\ref{sec:proposition}.
 
 \paragraph{2. Bed reliability, with its ceiling priced first.} The leakage
 blocklist and result caching at the measured variance injection point ---
@@ -314,20 +313,15 @@ engineering should target the volatile family, where flips concentrate at
 $1.6$ to $2.0$ times the bed rate \F{41}\F{44}\F{45}, rather than the whole
 bed.
 
-\emph{But the census bounds what that can buy} (\S\ref{sec:power}, \F{54}):
-21 of 100 tasks carry no variance at all, and the 79 that can move are the
-ones that move unaided. Item selection cannot produce a bed that is both
-reliable and informative. The purchasable fix is repetitions --- price it
-with Spearman--Brown against the measured per-task flip rate before
-committing budget: a single draw prices at reliability $0.57$, and
-\textbf{four} averaged repeats are the first integer count crossing this
-thesis's own $0.80$ ``reliable'' bar \F{60} --- and the alternative is the
-readout itself, which is why item 1 comes first.
+The census bounds what that can buy (\S\ref{sec:power},
+\F{54}\F{60}): item selection cannot deliver a bed that is both reliable
+and informative, and the repetition count priced there already argues for
+the readout over more repeats --- which is why item 1 comes first.
 
 \paragraph{3. Replicate the episodic-note channel} under a pre-registered,
 budget-bounded protocol \F{35}. It is solver-level and bypasses all four
-mortality layers, which makes it the cheapest positive result available ---
-and, as \S\ref{sec:survivor} notes, the one that gives up the property
+mortality layers, which makes it the cheapest positive result available,
+and --- per \S\ref{sec:survivor} --- the one that gives up the property
 under study.
 
 \paragraph{4. Capability procurement for the wrong-closure family.}
@@ -345,10 +339,10 @@ after three consecutive empty Bash calls --- and in the round that
 followed, budget-exhaustion exits fell from $39$ to $8$ \F{49}. In R5 it
 went further and inserted a \texttt{StepCountdownProcessor} into its own
 graph, certifying the insert by running the processor and reading its
-model-visible tail back out \F{50}. \emph{A lever an earlier reading of
-this work placed outside the loop's scope was pulled from inside it.}
-\emph{Scope is not a fixed property of the system}; it is whatever the
-action space currently reaches, and this loop widened its own.
+model-visible tail back out \F{50}. A lever an earlier reading of this work
+placed outside the loop's scope was pulled from inside it: scope is
+whatever the action space currently reaches, and this loop widened its
+own.
 
 The score's response to that $-31$ collapse was $+4$ tasks --- inside the
 band, indistinguishable from a re-draw \F{49}. The loop widened its scope

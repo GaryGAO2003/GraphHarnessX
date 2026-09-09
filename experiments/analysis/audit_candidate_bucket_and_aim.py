@@ -17,6 +17,8 @@ the loop aims at*:
       (``graph_evidence/facts.md``) -- the coordinate system the graph arms'
       diagnosis is written in.
 
+Only bare R<digits> round directories are read (quarantined *_poisoned_gateway
+directories are skipped).
 Scope: whitelist only (ruling II) -- M22-L0, M26b, and the M28/M29 replication
 pairs. Shakedown campaigns (M24/M25) and pre-M22 runs are not read.
 All readouts are restricted to the 100-task no-pixel subset so the 103-task and
@@ -55,6 +57,12 @@ assert len(SUBSET) == 100, len(SUBSET)
 
 def read(p: Path) -> str:
     return p.read_text(encoding="utf-8", errors="replace")
+
+
+def round_dirs(root: Path, pat: str) -> list[Path]:
+    """glob restricted to bare R<digits> round directories -- quarantined
+    ``*_poisoned_gateway`` directories are never read."""
+    return sorted(p for p in root.glob(pat) if re.fullmatch(r"R\d+", p.relative_to(root).parts[0]))
 
 
 def card_buckets(text: str) -> list[str]:
@@ -99,7 +107,7 @@ def load_history(run: str) -> tuple[dict[str, list[bool]], dict[int, dict[str, b
 
 def decisions(run: str) -> tuple[set[str], set[str]]:
     shipped: set[str] = set()
-    for d in (RUNS / run).glob("R*/decision.md"):
+    for d in round_dirs(RUNS / run, "R*/decision.md"):
         text = read(d)
         front = text.split("---")[1] if text.count("---") >= 2 else ""
         shipped |= set(re.findall(r"candidate_id:\s*(C-R\d+-\d+)", front))
@@ -147,7 +155,7 @@ def main() -> None:
         shipped, rejected = decisions(run)
         tot: collections.Counter = collections.Counter()
         state: dict[str, collections.Counter] = collections.defaultdict(collections.Counter)
-        for card in sorted((RUNS / run).glob("R*/candidates/C-*.md")):
+        for card in sorted(round_dirs(RUNS / run, "R*/candidates/C-*.md")):
             buckets = card_buckets(read(card))
             if not buckets:
                 continue
@@ -180,7 +188,7 @@ def main() -> None:
         aim_vol = aim_never = aim_n = 0
         fail_vol = fail_never = fail_n = 0
         cards = 0
-        for card in sorted((RUNS / run).glob("R*/candidates/C-*.md")):
+        for card in sorted(round_dirs(RUNS / run, "R*/candidates/C-*.md")):
             rd = int(ROUND_OF.search(card.parts[-3]).group(1))
             targets = unlock_targets(read(card)) & set(cls)
             failing = {t for t, ok in (per_run[run].get(rd - 1) or {}).items() if not ok}
@@ -211,7 +219,7 @@ def main() -> None:
         every: collections.Counter = collections.Counter()
         high: collections.Counter = collections.Counter()
         rounds = 0
-        for facts in sorted((RUNS / run).glob("R*/graph_evidence/facts.md")):
+        for facts in sorted(round_dirs(RUNS / run, "R*/graph_evidence/facts.md")):
             rounds += 1
             for kind, _, lift in row_re.findall(read(facts)):
                 every[kind] += 1
