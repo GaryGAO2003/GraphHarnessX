@@ -1,0 +1,72 @@
+% What graphifying the harness changes: the released representation (left),
+% the typed composition graph that replaces it (middle), and the unfolded
+% execution graph one invocation of it writes (right). Input from a figure
+% environment; needs \usetikzlibrary{positioning,arrows.meta,fit,calc}.
+\begin{tikzpicture}[
+  font=\footnotesize,
+  panel/.style={draw, rounded corners=2pt, inner sep=7pt},
+  code/.style={font=\ttfamily\scriptsize, align=left, anchor=north west},
+  gnode/.style={draw, rounded corners=1pt, minimum height=4.4mm, inner xsep=4pt,
+                font=\scriptsize, fill=white},
+  slot/.style={draw, rounded corners=4pt, inner sep=2.5pt, font=\tiny, fill=gray!8},
+  ev/.style={draw, circle, minimum size=5.4mm, inner sep=0pt, font=\tiny, fill=white},
+  cone/.style={ev, fill=gray!20},
+  dec/.style={-{Latex[length=1.5mm]}, thin},
+  obs/.style={-{Latex[length=1.5mm]}, thin, densely dashed},
+  wide/.style={-{Latex[length=2.4mm]}, thick},
+  note/.style={font=\scriptsize, align=left, text width=4.1cm, anchor=north west,
+               inner sep=0pt}]
+
+% ---------------- left: the released representation ----------------------
+\node[code] (yaml) at (0,0) {processors:\\
+  \ \ - loop\_detection\\
+  \ \ - cost\_guard\\
+  \ \ - memory.sliding\\
+  tools: [Bash, Read, \ldots]\\
+  prompt: |\\
+  \ \ You are an agent\ldots};
+\node[panel, fit=(yaml), label={[font=\scriptsize\bfseries]above:config.yaml}] (L) {};
+
+% ---------------- middle: the typed composition graph -------------------
+\node[gnode, fill=gray!12] (h1) at (8.6,-0.1) {hook: before\_model};
+\node[gnode, below=5.5mm of h1] (p1) {loop\_detection};
+\node[gnode, below=5.5mm of p1] (p2) {cost\_guard};
+\node[slot, below=5.5mm of p2] (s1) {slot: history};
+\node[gnode, right=9mm of p1] (t1) {Bash};
+\draw[dec] (h1) -- node[right, font=\tiny, inner sep=1pt] {attaches} (p1);
+\draw[dec] (p1) -- node[right, font=\tiny, inner sep=1pt] {orders} (p2);
+\draw[dec] (p2) -- node[right, font=\tiny, inner sep=1pt] {writes} (s1);
+\draw[dec] (t1) |- node[above, font=\tiny, pos=0.74, inner sep=1pt] {member} (p2.east);
+\node[panel, fit=(h1)(p1)(p2)(s1)(t1),
+      label={[font=\scriptsize\bfseries]above:composition graph $G$}] (M) {};
+
+% ---------------- right: the unfolded execution graph -------------------
+\node[cone] (e1) at (15.6,-0.35) {$p_1$};
+\node[cone, below right=3.4mm and 5mm of e1] (e2) {$t_1$};
+\node[cone, below left=3.4mm and 5mm of e2] (e3) {$p_2$};
+\node[ev, below=3.8mm of e3] (e4) {fail};
+\draw[dec] (e1) -- (e2);
+\draw[obs] (e2) -- node[right, font=\tiny, inner sep=1pt] {data} (e3);
+\draw[dec] (e3) -- (e4);
+\node[panel, fit=(e1)(e2)(e3)(e4),
+      label={[font=\scriptsize\bfseries]above:execution graph $U$}] (Rp) {};
+
+% ---------------- the two transformations -------------------------------
+\draw[wide] (L.east) -- node[above, font=\scriptsize] {re-expressed} (M.west);
+\draw[wide] (M.east) -- node[above, font=\scriptsize] {one run} (Rp.west);
+
+% ---------------- notes, on one baseline --------------------------------
+\coordinate (base) at ($(M.south)+(0,-0.32)$);
+\node[note] (n1) at (L.west |- base) {\textbf{Released.} Processor order is
+  list order plus registration side effects, and an edit is prose: nothing
+  downstream can say whether the applied change is the change the candidate
+  described.};
+\node[note] (n2) at (M.west |- base) {\textbf{Graphified.} Six node types,
+  twelve edge types. $G$ is the only authority that orders the pipeline, at
+  byte parity with the legacy runloop, and a genotype hash gives every
+  candidate an identity.};
+\node[note] (n3) at (Rp.west |- base) {\textbf{Per invocation.} An edge
+  exists only where the runtime observed it. Shaded: the failure's ancestor
+  cone. A candidate naming a node outside it is refused by the sixth
+  gate.};
+\end{tikzpicture}

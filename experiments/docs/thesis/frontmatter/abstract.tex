@@ -5,53 +5,51 @@
 \singlespacing\noindent
 A large language model (LLM) agent is a model plus a harness, and a
 growing literature evolves the harness automatically. HarnessX/AEGIS is a
-published harness-level closed loop with released code and, to our
-knowledge, the most heavily governed one: four meta-roles read every trajectory, successes
-included, and each candidate edit must clear five deterministic gates.
+published harness-level closed loop with released code: four meta-roles
+read every trajectory, and each candidate edit must clear five
+deterministic gates.
 
-We vendored it byte-for-byte and executed it at scale --- its first
-independent execution: six campaigns of sixteen rounds, 8{,}393 fresh
-evaluations on a 100-task text-only GAIA bed, exposing defects. Its evidence signal grades a tool
+We vendored it byte-for-byte and ran it --- its first independent
+execution: six campaigns of sixteen rounds, 8{,}393 fresh
+evaluations on a 100-task text-only GAIA bed. Its evidence signal grades a tool
 call as ``used'' only if the next assistant message repeats twenty
 characters of its output verbatim, while this bed's answers have a median
 length of nine: the column is blind by construction, applies its negative
 verdict to $75.0\%$ of answer-carrying calls, and reaches $86.0\%$ of
 dossiers. One candidate shipped on that column. Four feedback channels are
-written but never delivered, the paper's ratchet is not implemented, and
-the loop edits itself through free text, so nothing confirms that a
-candidate document and the applied change are one intervention.
+written but never delivered, the paper's ratchet is absent, and the loop
+edits itself through free text, so nothing confirms a candidate document
+and the applied change are one intervention.
 
-We built GraphHarnessX (GHX) in response: a typed executable composition
-graph, a per-invocation execution DAG whose edges are observed rather than
-reconstructed, causal cones over it, a replay gate and a sixth acceptance
-gate that check a candidate's claim against the recorded execution, and a
-typed candidate surface --- attached to the unmodified
-substrate from outside, flags off. What it buys is
-checkability: the false column reaches 0 of 859 graph-arm dossiers,
-malformed candidate deaths halve, and eighteen candidates that had cleared
-all five official gates were caught naming a nonexistent node.
+We built GraphHarnessX (GHX) in response. It re-expresses the harness as a
+typed executable composition graph that drives execution at parity with the
+legacy runloop, and adds a per-invocation execution DAG whose edges are
+observed, not reconstructed, causal cones on it, a replay gate and a sixth
+acceptance gate that check a candidate's claim against the record, and a
+candidate surface of typed graph edits --- all attached from outside, flags
+off. What it buys is checkability: the false column reaches 0 of 859 graph-arm dossiers,
+malformed candidate deaths halve, and eighteen candidates that had passed
+all five official gates named a node that never ran.
 
 The pre-specified hypothesis --- that faithful execution-level evidence
 improves edit localization and outcomes --- is not supported on declared
-substitute endpoints, because the original one proved not measurable;
+substitute endpoints, the original one having proved unmeasurable;
 \emph{that} is the thesis's result. Same-configuration re-measurement flips $21.0$,
 $20.1$ and $19.2\%$ of task outcomes across three seeds, so total-score
-deltas of five tasks or fewer carry no information. Our archives show
-the unmodified loop had already prescribed the same repairs correctly,
-four campaigns earlier, from single observations and false evidence:
-prescription was never the bottleneck; a pre-specified efficacy trial
-returned zero. A positive control --- one event, found after the fact --- shows the score
-axis recovered the one known-effective intervention, because
-its effect was three times the per-edit effects this loop produces;
+deltas of five tasks or fewer carry no information. The archives show the unmodified loop had already prescribed the same
+repairs, four campaigns earlier, from single observations and false
+evidence: prescription was never the bottleneck. A pre-specified
+efficacy trial returned zero. A positive control --- one event, found after the fact --- shows the score
+axis recovered a known-effective intervention whose effect was three times
+the per-edit effects this loop produces;
 two campaign-wide sweeps show that clearing the noise band is neither
-necessary nor sufficient for an edit's success.
+necessary nor sufficient for an edit to have worked.
 
 We state the consequence as a proposition --- self-evolution is variation
-plus selection plus \emph{readout}, and, on this bed and system class,
-below-floor selection makes cumulative gain non-positive regardless of
-variation quality --- and offer a four-rung readout ladder on which every surveyed system admits
-candidates at rung zero. Rungs 0 to 2 are live in GHX; rung 3 --- did the
-edit change outcomes --- is the field's missing organ.
-
-The graph did not make the loop smarter. It made the loop checkable.
+plus selection plus \emph{readout}, and on this bed and system class
+below-floor selection makes cumulative gain non-positive whatever the
+variation quality --- and offer a four-rung readout ladder on which every
+surveyed system admits candidates at rung R0. R0 to R2 are live in GHX; R3 --- did the edit
+change outcomes --- exists here only as a hand-run efficacy-trial protocol,
+wired into no loop in the field.
 \end{abstract}

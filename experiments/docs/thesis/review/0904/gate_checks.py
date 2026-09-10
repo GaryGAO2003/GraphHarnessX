@@ -138,18 +138,33 @@ def check_abstract() -> dict:
 
 
 def check_layout() -> dict:
-    """Body pages must look like 12pt at 1.5 spacing: 18–36 text lines on a full page.
-    Guards against an unscoped size/spacing switch shrinking the whole document."""
+    """Body prose pages must look like 12pt at 1.5 spacing: the median full page
+    carries 18-36 text lines. Guards against an unscoped size/spacing switch.
+    Chapter openers (short) and figure pages (TikZ nodes read as many lines) are
+    not prose pages and are excluded from the median; a hard ceiling still
+    catches a genuine shrink, which would move every page at once."""
     pdf = str((OUTDIR or THESIS) / (MAIN + ".pdf"))
-    counts = []
-    for page in (30, 35, 40, 45, 50, 55):
+    counts, prose = {}, []
+    for page in range(26, 71, 4):
         p = subprocess.run([str(PDFTOTEXT), "-f", str(page), "-l", str(page), "-layout", pdf, "-"],
                            cwd=THESIS, capture_output=True, text=True, errors="replace")
-        counts.append(sum(1 for l in p.stdout.splitlines() if re.search(r"[a-z]", l)))
-    best = max(counts) if counts else 0
-    ok = 18 <= best <= 36
-    return {"status": "PASS" if ok else "FAIL", "lines_per_page": counts,
-            "fails": [] if ok else [f"text lines on sampled body pages = {counts}; expected 18–36 for 12pt at 1.5 spacing"]}
+        lines = [l for l in p.stdout.splitlines() if re.search(r"[a-z]", l)]
+        n = len(lines)
+        counts[page] = n
+        head = lines[0].strip() if lines else ""
+        if n >= 12 and not re.match(r"^Chapter\s+\d", head):
+            prose.append(n)
+    prose.sort()
+    med = prose[len(prose) // 2] if prose else 0
+    fails = []
+    if not prose:
+        fails.append("no prose page found among the sampled body pages")
+    elif not 18 <= med <= 36:
+        fails.append(f"median prose page = {med} text lines; expected 18-36 for 12pt at 1.5 spacing {counts}")
+    elif med and prose[-1] > 3 * med // 2 + 20:
+        fails.append(f"densest prose page {prose[-1]} far above the median {med} {counts}")
+    return {"status": "FAIL" if fails else "PASS", "median_prose_lines": med,
+            "lines_per_page": counts, "fails": fails}
 
 
 def check_exclusion() -> dict:

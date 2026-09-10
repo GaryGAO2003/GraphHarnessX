@@ -91,6 +91,62 @@ the graph and the executed pipeline cannot disagree. And there is a
 graph-driven and the original runloop must produce byte-identical
 behaviour.
 
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{\input{figures/harness_graph.tex}}
+\caption[The harness, graphified]{What graphifying the harness changes.
+The released harness is a configuration file whose processor order is list
+order plus registration side effects, and whose edits are prose
+(\S\ref{sec:fielded}). GHX re-expresses the same executable surface as the
+typed composition graph $G$, which then orders the running pipeline at byte
+parity with the legacy runloop; each invocation of $G$ writes the unfolded
+execution graph $U$, whose edges exist only where the runtime observed them
+(\S\ref{sec:unfolded}). Because $G$ and $U$ name the same nodes, a claim
+about where a candidate acts is checkable against the run that failed ---
+the question the sixth gate asks (\S\ref{sec:verification}).}
+\label{fig:harness-graph}
+\end{figure}
+
+\subsection*{What the graph buys over a configuration file}
+
+The released harness is not unstructured --- it is a configuration file
+read by a runloop. Four things change when the same surface becomes a
+typed graph, and they are worth separating because only the fourth is
+specific to this thesis.
+
+\begin{enumerate}
+  \item \textbf{Order becomes decided rather than emergent.} In the
+        release, what runs before what follows from list order and from
+        registration side effects at import time. With $G$ as the single
+        ordering authority the executed pipeline cannot disagree with the
+        declared one, and a test says so.
+  \item \textbf{An edit acquires an identity.} A genotype hash over $G$
+        makes ``the same candidate'' a decidable question and gives the
+        novelty ledger a key. Over free text it is not decidable at all:
+        nothing downstream can confirm that a candidate document and the
+        applied change are one intervention (\S\ref{sec:fielded}).
+  \item \textbf{Illegality is caught at build time.} A
+        write\,$\to$\,reload\,$\to$\,re-graph round trip and a
+        hash-contract test refuse a malformed edit before a rollout pays
+        for it. The measured consequence is that the share of candidates
+        dying malformed falls from $30.5\%$ to $14.5\%$ \F{53}.
+  \item \textbf{The harness and its execution share one coordinate
+        system.} This is the one that matters here. $U$ is an unfolding of
+        $G$, so both name the same nodes, and a candidate's claim about
+        \emph{where} it acts can be checked against the graph of the run
+        that failed. Over a configuration file the question is not
+        expressible --- there is no object in the record that a claimed
+        target could be compared to. It is what makes rungs R1 and R2
+        mechanical (\S\ref{sec:ladder}), and the sixth gate refused
+        eighteen candidates on it that had passed all five official gates
+        \F{53}.
+\end{enumerate}
+
+The cost is stated where it belongs: the typed surface reaches
+\emph{less} of the action space than the prose one it replaces
+(\S\ref{sec:candidate-surface}), and $G$ has to be held at parity, which
+is a standing test burden rather than a one-off proof.
+
 % -------------------------------------------------------------------------
 \section{The unfolded execution graph}
 \label{sec:unfolded}
@@ -350,17 +406,21 @@ reasoning to a live runtime rule --- and not a result.
 % -------------------------------------------------------------------------
 
 The system's organizing frame, and the frame this thesis proposes for the
-field, is a four-rung ladder of evidence about an edit:
+field, is a four-rung ladder of evidence about an edit, written
+\textbf{R0}--\textbf{R3}. The rungs grade \emph{what is known about one
+edit}; they are not the cumulative GHX switches of
+\S\ref{sec:constraints}, which are numbered L0--L5 in the run archives and
+grade what the runtime records:
 
 \begin{itemize}
-  \item[\textbf{L0}] \emph{Is it in the deployed configuration?} ---
+  \item[\textbf{R0}] \emph{Is it in the deployed configuration?} ---
         answered by the landing gates.
-  \item[\textbf{L1}] \emph{Did it ever execute?} --- answered by the replay
+  \item[\textbf{R1}] \emph{Did it ever execute?} --- answered by the replay
         gate; live, with seven refusals \F{11}.
-  \item[\textbf{L2}] \emph{Did it fire, and on what?} --- answered by fire
+  \item[\textbf{R2}] \emph{Did it fire, and on what?} --- answered by fire
         and false-positive counts over $U$; produced by the loop itself
         \F{38}.
-  \item[\textbf{L3}] \emph{Did firing change outcomes?} --- answered by
+  \item[\textbf{R3}] \emph{Did firing change outcomes?} --- answered by
         paired same-window trials with firing attribution; built and
         exercised \emph{by hand} in this thesis \F{34}\F{36}, and never
         wired into the loop.
@@ -373,9 +433,10 @@ in clinical medicine, SAE J3016 for driving automation --- by forcing a
 system to state which rung its claims stand on.
 
 Every self-evolving harness surveyed in \S\ref{sec:self-evolving} admits
-candidates at \textbf{L0}: it checks that an edit landed, then selects on
-aggregate score. None reports L1 or above. Given a recorded execution graph, L1 and L2 are
-mechanical; L3 is where this thesis's evidence places the remaining effort
+candidates at \textbf{R0}: it checks that an edit landed, then selects on
+aggregate score. None reports R1 or above. Given a recorded execution
+graph, R1 and R2 are mechanical; R3 is where this thesis's evidence places
+the remaining effort
 (\S\ref{sec:future}).
 
 % -------------------------------------------------------------------------
