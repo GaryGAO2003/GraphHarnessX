@@ -60,7 +60,14 @@ Repository = "https://github.com/GaryGAO2003/GraphHarnessX"
 Upstream = "https://github.com/Darwin-Agent/HarnessX"
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0", "pytest-asyncio>=0.23", "anyio>=4.0", "cachetools>=5.3", "ruff>=0.8"]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "anyio>=4.0",
+    "cachetools>=5.3",
+    "ruff>=0.8",
+    "youtube-transcript-api>=1.2",
+]
 analysis = ["matplotlib>=3.8"]
 gaia = ["datasets>=2.19", "huggingface-hub>=0.23"]
 
