@@ -591,9 +591,9 @@ def _render_regression_diffs(round_n: int, prior_round, rows: list) -> str:
     for task_id, gained, lost in rows:
         lines.append(f"## {task_id}")
         g = ", ".join(f"`{n}`" for n in gained) if gained else "(none)"
-        l = ", ".join(f"`{n}`" for n in lost) if lost else "(none)"
+        lost_text = ", ".join(f"`{n}`" for n in lost) if lost else "(none)"
         lines.append(f"- gained in the failing cone (absent when it passed): {g}")
-        lines.append(f"- lost from the cone (present when it passed): {l}")
+        lines.append(f"- lost from the cone (present when it passed): {lost_text}")
         if not gained and not lost:
             lines.append(
                 "- the two cones contain the SAME static nodes — the flip is not "

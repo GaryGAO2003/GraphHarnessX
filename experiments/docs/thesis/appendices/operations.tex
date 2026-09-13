@@ -3,29 +3,19 @@
 \label{app:ops}
 % =========================================================================
 
-This appendix records what shaped the campaigns without being evidence for
-any claim: the infrastructure incidents and the standing rules they left
-behind, and the cost mechanisms, which are engineering and are kept out of
-the body so that they are not mistaken for results of the graph. Nothing
-here may be cited as a result.
-
-Two graph campaigns were flown before the graph layer's defects were
-closed --- the fixes committed between the second shakedown and the first
-whitelist graph campaign (19--26 August 2026), each pinned by a regression
-test. They are excluded from this thesis in full by the whitelist ruling
-(\S\ref{sec:scope}), and nothing measured on them appears in this
-appendix or anywhere else in this document.
+This appendix records what shaped the campaigns without being evidence
+for any claim: the infrastructure incidents and the standing rules they
+left behind, and the cost mechanisms, which are engineering and are kept
+out of the body so that they are not mistaken for results of the graph.
+Nothing here may be cited as a result, and nothing measured on the
+campaigns excluded by the whitelist ruling (Appendix~\ref{app:deviations})
+appears here or anywhere else in this document.
 
 % -------------------------------------------------------------------------
 \section*{B.1\quad Infrastructure incidents and the rules they left behind}
 % -------------------------------------------------------------------------
 
 \begin{itemize}
-  \item \textbf{Campaign calendar.} By \texttt{audit.jsonl} timestamps, the
-        no-graph seed-1 campaign ran alone on 2026-08-17--18; the graph seed-1
-        campaign (2026-08-23--27) overlaps both seed-2 campaigns
-        (2026-08-26), which overlap each other; the seed-3 pair
-        (2026-08-27--29) overlaps only itself \F{59}.
   \item \textbf{Gateway routing drift.} Model names are routing keys that
         move: the same name reaching different backends, mappings changing
         underneath a campaign, and a route once judged dead coming back to
@@ -36,8 +26,7 @@ appendix or anywhere else in this document.
         identifiable because every fresh evaluation in them cost zero;
         they were isolated, and the campaign's history, audit, curve and
         journal files were washed back to a clean prefix and re-flown from
-        it. Both re-flights are disclosed in the body
-        (\S\ref{sec:replication}).
+        it.
   \item \textbf{Machine restart.} On the second seed an unplanned restart
         killed one evolve stage and one task batch; the batch was re-flown
         from a byte-identical round-head configuration and the affected
@@ -48,12 +37,6 @@ appendix or anywhere else in this document.
         interpreter with identical arguments. \emph{Standing rule:} check
         the parent process before judging a double launch --- killing the
         shim kills the run.
-  \item \textbf{Launch spikes} producing phantom runs that must be excluded
-        by inspection before scoring (registry error 14).
-  \item \textbf{The recorder's crash family.} Binary content reaching the
-        raw JSONL killed the evolve stage repeatedly on the graph arms; the
-        counts are entered in the body as the graph layer's one measured
-        operational liability (\S\ref{sec:cost}) \F{56}.
 \end{itemize}
 
 % -------------------------------------------------------------------------
@@ -61,15 +44,7 @@ appendix or anywhere else in this document.
 \label{app:cost}
 % -------------------------------------------------------------------------
 
-Four mechanisms reduced the price of a campaign. None of them reads the
-execution graph; each runs on the unmodified official system, and
-\S\ref{sec:cost} declines to credit them to GHX for that reason. They are
-recorded here because the replication of \S\ref{sec:replication} would not
-have been affordable without them.
-
-\paragraph{No-op round batching.} A round in which nothing shipped re-runs
-a configuration that has already been measured. Under the official loop
-the whole bed is re-run anyway. Restricting a no-op round to a 25-task
+\paragraph{No-op round batching.} Restricting a no-op round to a 25-task
 audit batch --- the tasks that flipped most recently, chosen by a fixed
 rule --- and carrying the rest forward cut the per-round task cost from
 \$38.1 to \$11.8 on the whitelist graph campaign \F{13}. The design

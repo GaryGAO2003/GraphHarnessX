@@ -5,7 +5,6 @@ deployment: genotype + runtime overlay, no observed edges.
 phenotype: deployment + observed edges.
 """
 
-import pytest
 
 from harnessx.core.harness import HarnessConfig
 from harnessx.core.runtime import RuntimeReg

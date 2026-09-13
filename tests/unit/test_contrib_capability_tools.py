@@ -135,7 +135,7 @@ def test_revision_window_ends_at_the_present(monkeypatch):
 
 
 def test_first_with_bisects_to_the_introducing_revision(monkeypatch):
-    monkeypatch.setattr(W, "_get", lambda p, l: {"query": {"pages": {"1": {"revisions": _revs(8)}}}})
+    monkeypatch.setattr(W, "_get", lambda params, lang: {"query": {"pages": {"1": {"revisions": _revs(8)}}}})
     # present from revid 97 onward; the caller's list is oldest-first 93..100
     monkeypatch.setattr(W, "_revision_text", lambda revid, lang: "NEEDLE" if revid >= 97 else "")
     out = W._do_first_with("T", "needle", "en", 8)
@@ -148,7 +148,7 @@ def test_first_with_refuses_when_the_string_is_gone_today(monkeypatch):
     """Live case: a page's images can come from a template, so they are in the
     rendered page and never in its wikitext. A date invented here would be a
     confident wrong answer."""
-    monkeypatch.setattr(W, "_get", lambda p, l: {"query": {"pages": {"1": {"revisions": _revs(8)}}}})
+    monkeypatch.setattr(W, "_get", lambda params, lang: {"query": {"pages": {"1": {"revisions": _revs(8)}}}})
     monkeypatch.setattr(W, "_revision_text", lambda revid, lang: "nothing here")
     out = W._do_first_with("T", "File:X.jpg", "en", 8)
     assert "not present in the newest" in out
@@ -156,7 +156,7 @@ def test_first_with_refuses_when_the_string_is_gone_today(monkeypatch):
 
 
 def test_first_with_says_when_the_window_is_too_short(monkeypatch):
-    monkeypatch.setattr(W, "_get", lambda p, l: {"query": {"pages": {"1": {"revisions": _revs(8)}}}})
+    monkeypatch.setattr(W, "_get", lambda params, lang: {"query": {"pages": {"1": {"revisions": _revs(8)}}}})
     monkeypatch.setattr(W, "_revision_text", lambda revid, lang: "NEEDLE always")
     out = W._do_first_with("T", "needle", "en", 8)
     assert "predates this window" in out
@@ -164,13 +164,13 @@ def test_first_with_says_when_the_window_is_too_short(monkeypatch):
 
 
 def test_missing_page_and_unknown_action_are_messages_not_exceptions(monkeypatch):
-    monkeypatch.setattr(W, "_get", lambda p, l: {"query": {"pages": {"1": {"missing": ""}}}})
+    monkeypatch.setattr(W, "_get", lambda params, lang: {"query": {"pages": {"1": {"missing": ""}}}})
     assert "no page titled" in run(W.wikipedia_api_tool.fn(action="page", title="Nope"))
     assert "unknown action" in run(W.wikipedia_api_tool.fn(action="frobnicate"))
 
 
 def test_transport_failure_is_reported_not_raised(monkeypatch):
-    def boom(p, l):
+    def boom(params, lang):
         raise RuntimeError("connection reset")
 
     monkeypatch.setattr(W, "_get", boom)

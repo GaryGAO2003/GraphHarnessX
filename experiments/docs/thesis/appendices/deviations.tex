@@ -83,14 +83,13 @@ seeing the data is only credible if its direction is stated.
         \texttt{.gitignore} excludes run outputs, which is why no GAIA
         number in the release is recomputable \F{19}.
 
-  \item[\textnormal{\textbf{Model tier.}}] \begingroup\sloppy The solver is
-        \texttt{deepseek-\allowbreak v4-\allowbreak flash}; the four meta roles and the judge are
-        \texttt{deepseek-\allowbreak v4-\allowbreak pro}; all run through a gateway, in every
-        campaign (\S\ref{sec:beds}). The paper's one
-        complete experiment used a frontier model on the meta tier and a
+  \item[\textnormal{\textbf{Model tier.}}] \begingroup\sloppy
+        \texttt{deepseek-\allowbreak v4-\allowbreak flash} on the solver,
+        \texttt{deepseek-\allowbreak v4-\allowbreak pro} on the four meta roles and the judge,
+        in every campaign, against the paper's frontier meta tier on a
         different bed (\S\ref{sec:beds}). \emph{Effect on claim strength:}
-        none. No claim in this thesis is about model tiers, and every
-        comparison is within-configuration.\par\endgroup
+        none --- no claim here is about model tiers and every comparison is
+        within-configuration.\par\endgroup
 
   \item[\textnormal{\textbf{Edit-surface coverage.}}] The typed candidate
         surface covers the processor plane, two configuration sections and
@@ -119,8 +118,9 @@ seeing the data is only credible if its direction is stated.
         evaluation is pass@2. Every score in this thesis is pass@1, and
         mixed-$k$ passes do not count. \emph{Effect:} it lowers scores,
         including the baseline campaign's own seed round, which moved from
-        67 to 57 (\S\ref{sec:evaluator-bias}). Disclosed in the body
-        precisely because that direction flatters this thesis.
+        67 to 57 (\S\ref{sec:evaluator-bias}) --- a direction that
+        enlarges this campaign's apparent gain, which is why it is
+        disclosed in the body as well as here.
 
   \item[\textnormal{\textbf{The $\pm 5\%$ noise threshold.}}] The paper
         tabulates an ignored single-round delta of $\pm 5\%$ without saying
@@ -152,18 +152,17 @@ seeing the data is only credible if its direction is stated.
         in addition the Ensemble machinery this thesis does not exercise.
 
   \item[\textnormal{\textbf{Bed asymmetry.}}] 103 tasks against the
-        100-task no-pixel subset, with the third seed's no-graph arm
-        switching mid-campaign. Every cross-arm reading is recomputed on
-        the common subset (\S\ref{sec:beds}), so the asymmetry is a fact
-        about what was flown rather than about what is reported.
+        100-task no-pixel subset, the third seed's no-graph arm switching
+        mid-campaign; every cross-arm reading is recomputed on the common
+        subset (\S\ref{sec:beds}), so this is a fact about what was flown
+        rather than about what is reported.
 
   \item[\textnormal{\textbf{Replication-arm operational deviations.}}] One
         killed evolve stage and one killed batch on the second seed; a
         gateway outage with five poisoned rounds on the third; five
-        meta-chain holes; three \texttt{-{}-start-round} re-flights. All
-        are disclosed in the body rather than here
-        (\S\ref{sec:replication}), with the isolation and wash procedure
-        each one received.
+        meta-chain holes; three \texttt{-{}-start-round} re-flights ---
+        each with its isolation and wash procedure in
+        \S\ref{sec:replication} and Appendix~\ref{app:ops}.
 
   \item[\textnormal{\textbf{The efficacy trial's \texttt{-{}-max-steps}
         correction.}}] Registry error~15 below: the loader default of 40
@@ -176,20 +175,18 @@ seeing the data is only credible if its direction is stated.
 \section*{A.3\quad The error registry}
 % -------------------------------------------------------------------------
 
-Fifteen errors of measurement and design were caught during this work, each
-followed by a forced re-check. The registry is reported as a result
-(\S\ref{sec:evaluator-bias}, \S\ref{sec:threats}): a study whose evaluator
-is not itself audited has no grounds for the intervals it reports.
+Fifteen errors of measurement and design were caught during this work,
+each followed by a forced re-check, and the registry is reported as a
+result (\S\ref{sec:evaluator-bias}, \S\ref{sec:threats}).
 
-\paragraph{Direction.} Of the first thirteen, eight moved in the
-project's own favour (1, 2, 3, 4, 6, 7, 8, 13), three against it (the
-second reversal in 9, and 10, 12), and two were neutral (5, 11). Errors 14
-and 15 were logged after that tally was struck and are not classified in
-it. \emph{Both directions are represented, which is the point}: the common
-cause is not motivated reasoning but \textbf{stopping the check too early}.
-Errors 13, 14 and 15 were caught by the supervisor rather than the author,
-each time by a question of the form ``are you sure that is not a setup
-problem''.
+\paragraph{Direction.} Of the first thirteen, eight moved in the project's
+own favour (1, 2, 3, 4, 6, 7, 8, 13), three against it (the second
+reversal in 9, and 10, 12), and two were neutral (5, 11); errors 14 and 15
+were logged after that tally was struck. Both directions are represented,
+so the common cause is not motivated reasoning but \textbf{stopping the
+check too early}: errors 13, 14 and 15 were each caught on a later
+re-check rather than by the check that should have caught them, every time
+by the question ``are you sure that is not a setup problem''.
 
 \begin{enumerate}[leftmargin=2.2em]
 

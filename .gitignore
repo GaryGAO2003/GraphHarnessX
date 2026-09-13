@@ -19,14 +19,24 @@ venv/
 .idea/
 .vscode/
 .claude/
+.agents/
+.codex/
+.cursor/
 .DS_Store
 *.swp
 
+# Local reviews and agent/session snapshots. Curated provenance remains tracked.
+review-snapshot*/
+agent-snapshot*/
+*.session.json
+*.session.jsonl
+
 # Agent run outputs (the whitelisted campaign archives live here on disk;
 # they are several GB and are distributed separately, see recipe/gaia_evolver/runs/README.md)
+runs/
+!recipe/gaia_evolver/runs/
 recipe/gaia_evolver/runs/*
 !recipe/gaia_evolver/runs/README.md
-runs/
 traces/
 sessions/
 checkpoints*
@@ -49,6 +59,7 @@ screenshots/
 *.jpeg
 !experiments/docs/thesis/*.png
 !experiments/docs/thesis/figures/*.jpg
+!experiments/docs/thesis/figures/ucl_logo.png
 
 # LaTeX build products
 experiments/docs/thesis/*.aux
@@ -64,4 +75,7 @@ experiments/docs/thesis/*.blg
 experiments/docs/thesis/*.fls
 experiments/docs/thesis/*.fdb_latexmk
 experiments/docs/thesis/*.synctex.gz
+experiments/docs/thesis/_minted-*/
+experiments/docs/thesis/main.run.xml
+experiments/docs/thesis/main.bcf
 experiments/docs/thesis/review/0904/gate_result.json

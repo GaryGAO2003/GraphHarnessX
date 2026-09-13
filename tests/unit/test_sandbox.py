@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+import sys
 import pytest
 from pathlib import Path
 
@@ -128,8 +129,15 @@ class TestSandbox:
     @pytest.mark.asyncio
     async def test_local_sandbox_exec_timeout(self, tmp_path):
         sb = LocalSandbox(root=tmp_path)
-        result = await sb.exec("sleep 10", timeout=0.05)
+        marker = tmp_path / "survived.txt"
+        command = (
+            f'"{sys.executable}" -c "import time; from pathlib import Path; '
+            f"time.sleep(0.5); Path({str(marker)!r}).write_text('alive')\""
+        )
+        result = await sb.exec(command, timeout=0.05)
         assert "timed out" in result.lower()
+        await asyncio.sleep(0.6)
+        assert not marker.exists(), "timed-out shell left its child process running"
 
     @pytest.mark.asyncio
     async def test_local_sandbox_read_write(self, tmp_path):

@@ -45,7 +45,6 @@ agent a capability.
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
 
 from ..base import tool

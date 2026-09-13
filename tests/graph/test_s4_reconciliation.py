@@ -1,6 +1,5 @@
 """Tests for S4 reconciliation module."""
 
-import pytest
 
 from harnessx.graph.reconciliation import (
     ConvergenceReport,

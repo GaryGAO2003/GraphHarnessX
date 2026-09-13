@@ -24,7 +24,6 @@ from pathlib import Path
 import pytest
 import yaml
 
-from harnessx.ghx.graph_proposals import ProposalSession
 
 from tests.ghx.test_graph_proposals import (  # reuse the working fixture set
     _PARENT_YAML,

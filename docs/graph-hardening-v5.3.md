@@ -1045,7 +1045,7 @@ class ComponentDecl:
 
     def __post_init__(self):
         """hook/hooks 兼容处理 + 规范化。
-        
+
         - 构造时若传入 ``hook=``（非 ""）但未传入 ``hooks=`` →
           ``hooks`` 设为 ``(hook,)``。单参数向后兼容（``"*"`` 也进 hooks，
           L4.1 通配展开为 8）。
@@ -1057,7 +1057,7 @@ class ComponentDecl:
           coverage = [class_hook]，bucket 与 hooks[0] 天然一致，无冲突。
         - 若两者都传入（hook ≠ "*"）→ ``hooks`` 优先，``hook`` 从 ``hooks`` 派生。
         - ``hooks`` 始终按生命周期序排序。
-        
+
         注意：``hook`` 是普通 dataclass 字段（非 @property），
         ``object.__setattr__`` 可直接写入。ComponentDecl 未冻结。
         """
@@ -1451,7 +1451,7 @@ for node_id, node in snapshot.runtime_nodes.items():
 def apply_edits(snapshot: GraphSnapshot, edits: list[GraphEdit]) -> GraphSnapshot:
     result = deepcopy(snapshot)
     # ... apply edits to result ...
-    
+
     # 验证：所有 runtime edge 端点必须存在
     all_node_ids = set(result.nodes) | set(result.runtime_nodes)
     for edge in result.runtime_edges:
@@ -1459,7 +1459,7 @@ def apply_edits(snapshot: GraphSnapshot, edits: list[GraphEdit]) -> GraphSnapsho
             raise GraphEditError(f"runtime edge source missing: {edge.source_id}")
         if edge.target_id not in all_node_ids:
             raise GraphEditError(f"runtime edge target missing: {edge.target_id}")
-    
+
     # 清空所有 hash 缓存（编辑后失效）
     result.genotype_hash = ""
     result.deployment_hash = ""

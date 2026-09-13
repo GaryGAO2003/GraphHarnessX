@@ -26,7 +26,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
 import yaml
 
 from harnessx.aegis import AegisAgent
@@ -172,7 +171,7 @@ async def test_in_loop_rollback_reverts_config_and_leaves_task_history_untouched
     run_dir, executed = await _run_rollback_campaign(tmp_path, monkeypatch, "rb1")
 
     r0_cfg = _processors(run_dir / "R0" / "config.yaml")
-    r1_cfg = _processors(run_dir / "R1" / "config.yaml")  # the shipped, later-reverted config
+    _processors(run_dir / "R1" / "config.yaml")  # the shipped, later-reverted config
     r2_cfg = _processors(run_dir / "R2" / "config.yaml")  # written AFTER the rollback fired
 
     # The ship really did change bytes (comment aside, r1 is r0 re-rendered —
@@ -199,7 +198,7 @@ async def test_in_loop_rollback_reverts_config_and_leaves_task_history_untouched
     # ── audit.jsonl carries both the commit (the ship) and the rollback
     #    (the revert) for round 1 — the pairing test_rollback_reaches_the_
     #    planner.py already pins for _append_rollback_journal's sibling call.
-    audit_events = [json.loads(l) for l in (run_dir / "audit.jsonl").read_text(encoding="utf-8").splitlines()]
+    audit_events = [json.loads(line) for line in (run_dir / "audit.jsonl").read_text(encoding="utf-8").splitlines()]
     kinds_at_r1 = {e["kind"] for e in audit_events if e.get("round") == 1}
     assert {"commit", "rollback"} <= kinds_at_r1
 

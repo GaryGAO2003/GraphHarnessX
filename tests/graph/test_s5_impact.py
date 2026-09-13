@@ -1,6 +1,5 @@
 """Tests for S5 impact module."""
 
-import pytest
 
 from harnessx.graph.edit import GraphEdit, GraphEditType
 from harnessx.graph.impact import (

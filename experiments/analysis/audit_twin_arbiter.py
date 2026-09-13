@@ -26,7 +26,6 @@ from collections import Counter
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from harnessx.graph.unfold import payload_is_empty  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from audit_divergence_points import ROOT, pass1, spine  # noqa: E402

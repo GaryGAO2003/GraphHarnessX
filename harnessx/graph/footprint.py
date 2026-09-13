@@ -157,7 +157,6 @@ def compute_footprint(trace, snapshot: GraphSnapshot) -> CoverageFootprint:
     Returns:
         CoverageFootprint with touched nodes and observed edges.
     """
-    from .observer import TaskTrace as _TaskTrace
 
     touched_nodes: set[str] = set()
     observed_edges: set[str] = set()

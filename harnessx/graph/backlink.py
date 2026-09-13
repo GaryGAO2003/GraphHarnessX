@@ -17,7 +17,7 @@ ids here are the SAME ids ``to_graph()`` allocates — no parallel naming.
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
 from .observer import HookObservation, TaskTrace

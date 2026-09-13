@@ -25,7 +25,6 @@ from harnessx.graph.identity_record import (
     project_observed_edges,
     write_identity,
 )
-from harnessx.graph.snapshot import to_graph
 from harnessx.graph.types import GraphSnapshot, Node, NodeType
 from harnessx.graph.unfold import UnfoldedEdge, UnfoldedGraph
 from harnessx.graph.types import EdgeType, unfolded_id
@@ -231,5 +230,3 @@ def test_empty_u_is_a_real_phenotype_not_absence():
 
 
 # ── 3. isolation: the phenotype machinery never moves an existing genotype ───
-
-

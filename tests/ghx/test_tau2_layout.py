@@ -77,7 +77,7 @@ def test_slug_makes_a_telecom_id_a_legal_path_component():
 
     tid = "[service_issue]break_apn_settings|lock_sim_card_pin[PERSONA:Easy]"
     slug = task_slug(tid)
-    assert not set(slug) & set('<>:"/\|?*')
+    assert not set(slug) & set('<>:"/\\|?*')
     assert len(slug) <= 60
     # the hash is over the FULL id: telecom ids share long prefixes, so a bare
     # truncation would map different tasks to one directory
