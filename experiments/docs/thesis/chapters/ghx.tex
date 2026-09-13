@@ -43,25 +43,22 @@ the loop is byte-for-byte the released one.}
 \end{figure}
 
 \begin{itemize}
-  \item \textbf{Byte-pinned substrate.} The official system is vendored at
-        a fixed revision under a sha256 manifest enforced by the test
-        suite. The baseline arm therefore runs the authors' system rather
-        than a re-implementation of it; without this, every between-arm
+  \item \textbf{Byte-pinned substrate.} The official tree is vendored at a
+        fixed revision under a sha256 manifest enforced by the test suite,
+        so the baseline arm runs the authors' system and no between-arm
         difference is confounded with maintenance.
-  \item \textbf{Zero core edits.} No byte of the vendored tree is modified.
-        Every GHX mechanism attaches at a seam, which makes the first
+  \item \textbf{Zero core edits.} No byte of that tree is modified; every
+        GHX mechanism attaches at a seam, which is what makes the first
         constraint checkable.
-  \item \textbf{Seams restore in \texttt{finally}.} A crash must not leave
-        a modified loop behind for the next round to inherit. Restoration
-        is unconditional.
-  \item \textbf{Flags default off.} Arm separation is a property of the
-        configuration, not of operator discipline. A campaign flown with
-        no flags set is byte-equivalent to the official system in its
-        behaviour.
-  \item \textbf{A gate never seen to fail is not yet a gate.} Every
-        acceptance gate added here is mutation-tested: a deliberately
-        malformed candidate must be refused, and the refusal recorded,
-        before the gate is considered to exist.
+  \item \textbf{Seams restore in \texttt{finally}}, unconditionally, so a
+        crash leaves no modified loop for the next round to inherit.
+  \item \textbf{Flags default off}, so arm separation is a property of the
+        configuration rather than of operator discipline: a campaign flown
+        with no flags set behaves as the official system.
+  \item \textbf{A gate never seen to fail is not yet a gate.} Every gate
+        added here is mutation-tested --- a deliberately malformed
+        candidate must be refused and the refusal recorded --- before it
+        counts as existing.
 \end{itemize}
 
 % -------------------------------------------------------------------------
@@ -75,14 +72,6 @@ processors, typed slots, bundles, skills, and tools. Twelve edge types
 connect them --- ten declared or structural (attachment, ordering, declared
 slot reads and writes, membership, mutual exclusion, and others) and two
 observed at runtime (control and data).
-
-The three strongly-typed edge families of AgentFlow's agent dependency
-graph~\cite{agentflow} --- the structured-workflow system of that name, not
-the unrelated RL-optimised agent sharing it --- are adopted directly; its
-node vocabulary is
-deliberately not, for the reason given in \S\ref{sec:structured-spaces}:
-that vocabulary describes a design space, whereas this one has to describe
-a specific running harness.
 
 Two properties are enforced by test. There is a \textbf{single ordering
 authority}: the graph is the only thing that decides processor order, so
@@ -109,27 +98,8 @@ the question the sixth gate asks (\S\ref{sec:verification}).}
 
 \subsection*{What the graph buys over a configuration file}
 
-The released harness is not unstructured --- it is a configuration file
-read by a runloop. Four things change when the same surface becomes a
-typed graph, and they are worth separating because only the fourth is
-specific to this thesis.
 
 \begin{enumerate}
-  \item \textbf{Order becomes decided rather than emergent.} In the
-        release, what runs before what follows from list order and from
-        registration side effects at import time. With $G$ as the single
-        ordering authority the executed pipeline cannot disagree with the
-        declared one, and a test says so.
-  \item \textbf{An edit acquires an identity.} A genotype hash over $G$
-        makes ``the same candidate'' a decidable question and gives the
-        novelty ledger a key. Over free text it is not decidable at all:
-        nothing downstream can confirm that a candidate document and the
-        applied change are one intervention (\S\ref{sec:fielded}).
-  \item \textbf{Illegality is caught at build time.} A
-        write\,$\to$\,reload\,$\to$\,re-graph round trip and a
-        hash-contract test refuse a malformed edit before a rollout pays
-        for it. The measured consequence is that the share of candidates
-        dying malformed falls from $30.5\%$ to $14.5\%$ \F{53}.
   \item \textbf{The harness and its execution share one coordinate
         system.} This is the one that matters here. $U$ is an unfolding of
         $G$, so both name the same nodes, and a candidate's claim about
@@ -173,12 +143,11 @@ as evidence:
         given a plausible identifier.} The recorder is permitted to say it
         does not know.
   \item \textbf{Cross-layer frontiers are reported, never silently
-        crossed.} Where the graph's knowledge ends --- at a nested agent
-        boundary, at an external call --- the boundary appears in the
-        record.
+        crossed.} Where the graph's knowledge ends --- a nested agent
+        boundary, an external call --- the boundary appears in the record.
 \end{enumerate}
 
-These rules cost coverage and buy admissibility: a gate that trusts a
+The rules cost coverage and buy admissibility: a gate that trusts a
 guessed edge can be talked past.
 
 % -------------------------------------------------------------------------
@@ -188,26 +157,17 @@ guessed edge can be talked past.
 
 A free-text edit surface confuses three questions about a candidate: is it
 the same proposal as before, is it the same thing that was deployed, and
-did it behave the same way. GHX separates them with three nested hashes.
-
-\begin{itemize}
-  \item \textbf{Genotype} --- structural identity of the configuration,
-        with runtime-only processors excluded. Two candidates with the same
-        genotype are structurally the same candidate. This is the
-        deduplication key.
-  \item \textbf{Deployment} --- genotype plus the runtime overlay: what
-        actually ran.
-  \item \textbf{Phenotype} --- deployment plus the observed execution
-        edges: what it actually did.
-\end{itemize}
-
-The containment $\text{genotype} \subseteq \text{deployment} \subseteq
-\text{phenotype}$ is nailed by a hash-contract test. The nearest precedent
-is the archive identity of the Darwin G\"odel Machine~\cite{dgm}, which keeps
-lineage identity for a population of self-modifying agents; the difference
-is that the layering here exists to separate \emph{declaration} from
-\emph{observation}, which is the distinction a free-text edit surface
-destroys.
+did it behave the same way. Three nested hashes separate them:
+\textbf{genotype}, the structural identity of the configuration with
+runtime-only processors excluded, which is the deduplication key;
+\textbf{deployment}, genotype plus the runtime overlay --- what actually
+ran; and \textbf{phenotype}, deployment plus the observed execution edges
+--- what it actually did. The containment $\text{genotype} \subseteq
+\text{deployment} \subseteq \text{phenotype}$ is nailed by a hash-contract
+test. The nearest precedent is the archive identity of the Darwin
+G\"odel Machine~\cite{dgm}; the difference is that this layering exists to
+separate \emph{declaration} from \emph{observation}, the distinction a
+free-text surface destroys.
 
 % -------------------------------------------------------------------------
 \section{Causal queries over the execution graph}
@@ -226,8 +186,10 @@ record, and its full cone is \textbf{48 nodes}, its data cone \textbf{42}
 
 The modal wording is kept throughout: the cone is what \emph{could have
 shaped} the failure, never what caused it. Under the recorder's honesty
-rules it is a sound over-approximation of the causal ancestry, not a
-counterfactual, and is nowhere treated as one.
+rules it is a \emph{partial, observation-limited} reading of the causal
+ancestry --- it contains no invented edge, and it may omit a dependency
+the runtime did not observe. It is not a counterfactual and is nowhere
+treated as one.
 
 % -------------------------------------------------------------------------
 \section{Evidence integration}
@@ -237,15 +199,12 @@ counterfactual, and is nowhere treated as one.
 Failure cones and cross-task facts are injected into the Digester's and
 Planner's context. Passing tasks enter as the \emph{contrast side} rather
 than as dossiers of their own: passing-cone signatures feed the lift
-control --- without them, lift is explicitly not computed --- along with
+control --- without them lift is explicitly not computed --- along with
 flip diffs recording what a task's cone gained or lost since it last
-passed, and the partition line between the passing and failing
-populations. The official Digester's own digestion of all outcomes is left
+passed. The official Digester's own digestion of all outcomes is left
 untouched, so nothing downstream changes shape.
 
-The false flow column of \S\ref{sec:evidence-audit} is replaced. Across the
-post-fix graph campaign, \textbf{0 of 859} dossiers carry it \F{7}, against
-a reach of $86.0\%$ in the no-graph arm \F{4}. Every injection is recorded in a manifest, so what a role saw is
+The false flow column of \S\ref{sec:evidence-audit} is replaced. Every injection is recorded in a manifest, so what a role saw is
 established independently of the role's own account.
 
 A second, independent flag, \texttt{HARNESSX\_GHX\_PLANNER\_SENSES}, extends
@@ -253,39 +212,11 @@ this seam to give the Planner fate-bucket base rates for target selection
 and the Critic the same rates for pricing predicted hits, but it stayed off
 in every whitelist campaign, so its effect is unmeasured.
 
-\subsection*{A representation transform, not more information}
-
-The objection to any evidence-injection result is that the treated arm was
-given more to read. By construction, the rendered cone is a \emph{map, not a payload}: it
-carries structure and identifiers, and copies no trajectory content. By
+ By
 measurement, the median rendered cone is \textbf{15.5\,kB} against the
 \textbf{87.4\,kB} trajectory it competes with for the same context budget
 ($n{=}44$, R1) --- a ratio of \textbf{0.12} \F{55}.
 
-\subsection*{The evidence gets smaller and better-founded}
-
-Four independent measurements point the same way:
-
-\begin{itemize}
-  \item the cone is $\sim$$4\%$ of the invocation's nodes
-        (\S\ref{sec:cones});
-  \item the rendered cone is $0.12$ of the trajectory's bytes (above);
-  \item $k{=}1$ observations suffice for the loop to reach the correct drug
-        family --- more trajectories buy argument quality, not new families
-        \F{26}--\F{30} (\S\ref{sec:clinic});
-  \item digests in the graph arms carry \textbf{3.50} verified citation
-        anchors each against \textbf{1.75} in the no-graph arms, while the
-        share of digests failing the production anchor validator falls
-        from $11.7\%$ to $1.5\%$ \F{52} (\S\ref{sec:what-graph-did}).
-\end{itemize}
-
-Together they support a narrower claim than ``the graph helped'':
-structuring the evidence reduces its volume by an order of magnitude while
-increasing the density and validity of its citations. Whether that improves
-outcomes is a separate question, answered in the negative at this bed's
-resolution in Chapter~\ref{ch:results}. Which component earns the citation
-improvement is a third question \S\ref{sec:what-graph-did} leaves open, no
-arm isolating the three candidate causes.
 
 % -------------------------------------------------------------------------
 \section{Verification surfaces}
@@ -294,35 +225,32 @@ arm isolating the three candidate causes.
 
 Two surfaces use $U$ to check claims that were previously taken on trust.
 
-\paragraph{Why a sixth gate.} The official structure gate already checks
-that a candidate's evidence exists --- but as \emph{text}: a citation must
-resolve to a file and a step index inside it. It cannot ask whether the
-component a candidate says it is repairing was ever \emph{executed} on the
-failure it cites, because nothing in the official record represents
-execution as anything but prose. Across the three graph seeds, eighteen
+\paragraph{A sixth acceptance gate.} The official structure gate already
+checks that a candidate's evidence exists, but as \emph{text}: a citation
+must resolve to a file and a step index inside it. It cannot ask whether
+the component a candidate says it is repairing was ever \emph{executed} on
+the failure it cites, because nothing in the official record represents
+execution as anything but prose. The sixth gate asks exactly that: if a
+candidate says it is repairing a node, that node must appear in the graph
+of the failure it claims to repair. Across the three graph seeds, eighteen
 candidates cleared all five official gates and were then found to name a
-node that never appeared in the execution graph of the failure they cited
-\F{53}. A second reason is a trap in the official ladder itself: the
-vendored replay gate runs a trivial synthetic task (``Reply with exactly:
-OK'', two steps) in which no new tool ever fires, so a gate that checked
-tool candidates against \emph{that} execution would refuse every one of
-them. The sixth gate is therefore defined over a real task's replay graph
-and says so when it has none.
+node with no execution record in it \F{53}. Because that record is
+incomplete by rule --- edges are only ever observed, never inferred --- an
+absent node establishes that the candidate cannot support its claim from
+the record, not that the node never ran: the gate refuses
+\emph{unsupported} claims, which is the only refusal the record licenses. Where no replay graph exists the
+gate records an \emph{honest pass} with \texttt{checked=False}: it passes
+the candidate and records that it could not check, and never reports
+having checked when it did not --- which also disarms a trap in the
+official ladder, whose replay gate runs a two-step synthetic task
+(``Reply with exactly: OK'') in which no new tool ever fires, so a gate
+reading \emph{that} execution would refuse every tool candidate.
 
 \paragraph{An alternative reading of the eighteen kills.} An equally
 consistent reading of \F{53} is that the cone-based representation
 degrades the Evolver's targeting rather than revealing targeting that was
 already bad; the no-graph arm has no comparable gate or hand audit, so the
 two readings are weighed, not settled, in \S\ref{sec:localization}.
-
-\paragraph{A sixth acceptance gate.} The official ladder has five gates,
-all of which read the candidate's prose. The sixth counts the candidate's
-claimed target in the recorded failing execution: if a candidate says it is
-repairing a node, that node must appear in the graph of the failure it
-claims to repair. Where no replay graph exists, the gate records an
-\emph{honest pass} with \texttt{checked=False} --- it passes the candidate
-and records that it could not check. It never reports having checked when
-it did not.
 
 \paragraph{A replay gate with a live refusal record.} Of fifteen checks,
 seven produced structural refusals of the form ``edited, but never ran'',
@@ -349,18 +277,6 @@ operationalised statistic.
 Candidates become typed graph edits, validated when authored and rendered
 back into the official formats so that nothing downstream changes.
 
-\subsection*{Stated against the right baseline}
-
-What changed is not the reach of the edit surface. Typed candidate spaces already exist in the literature
-(\S\ref{sec:structured-spaces}), and the official loop could already edit
-the processor plane. In the no-graph baseline arm it authored new processor \emph{classes} as source
-files and installed them through a \texttt{file://} target in
-\texttt{config.yaml} --- among them the guard processor behind this
-thesis's only above-noise repair (\S\ref{sec:one-repair}), plus a dead-end
-actuator, a tool-loop breaker, an evidence gate, and a numeric verifier.
-\texttt{processor} was that campaign's largest candidate bucket. GHX's
-contribution is therefore not the ability to add a node.
-
 What changed is how an edit is \textbf{committed and identified}. Under the
 official path, the Evolver composes a manifest and a \texttt{config.yaml}
 as free text, and the candidate's real edit is whatever survived its own
@@ -382,23 +298,21 @@ silently accepted.
 
 \subsection*{Coverage}
 
-The typed surface is \emph{narrower} than the official free-text one. Seven
-graph operations cover the processor plane; two config-section operations
-cover the tools section; prompt edits enter as \texttt{mutate\_params} on
-the prompt processor's template. Editing the harness's own source code is
-out of scope entirely, and is recorded as a deviation
-(Appendix~\ref{app:deviations}).
-
-GHX \emph{types a slice} of the official action space. It does not extend
-it, and the slice is the claim.
+The typed surface is \emph{narrower} than the free-text one it replaces:
+seven graph operations on the processor plane, two config-section
+operations for tools, prompt edits as \texttt{mutate\_params} on the prompt
+processor's template, and the harness's own source out of scope entirely
+--- recorded as a deviation (Appendix~\ref{app:deviations}). GHX types a
+slice of the official action space rather than extending it, and the slice
+is the claim.
 
 \subsection*{The runtime policy engine}
 
-The graph also supports rule slots that the loop itself fills. The specimen
-is a rule the loop authored in-run, which fired 19 times across 10 tasks
-with zero collateral damage and zero conversions \F{11}\F{20}. It is an
-aliveness proof --- the channel works end to end, from the loop's own
-reasoning to a live runtime rule --- and not a result.
+The graph also supports rule slots the loop itself fills. The specimen is a
+rule the loop authored in-run, which fired 19 times across 10 tasks with
+zero collateral damage and zero conversions \F{11}\F{20} --- an aliveness
+proof that the channel works end to end, from the loop's own reasoning to
+a live runtime rule, and not a result.
 
 % -------------------------------------------------------------------------
 \section{The readout ladder}
@@ -415,8 +329,12 @@ grade what the runtime records:
 \begin{itemize}
   \item[\textbf{R0}] \emph{Is it in the deployed configuration?} ---
         answered by the landing gates.
-  \item[\textbf{R1}] \emph{Did it ever execute?} --- answered by the replay
-        gate; live, with seven refusals \F{11}.
+  \item[\textbf{R1}] \emph{Did it ever execute?} --- answered
+        \emph{before landing} by the replay gate, which refuses ``edited,
+        but never ran'' against recorded graphs; live, with seven refusals,
+        none of which shipped \F{11}. After landing the question is
+        subsumed by R2's fire counts; no separate post-landing execution
+        check exists.
   \item[\textbf{R2}] \emph{Did it fire, and on what?} --- answered by fire
         and false-positive counts over $U$; produced by the loop itself
         \F{38}.
@@ -426,32 +344,12 @@ grade what the runtime records:
         wired into the loop.
 \end{itemize}
 
-\subsection*{Offered as a standard}
-
-Levels-of-evidence ladders do load-bearing work in other fields --- GRADE
-in clinical medicine, SAE J3016 for driving automation --- by forcing a
-system to state which rung its claims stand on.
-
-Every self-evolving harness surveyed in \S\ref{sec:self-evolving} admits
-candidates at \textbf{R0}: it checks that an edit landed, then selects on
-aggregate score. None reports R1 or above. Given a recorded execution
-graph, R1 and R2 are mechanical; R3 is where this thesis's evidence places
-the remaining effort
-(\S\ref{sec:future}).
 
 % -------------------------------------------------------------------------
 \section{Limitations by construction}
 \label{sec:construction-limits}
 % -------------------------------------------------------------------------
 
-Two limitations follow from the design decisions of this chapter.
-
-\paragraph{Removal is not measurement.} The column that replaces the false
-one saturates by construction under the sliding window: it marks
-$549/549$ calls as used \F{8}. The false signal is verifiably gone, but the replacement carries no
-information, so its presence cannot be read as a measurement.
-Chapter~\ref{ch:results} repeats this where the removal result is
-reported.
 
 \paragraph{Recorder-gated dormancy.} With unfold recording disabled,
 runtime rules are mute. This is a silent-loss channel GHX introduces

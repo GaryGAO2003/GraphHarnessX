@@ -30,9 +30,10 @@ be regenerated.
 Script paths are relative to \texttt{experiments/analysis/} unless given in
 full. Where a row's scope was narrowed by the whitelist ruling
 (\S\ref{sec:scope}), the row states the narrowed scope and the superseded
-reading appears in the retraction registry rather than here. \textbf{F17}
-and \textbf{F18} are supporting cross-check rows for other rows in this
-ledger and are not meant for standalone citation.
+reading appears in the retraction registry rather than here. \textbf{F17},
+\textbf{F27} and \textbf{F28}
+are supporting or archival rows: measured and recorded, cross-checking other rows or reporting a
+probe the body does not need, and not meant for standalone citation.
 
 % -------------------------------------------------------------------------
 \section*{C.1\quad The ledger}
@@ -49,13 +50,13 @@ repetitions are not counted), 11{,}966 payload-bearing calls. \emph{Class:} \cls
 \texttt{audit\_flow\_column\_rate.py}. A 150-call sample had given
 $68.1\%$; see registry error 12.
 
-\item[\textbf{F2}\quad Verifiable false-negative rate of the flow column.]
+\item[\textbf{F2}\quad Overlap-rule negative rate on answer-carrying calls.]
 $75.0\%$ (419/559); $73.8$--$75.1\%$ across answer-length window variants.
 \emph{Sample:} baseline campaign, 671 passing runs, 559 calls whose result
 literally contains the final answer. \emph{Class:} \cls{A},
 \texttt{audit\_flow\_column\_false\_negatives.py}.
 
-\item[\textbf{F3}\quad The failure mechanism is a construction mismatch.]
+\item[\textbf{F3}\quad Short-answer mismatch with the overlap rule.]
 $96.7\%$ of the false negatives have answers shorter than the column's own
 20-character minimum; median answer length is 9. \emph{Sample:} the 419
 false negatives of F2. \emph{Class:} \cls{A}, as F2.
@@ -128,9 +129,9 @@ pool $25.2\%$ against $34.2\%$, so equal hit rates would already give
 unequal lift. \emph{(iii)} five gates against six, the sixth testing
 whether a cited graph node exists --- \emph{unrelated to predictive
 accuracy} --- thinning the sample. \emph{(iv)} the graph arm moves
-$0.78 \to 1.23$, $n: 9 \to 2$, across readings. \emph{(v)} graph-arm
-lists are nine tenths \emph{halo} --- tasks whose cone the edit does not
-touch \F{64}. \emph{Conclusion:} the localization face is
+$0.78 \to 1.23$, $n: 9 \to 2$, across readings. \emph{(v)} graph-arm core/halo labels cover a broader prediction
+population than the declared unlock lists and omit registry-tool touches
+\F{64}. \emph{Conclusion:} the localization face is
 \textbf{not adjudicable}. \emph{Class:} \cls{A} for the components,
 \cls{C} for the conclusion.
 
@@ -213,11 +214,9 @@ Baseline campaign, on the common 100-task subset: \textbf{$21.0\%$}
 (126/600) over 6 no-ship full-batch windows inside R1--R15, 95\% Wilson
 $[17.9, 24.4]$; single-window total swing $-4\ldots{+}5$. Pooled with the
 other two seeds (F9e): $20.1\%$ over 20 windows, and $52.3\%$ of
-task-campaign pairs flip at least once. The 20 windows give a per-round
-score SD of \textbf{3.70 tasks} directly, so three SD is $\pm 11.1$ ---
-\emph{wider} than the $-8\ldots{+}5$ band, which is why every
-``unreadable'' verdict made against the band is conservative in the
-direction that makes separation easier to claim. R0 is excluded here as
+task-campaign pairs flip at least once. Across the 20 adjacent same-configuration windows, the paired score
+changes have sample SD \textbf{3.70 tasks}; three times that descriptive
+scale is $11.1$. Neither is a per-round score SD, formal threshold, or MDE. R0 is excluded here as
 it is in F47 and F48: it is a single baseline draw and on this seed the
 one round scored at $k{=}2$ (registry error 11). The superseded figure
 $20.2\%$ (146/721) was measured on the 103-task bed with the R0 window
@@ -244,12 +243,6 @@ Of 14 never-passed tasks on the whitelist graph campaign, 3 judged
 harness-fixable (conservative; 8 low-confidence items).
 \emph{Class:} \cls{C}. \textbf{A lower bound only --- may not be used as a
 ceiling.}
-
-\item[\textbf{F18}\quad Base-rate consistency check.]
-Passive flip-to-pass rates on failing tasks, $25.2\%$ and $34.2\%$ across
-arms, are consistent with the $20.1\%$ pooled same-config flip rate.
-\emph{Sample:} F9a/F9b crossed with F15. \emph{Class:} \cls{A}, two
-scripts corroborating.
 
 \item[\textbf{F19}\quad The official system publishes no numbers.]
 No round-0, no launch script, no variant pool in the released code; the
@@ -278,19 +271,6 @@ $=$ 16 simultaneous $+$ 106 adjacent no-ship round-pair flips; tool-name
 alignment at two levels (argument-level alignment is uninformative: 90/103
 first calls differ in wording alone). \emph{Class:} \cls{A},
 \texttt{audit\_divergence\_points.py}.
-
-\item[\textbf{F23}\quad An empty result does not predict failure.]
-Direction-symmetric: the passing side gets an empty result 9 times, the
-failing side 8; the fewer-empties arbiter runs at $51\%$ --- a coin ---
-over 109 pairs. \emph{Sample:} the F22 twin set, two instruments agreeing.
-\emph{Class:} \cls{A}, as F22 plus \texttt{audit\_twin\_arbiter.py}.
-
-\item[\textbf{F24}\quad Offline twin arbiters, feasibility.]
-answered $94\%$ (31/33, covering $27\%$ of pairs); shorter $65\%$ (104
-pairs); grounding $63\%$ (27); \textbf{page-grade $41\%$ --- inverted}
-(73); fewer-empties $51\%$; untuned combination $47\%$. \emph{Sample:} 122
-pairs; in-sample, benchmark-specific, all features available at submission
-time. \emph{Class:} \cls{A}, \texttt{audit\_twin\_arbiter.py}.
 
 \item[\textbf{F25}\quad Divergence root cause, at content level.]
 Threshold-robust: pure sampling accounts for only $\approx 17\%$ (14 pairs
@@ -408,8 +388,9 @@ Pooling every clean same-window pair, \textbf{174 pairs: parent 75/174
 against applied 72/174} (Fisher one-sided $0.67$). Mechanism endpoint
 also flat: confident-wrong among failures 51/99 against 54/102. A stopping
 computation showed the second batch could not reverse the result, so it was
-cancelled. \textbf{Verdict: the three-drug configuration pack has zero
-score effect}, and the preceding four apparent wins were window noise, each
+cancelled. \textbf{Verdict: no score improvement, with a negative point estimate}
+(parent 29/70 against applied 21/70 prospectively, 75/174 against 72/174
+pooled) --- and the preceding four apparent wins were window noise, each
 killed by a different instrument. \emph{Resolution law for this bed:} a
 single task's base rate swings $\pm 50$ points on a half-hour scale, and a
 single-window $\Delta \le 5$ is unreadable. \emph{Sample:} 174 pairs, the
@@ -546,12 +527,15 @@ $-4\ldots{+}2$) against seed 1's $21.0\%$; volatile-family re-flip
 $37.7\%$ (49/130, 5 no-op windows) against seed 1's $41.6\%$ --- same
 $\approx 2\times$ structure. Carried-task audit: 5/5 rounds; two
 restart deviations in the run indices. \emph{Class:} \cls{A},
-\texttt{audit\_m28\_seed2\_flips.py}. Superseded $20.1\%$ (161/800, 8
-windows) --- 103-task bed, restart pair pooled in --- withdrawn. F15's
-seed-2 column reads $161/800=20.1\%$ over 8 windows, pooling (R11,R12)
-resume with the other seven no-ops; this row follows
-\texttt{curves.json}'s \texttt{evolve\_status} label instead (forced
-\texttt{ok} for R12), reporting that pair separately.
+\texttt{audit\_m28\_seed2\_flips.py}. \textbf{Two window rules, one
+seed:} F15 and F9e read this seed as $161/800=20.1\%$ over 8 windows,
+pooling the (R11,R12) resume with the other seven no-ops on config
+identity; this row instead follows \texttt{curves.json}'s
+\texttt{evolve\_status} label (forced \texttt{ok} for R12) and reports
+that pair separately, giving $143/700=20.4\%$ over 7. The two differ by a
+two-window swap and neither is withdrawn. \textbf{The body follows the
+config-identity rule throughout} (F15, F9e, F54), so $20.1\%$ is the
+figure quoted there.
 
 \item[\textbf{F45}\quad Replication, seed 3, both arms 16/16.]
 No-graph: 103-task bed R0--R6, 100-task subset from R7 (mid-campaign
@@ -564,14 +548,15 @@ no-op windows) against $41.6\%$ and $37.7\%$ --- still
 $\approx 1.6\times$ the bed rate. Carried-task audit: 6/6 rounds; a
 twelve-hour gateway outage and its wash/re-flight in the run
 indices and \S\ref{sec:replication}. \emph{Class:} \cls{A},
-\texttt{audit\_m29\_seed3\_flips.py}. Superseded $19.2\%$ (115/600)
-predates current run state, withdrawn. F15's seed-3 column reads
-$115/600=19.2\%$ over the same six windows, by a different rule: it
-keeps (R6,R7) outage-resume in (\texttt{curves.json} labels R7
-\texttt{ok}, though R7's config is textually identical to R6's, 16
-flips), pooling
-(R1,R2) instead (labelled \texttt{noop}, though R2's config differs
-from R1's, 18 flips) --- a 2-flip swap.
+\texttt{audit\_m29\_seed3\_flips.py}. \textbf{Two window rules, one
+seed:} F15 and F9e read this seed as $115/600=19.2\%$ over the same six
+windows, keeping the (R6,R7) outage-resume in on config identity (R7's
+config is textually identical to R6's, 16 flips) and pooling (R1,R2)
+instead (labelled \texttt{noop} though R2's config differs from R1's, 18
+flips); this row follows the \texttt{evolve\_status} label and reads
+$117/600=19.5\%$. A two-flip swap, and neither figure is withdrawn. As in
+F44, \textbf{the body follows the config-identity rule}, so $19.2\%$ is
+the figure quoted there.
 
 \item[\textbf{F46}\quad Three seeds $\times$ two arms on one bed.]
 Arms flew different beds --- \texttt{curves.json} not comparable across
@@ -580,8 +565,12 @@ them, nor (seed 3) with itself across the switch. Every number:
 carried rows included. \textbf{Plateau R3--R15:} no-graph
 $67.3 \pm 2.6$ / $64.6 \pm 2.2$ / $58.4 \pm 3.3$ (arm mean $63.4$, SD
 $4.6$); graph $64.9 \pm 3.2$ / $65.5 \pm 6.2$ / $67.9 \pm 4.3$ (arm mean
-$66.1$, SD $1.6$). \textbf{Arm-mean $+2.7$ tasks, inside the
-$-8\ldots{+}5$ envelope.} Terminal rounds: no-graph $69/68/63$, graph
+$66.1$, SD $1.6$). \textbf{Arm-mean difference $+2.7$ tasks against a
+between-seed standard error of $2.8$} --- $\sqrt{(4.6^2+1.6^2)/3}$ on
+three seeds per arm --- so the difference is smaller than its own
+sampling error. \emph{The $-8\ldots{+}5$ envelope does not apply here}:
+it is a single-round-pair swing, not the dispersion of an average of
+thirteen rounds. Terminal rounds: no-graph $69/68/63$, graph
 $67/72/76$. \textbf{R0-to-terminal unusable as a trend:} R0
 $[67, 53, 66, 56, 59, 57]$, deltas $[+2, +15, -3, +11, +13, +19]$,
 $r(\text{R0}, \Delta) = -0.867$ --- regression to the mean.
@@ -589,7 +578,7 @@ $r(\text{R0}, \Delta) = -0.867$ --- regression to the mean.
 F9c's objections. \emph{Class:} \cls{A},
 \texttt{audit\_three\_seed\_plateau.py}.
 
-\item[\textbf{F47}\quad Within-campaign trend --- both arms climb.]
+\item[\textbf{F47}\quad Exploratory within-campaign trend --- both arms climb.]
 R1--R15 (R0 excluded): \textbf{six positive slopes in six campaigns}:
 no-graph $+0.62 / +0.44 / +0.38$, graph $+0.53 / +1.39 / +0.64$ tasks
 per round; six/six positive under zero-trend null, $1/64$,
@@ -600,7 +589,9 @@ R12--R15: no-graph $64.75$, graph $70.00$, difference $+5.25$,
 permutation $p = 0.15$. \textbf{Caliber warning:} 3-versus-3
 permutation's one-sided minimum, $p = 1/20 = 0.05$: $0.10$ is one
 swap from ceiling --- \emph{design exhausted}, not \emph{no
-effect}. Fitted gains R1$\to$R15: no-graph $+8.8/+6.2/+5.3$
+effect}. The six/six $1/64$ figure assumes the six campaigns independent;
+they share one bed and overlap in calendar (F59), so it is quoted as
+descriptive. Fitted gains R1$\to$R15: no-graph $+8.8/+6.2/+5.3$
 (mean $+6.8$), graph $+7.4/+19.5/+9.0$ (mean $+12.0$, large SD).
 \emph{Class:} \cls{A}, \texttt{audit\_slope\_permutation.py}.
 
@@ -639,24 +630,6 @@ in mechanism magnitude. \emph{Corroborating:} the two non-whole-bed
 cases had byte-identical configs either side, so starvation count
 swings substantially under no edit. \emph{Sample:} as F48; $n=6$,
 whole-bed $n=4$. \emph{Class:} \cls{A}, as F48.
-
-\item[\textbf{F50}\quad The loop builds its own step mechanism.]
-Seed 2's graph arm, candidate C-R5-01 (processor bucket, one node
-insertion) inserts a step-countdown processor into its own graph at order
-40. The candidate card's capability evidence contains the loop's own
-verification run --- a fired count of 18 over 18 model calls, and the
-model-visible tail
-\texttt{[step-countdown] step 19 of 20 used --- STOP researching NOW\ldots}
---- so the round trip to the provider is demonstrated, not asserted. The
-processor is in the round configuration from R6 onward.
-\emph{Significance:} F30 had placed the step cap outside the loop's scope,
-since the task cap is set by the operator on the command line; on seed 2
-the loop built a functional equivalent from inside, in the processor
-bucket. \emph{Scope is not a fixed property of the system.}
-\textbf{Attribution warning:} the R4$\to$R5 starvation collapse is
-\emph{not} this candidate's --- it takes effect only at R6; see F49. After
-it takes effect, R5$\to$R6 starvation moves $8 \to 7$.
-\emph{Class:} \cls{B}, candidate card and round configurations, line-pinned.
 
 \item[\textbf{F51}\quad The size of the evidence base.]
 Counting rounds and fresh (non-carried) rows from the task history of each
@@ -807,7 +780,7 @@ this thesis's own $0.80$ ``reliable'' bar} \F{16}\F{54} ($r_4=0.840$).
 100-task subset. \emph{Class:} \cls{A}, \texttt{audit\_spearman\_brown.py}.
 
 \item[\textbf{F61}\quad Proposal bucket census --- what the Evolver wrote.]
-Primary bucket of every candidate card, evolve rounds R1--R15, six whitelist
+Primary declared category on every candidate card, evolve rounds R1--R15, six whitelist
 campaigns, quarantined directories never opened. No-graph 86 cards: tools 19
 ($22.1\%$), processor 30 ($34.9\%$), prompt 19 ($22.1\%$), config 18; by seed
 25/36/25 cards, tools $20.0/25.0/20.0\%$. Graph 79: tools 35 ($44.3\%$),
@@ -817,8 +790,8 @@ one-sided permutation $p = 1/20 = 0.05$. Multi-bucket cards 6/86 against
 0/79. \emph{Class:} \cls{A}, \texttt{audit\_proposal\_face.py}.
 
 \item[\textbf{F62}\quad Where the bucket shift sits: written, not filtered.]
-Critic acceptance per bucket is alike (tools $15/19$ against $25/35$, prompt
-$17/19$ against $9/11$); the sixth gate's 18 refusals, all ``edited but
+Ship-ranking membership per bucket is alike (tools $15/19$ against $25/35$,
+prompt $17/19$ against $9/11$); these are not Critic-acceptance counts; the sixth gate's 18 refusals, all ``edited but
 never ran'', fall tools 9, processor 6, config 2, prompt 1 ($9/22$ and
 $6/13$); landed ships no-graph 37 (tools 11, processor 13, prompt 10,
 config 3), graph 29 (13, 7, 6, 3). A flagged \texttt{tools} bucket was
@@ -843,15 +816,14 @@ the top node $1/30$, $1/27$, $5/22$. \emph{Class:} \cls{A}, as F61.
 
 \item[\textbf{F64}\quad Predictions per card; core against halo.]
 \texttt{tasks\_will\_unlock} per card: no-graph $3.1/2.6/3.4$ (pooled
-$2.99$); graph $5.5/5.2/5.5$ (pooled $5.41$, maximum 26). Each graph card's
-list is machine-split against the tasks' failure cones
-(\texttt{\_predicted\_split}) into a \emph{core}, an edited node in the
-task's cone, and a \emph{halo}, none: core $0.6/1.1/1.1$ (pooled $0.91$),
-halo $5.0/4.9/4.4$ (pooled $4.81$, $89\%$). F9 rule, landed ships, three
-graph seeds: core $4/27$ ($15\%$), halo $50/145$ ($34\%$), passive base pool
-$172/530$ ($32\%$). \emph{Claimed:} no detectable efficacy information in
-cone touch ($n{=}27$, not less than chance); a hit rate over a list nine
-tenths halo is not the no-graph arm's quantity, F9c(v). \emph{Class:}
+$2.99$); graph $5.5/5.2/5.5$ (pooled $5.41$, maximum 26). Separately,
+\texttt{\_predicted\_split} labels a broader stored prediction population:
+core $0.6/1.1/1.1$ (pooled $0.91$), halo $5.0/4.9/4.4$ (pooled $4.81$,
+$89\%$). F9 rule, landed ships, three graph seeds: core $4/27$ ($15\%$),
+halo $50/145$ ($34\%$), passive base pool $172/530$ ($32\%$). The labels
+omit registry-tool touches and do not partition \texttt{tasks\_will\_unlock};
+these raw counts are implementation diagnostics and do not estimate
+cone-touch efficacy, F9c(v). \emph{Class:}
 \cls{A}, as F61.
 
 \item[\textbf{F65}\quad Digester failure-tag vocabulary.]
@@ -898,30 +870,14 @@ from the publication, archived with the reproduction audit.
 \section*{C.2\quad The retraction registry}
 % -------------------------------------------------------------------------
 
-Load-bearing, and appended to the ledger rather than hidden in it. It
-records every claim this project made and withdrew, with the replacement
-reading. \textbf{Nothing in this registry is re-cited anywhere in this
-thesis.}
+Appended to the ledger rather than hidden in it. It records the claims this
+project withdrew whose replacement a reader of the surviving numbers would
+otherwise have to reconstruct; the measurement errors behind several of
+them are registered separately, with their rules, in
+Appendix~\ref{app:deviations}. \textbf{Nothing in this registry is
+re-cited anywhere in this thesis.}
 
 \begin{description}[leftmargin=0pt,labelindent=0pt,labelsep=0pt,style=nextline,font=\normalfont,itemsep=5pt]
-
-\item[``88--90\% false negatives''] $\to$ F1/F2: whole-arm NO rate
-$75.0\%$, verifiable false negatives $75.0\%$.
-
-\item[``The graph got it right''] $\to$ ``the graph removes a false signal
-and supplies no true measure'' (F7 with F8).
-
-\item[``Cross-bed replication'', as a result] $\to$ incomplete; retained
-only as engineering in progress.
-
-\item[``1441/1441 dossiers''] $\to$ 1239/1441, $86.0\%$ (F4).
-
-\item[``The loop doubled down on a false premise''] $\to$ no evidence;
-deleted.
-
-\item[``The replay gate refused 0 and abstained 33''] --- itself a
-mistaken correction $\to$ 7 refusals and 8 abstentions on the whitelist
-graph campaign (F11); the two reversals are registry error 9.
 
 \item[``A harness ceiling of 3 points''] $\to$ F16 and F17 presented
 together; the 3 is a lower bound on one queue.
@@ -936,12 +892,6 @@ fresh evaluation on all three seeds; and the meta layer, where the graph
 adds work, has no admissible cost record. \emph{The correct entry is
 blank, not negative.}
 
-\item[A second benchmark's baseline figure] $\to$ a step-ceiling artifact;
-retained only as engineering narrative.
-
-\item[``Three-arm probes show the roles copying the false signal''],
-as paraphrase $\to$ replaced by the three line-pinned documents of F5.
-
 \item[``The official loop cannot prescribe cause-aware repairs''] $\to$
 F38: the archaeology falsifies it; all three ancestors were Critic-accepted
 and the verify family appeared on a zero-graph arm at $k{=}1$.
@@ -955,20 +905,16 @@ scored 0/5, and a same-window re-test gave 6/10 against 6/10.
 \item[``Better aim will produce gain''] $\to$ F40(iv): hits produce no
 feedback, so aiming gains cannot be realized.
 
-\item[``Graph-arm lift $0.64$, $n=8$, base pool $35.4\%$''] $\to$ F9b:
-$0.78$ at $n=9$ after the campaign was completed to 16 rounds.
-
-\item[``$1.99$ against $0.64$ shows localization did not improve''] $\to$
-F9c: the two numbers \textbf{cannot be subtracted}; the correct statement
-is that this bed cannot adjudicate the localization face.
-
-\item[``The graph arm's $0.78$ is a decline''] $\to$ F9d: its $95\%$
-interval includes $1.0$, so not even a decline is established; the correct
-word is \emph{unmeasured}, with a minimum detectable lift near $1.46$.
-
-\item[``The $n=2$ window reading favours the graph''] $\to$ F9d: a
-two-cluster bootstrap is degenerate and is refused an interval; the number
-neither favours nor opposes.
+\item[The localization lift, in four superseded forms] $\to$ F9b--F9d.
+``Graph-arm lift $0.64$ at $n{=}8$'' became $0.78$ at $n{=}9$ once the
+campaign was completed to sixteen rounds; ``$1.99$ against $0.64$ shows
+localization did not improve'' is void because the two numbers
+\textbf{cannot be subtracted}; ``the graph arm's $0.78$ is a decline'' is
+void because its $95\%$ interval includes $1.0$, the correct word being
+\emph{unmeasured} with a minimum detectable lift near $1.46$; and an
+$n{=}2$ window reading is refused an interval as a degenerate bootstrap.
+The surviving statement is that this bed cannot adjudicate the
+localization face.
 
 \item[Five pre-specified criteria, as a section] $\to$ \textbf{section
 removed}. What is retained: F34's prospective efficacy batch remains the
@@ -1022,11 +968,10 @@ worse than one that is declared.
   \item \textbf{No row for the second benchmark.} A cross-bed replication
         was started and not finished. It appears nowhere in this thesis as
         a result.
-  \item \textbf{No row for a component ablation of the graph layer.} The
-        reason is given in the body (\S\ref{sec:localization}) and is not a
-        matter of budget: on a bed with this noise floor, an ablation arm
-        would return a null the design cannot interpret.
-  \item \textbf{No between-arm hypothesis test on the score axis.} F46 puts
+  \item \textbf{No row for a component ablation of the graph layer.} No
+        level-by-level ablation was run; the reason is given in the body
+        (\S\ref{sec:localization}).
+  \item \textbf{No confirmatory graph-versus-no-graph test on the score axis.} F46 puts
         both arms on one bed, which fixes the denominator; F9c's objections
         --- different candidate populations, different admission regimes
         --- are not fixed by a common denominator, and are not waived here.

@@ -135,4 +135,6 @@ Plugins can register processors via `plugin.json`:
 
 Each `target` points to a `MultiHookProcessor` subclass; other fields are constructor kwargs.
 
-See [Plugin System](../feats/plugins.md).
+The plugin registration shape is also documented in the `plugins` section of
+the repository configuration schema; this checkout does not include a separate
+plugin-system guide.

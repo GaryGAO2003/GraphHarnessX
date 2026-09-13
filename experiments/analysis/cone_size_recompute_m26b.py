@@ -9,17 +9,19 @@ failed fresh tasks, using cone_semantics_probe's faithful reimplementation of
 the cone pipeline.
 
 Measures (stated, recomputable):
-  * whole U     — node count; serialized chars = sum of non-empty JSONL line
+  * whole U     鈥?node count; serialized chars = sum of non-empty JSONL line
                   lengths of the U file.
-  * full cone   — data cone (observed_data ancestors of the anchors) union
+  * full cone   鈥?data cone (observed_data ancestors of the anchors) union
                   intervention nodes, exactly process_task_graph's full_cone;
                   chars = node records in the cone + edge records with both
                   endpoints inside it.
-  * data cone   — observed_data ancestors only.
+  * data cone   鈥?observed_data ancestors only.
 
 Prints per-task rows, medians, and the representative task whose U size is
 the median (for the thesis's worked example).
 """
+
+import argparse
 import json
 import statistics
 import sys
@@ -40,82 +42,101 @@ from cone_semantics_probe import (  # noqa: E402
 RUN = Path(r"D:\PycharmProj\HarnessX") / "recipe/gaia_evolver/runs/ghx-seed1"
 MAX_ROUNDS = 2  # R0+R1 failed cohort is a big enough sample for an illustration
 
-failed_by_round: dict[int, set] = {}
-for r in load_task_history(RUN):
-    if r.get("carried"):
-        continue
-    if not r.get("passed"):
-        failed_by_round.setdefault(int(r["round"]), set()).add(str(r["task_id"]))
 
-rows = []
-for rn in closed_rounds(RUN)[:MAX_ROUNDS]:
-    idx = build_task_index(RUN, rn)
-    for tid in sorted(failed_by_round.get(rn, ())):
-        leaf = idx.get(tid)
-        if leaf is None:
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--runs-root", help="Campaign runs directory (default: GHX_RUNS_ROOT or repository runs)")
+    parser.add_argument("--run", default="ghx-seed1")
+    args = parser.parse_args()
+    from run_paths import require_path, runs_root
+
+    try:
+        RUN = require_path(runs_root(args.runs_root) / args.run, "campaign run")
+    except FileNotFoundError as exc:
+        parser.error(str(exc))
+
+    failed_by_round: dict[int, set] = {}
+    for r in load_task_history(RUN):
+        if r.get("carried"):
             continue
-        upath = resolve_unfolded(leaf)
-        if upath is None:
-            continue
-        g = load_unfolded(upath)
-        if not g.nodes:
-            continue
-        anchors = cone_anchors(g)
-        if not anchors:
-            continue
-        data_cone = causal_cone(g.edges, anchors, {EDGE_DATA})
-        full_cone = set(data_cone) | {n.id for n in g.nodes if n.intervention}
-        raw_lines = [
-            ln for ln in upath.read_text(encoding="utf-8").splitlines() if ln.strip()
-        ]
-        total_chars = sum(len(ln) for ln in raw_lines)
-        sub_chars = 0
-        for ln in raw_lines:
-            rec = json.loads(ln)
-            kind = rec.get("kind")
-            if kind == "node" and rec.get("id") in full_cone:
-                sub_chars += len(ln)
-            elif (
-                kind == "edge"
-                and rec.get("source") in full_cone
-                and rec.get("target") in full_cone
-            ):
-                sub_chars += len(ln)
-        rows.append(
-            dict(
-                round=rn,
-                task=tid[:8],
-                n_nodes=len(g.nodes),
-                u_chars=total_chars,
-                cone_nodes=len(full_cone),
-                cone_chars=sub_chars,
-                data_nodes=len(data_cone),
+        if not r.get("passed"):
+            failed_by_round.setdefault(int(r["round"]), set()).add(str(r["task_id"]))
+
+    rows = []
+    for rn in closed_rounds(RUN)[:MAX_ROUNDS]:
+        idx = build_task_index(RUN, rn)
+        for tid in sorted(failed_by_round.get(rn, ())):
+            leaf = idx.get(tid)
+            if leaf is None:
+                continue
+            upath = resolve_unfolded(leaf)
+            if upath is None:
+                continue
+            g = load_unfolded(upath)
+            if not g.nodes:
+                continue
+            anchors = cone_anchors(g)
+            if not anchors:
+                continue
+            data_cone = causal_cone(g.edges, anchors, {EDGE_DATA})
+            full_cone = set(data_cone) | {n.id for n in g.nodes if n.intervention}
+            raw_lines = [ln for ln in upath.read_text(encoding="utf-8").splitlines() if ln.strip()]
+            total_chars = sum(len(ln) for ln in raw_lines)
+            sub_chars = 0
+            for ln in raw_lines:
+                rec = json.loads(ln)
+                kind = rec.get("kind")
+                if kind == "node" and rec.get("id") in full_cone:
+                    sub_chars += len(ln)
+                elif kind == "edge" and rec.get("source") in full_cone and rec.get("target") in full_cone:
+                    sub_chars += len(ln)
+            rows.append(
+                dict(
+                    round=rn,
+                    task=tid[:8],
+                    n_nodes=len(g.nodes),
+                    u_chars=total_chars,
+                    cone_nodes=len(full_cone),
+                    cone_chars=sub_chars,
+                    data_nodes=len(data_cone),
+                )
             )
+
+    if not rows:
+        print("NO ROWS 鈥?check layout assumptions")
+        sys.exit(1)
+
+    print(
+        f"ghx-seed1 failed fresh tasks with a resolvable U, rounds {sorted({r['round'] for r in rows})}: n={len(rows)}"
+    )
+    print(
+        f"{'rnd':>3} {'task':8} {'U_nodes':>7} {'U_chars':>8} {'cone_n':>6} {'cone_chars':>10} {'ratio':>6} {'data_n':>6}"
+    )
+    for r in sorted(rows, key=lambda x: (x["round"], x["task"])):
+        print(
+            f"{r['round']:>3} {r['task']:8} {r['n_nodes']:>7} {r['u_chars']:>8} "
+            f"{r['cone_nodes']:>6} {r['cone_chars']:>10} "
+            f"{r['cone_chars'] / max(1, r['u_chars']):>6.3f} {r['data_nodes']:>6}"
         )
 
-if not rows:
-    print("NO ROWS — check layout assumptions")
-    sys.exit(1)
-
-print(f"ghx-seed1 failed fresh tasks with a resolvable U, rounds {sorted({r['round'] for r in rows})}: n={len(rows)}")
-print(f"{'rnd':>3} {'task':8} {'U_nodes':>7} {'U_chars':>8} {'cone_n':>6} {'cone_chars':>10} {'ratio':>6} {'data_n':>6}")
-for r in sorted(rows, key=lambda x: (x["round"], x["task"])):
+    med = lambda k: statistics.median(r[k] for r in rows)  # noqa: E731
+    print("\nmedians:")
+    print(f"  whole U   : {med('n_nodes'):.0f} nodes / {med('u_chars'):.0f} chars")
+    print(f"  full cone : {med('cone_nodes'):.0f} nodes / {med('cone_chars'):.0f} chars")
+    print(f"  data cone : {med('data_nodes'):.0f} nodes")
     print(
-        f"{r['round']:>3} {r['task']:8} {r['n_nodes']:>7} {r['u_chars']:>8} "
-        f"{r['cone_nodes']:>6} {r['cone_chars']:>10} "
-        f"{r['cone_chars']/max(1,r['u_chars']):>6.3f} {r['data_nodes']:>6}"
+        f"  cone/U char ratio (median of ratios): {statistics.median(r['cone_chars'] / max(1, r['u_chars']) for r in rows):.3f}"
     )
 
-med = lambda k: statistics.median(r[k] for r in rows)  # noqa: E731
-print("\nmedians:")
-print(f"  whole U   : {med('n_nodes'):.0f} nodes / {med('u_chars'):.0f} chars")
-print(f"  full cone : {med('cone_nodes'):.0f} nodes / {med('cone_chars'):.0f} chars")
-print(f"  data cone : {med('data_nodes'):.0f} nodes")
-print(f"  cone/U char ratio (median of ratios): {statistics.median(r['cone_chars']/max(1,r['u_chars']) for r in rows):.3f}")
+    rep = sorted(rows, key=lambda r: r["n_nodes"])[len(rows) // 2]
+    print(
+        f"\nrepresentative (median-size U): R{rep['round']} task {rep['task']} 鈥?"
+        f"{rep['n_nodes']} nodes / {rep['u_chars']:,} chars -> full cone "
+        f"{rep['cone_nodes']} nodes / {rep['cone_chars']:,} chars -> data cone {rep['data_nodes']} nodes"
+    )
 
-rep = sorted(rows, key=lambda r: r["n_nodes"])[len(rows) // 2]
-print(
-    f"\nrepresentative (median-size U): R{rep['round']} task {rep['task']} — "
-    f"{rep['n_nodes']} nodes / {rep['u_chars']:,} chars -> full cone "
-    f"{rep['cone_nodes']} nodes / {rep['cone_chars']:,} chars -> data cone {rep['data_nodes']} nodes"
-)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

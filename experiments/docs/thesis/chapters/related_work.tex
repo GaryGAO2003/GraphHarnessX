@@ -3,15 +3,7 @@
 \label{ch:related}
 % =========================================================================
 
-\claim{Four literature routes independently leave one position unoccupied
---- provenance-grounded self-evolution --- and all four select on aggregate
-score, the signal this thesis demonstrates deaf on noisy beds.}
 
-The four routes are \S\ref{sec:self-evolving}--\S\ref{sec:structured-spaces}.
-\S\ref{sec:graph-memory} covers an adjacent line on graph memory, included
-to mark the boundary of this work rather than as a fifth route.
-\S\ref{sec:positioning} states the position and what the nearest systems
-already hold.
 
 % -------------------------------------------------------------------------
 \section{Self-evolving agent harnesses}
@@ -90,10 +82,10 @@ critique~\cite{rethink-harness-eval} argues that harness-evolution methods
 which search and then report on the same public benchmark conflate two
 questions the field has not separated --- a concern this thesis's own
 evidence argument echoes inside one system rather than across a
-leaderboard. None of the harness-level works surveyed
-here reports an independent execution of another group's released loop,
-and to our knowledge the AEGIS release had not been re-executed outside
-its authors' group before Chapter~\ref{ch:baseline}.
+leaderboard. None of the harness-level works identified in this survey reports an
+independent execution of another group's released loop, and this survey
+did not identify an earlier external re-execution of the AEGIS release
+before Chapter~\ref{ch:baseline}.
 
 % -------------------------------------------------------------------------
 \section{Failure attribution: from flat logs to causal graphs}
@@ -177,13 +169,6 @@ validated once and does not survive into a loop that would re-judge it.
 A 2026 survey~\cite{survey-attr-evolve} states directly that attribution
 and self-evolution are unconnected lines.
 
-\paragraph{The join.} The literature measures
-attribution accuracy \emph{offline, on benchmarks built for it}, and
-reports 14.2\% to roughly 11\%. Chapter~\ref{ch:baseline} measures
-something the field has not: what happens when a signal of that quality is
-wired into a \emph{live retention loop} --- consumed by the Planner, quoted
-verbatim in candidate documents, and shipped on. The field has quantified
-the instrument; the consequence of deploying it has not.
 
 % -------------------------------------------------------------------------
 \section{Execution provenance and AgentOps}
@@ -198,8 +183,8 @@ A 2026 survey of this line~\cite{survey-provenance} defines execution
 provenance as a typed execution graph over six edge classes --- and finds
 that it serves \emph{human} trust, audit and debugging only. Attributed to
 that survey as of its cutoff, rather than asserted here as a universal
-claim: \textbf{no published work closes provenance into an automated
-improvement loop.}
+claim: \textbf{within the surveyed corpus, no published work was identified
+as closing provenance into an automated improvement loop.}
 
 That finding is the direct motivation for GHX.
 
@@ -269,12 +254,6 @@ candidate to evidence that it \emph{fired}. Typing governs what may be
 This line is adjacent rather than on the route, and is included to mark the
 boundary.
 
-MEGA~\cite{mega} is the only neighbour satisfying all three of the criteria
-fixed before scoring --- an evidence graph, refinement over it, and
-cross-round persistence. Its graph, however, is LLM-distilled
-\emph{knowledge} and is not interventionable; GHX's is execution-level and
-supports do-style queries. The differentiation is in what can be asked of the graph, not in a
-measured downstream gain.
 
 GraphMind~\cite{graphmind} reuses winning subgraphs, and feeds one of
 GHX's guidance channels. Where this line organizes execution history for
@@ -290,12 +269,6 @@ memory side of that distinction.
 \label{sec:positioning}
 % -------------------------------------------------------------------------
 
-Before the literature-wide claim, the narrow one: what GHX changes about
-the system it attaches to. Table~\ref{tab:layers} decomposes both at the
-level a reader can hold in mind --- the harness, a candidate, an edit's
-identity, the evidence about a run, what admission reads, and the
-retention decision. The last row is the one that matters most, and it is a
-row where nothing changed.
 
 \begin{table}[t]
 \centering\small
@@ -344,8 +317,8 @@ its five gates are the ancestors of the sixth.}
 The literature-wide position is then a conjunction: execution provenance
 (record) $\times$ automated attribution (diagnose) $\times$ typed graph
 edits written back into a persisted harness (edit), closed into one loop.
-\textbf{The claim is that no prior system holds all of these at once ---
-not that any one of them is new.}
+\textbf{Within the surveyed corpus, no identified system holds all of these
+at once --- not that any one of them is new.}
 
 Table~\ref{tab:position} sets the nearest systems against the four
 properties, with the concessions written in.

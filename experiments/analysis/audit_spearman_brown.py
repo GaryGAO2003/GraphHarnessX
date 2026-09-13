@@ -75,7 +75,7 @@ def main() -> int:
     print(f"marginal pass rate   p_bar = {passes}/{obs} = {100*p:.2f}%")
     print(f"single-draw reliability r1 = 1 - f/(2 p_bar (1-p_bar)) = {r1:.3f}")
 
-    print(f"\nSpearman-Brown price schedule (k repeats, averaged):")
+    print("\nSpearman-Brown price schedule (k repeats, averaged):")
     print(f"{'k':>3s} {'r_k':>7s}")
     crossed = None
     for k in range(1, MAX_K + 1):
@@ -83,8 +83,8 @@ def main() -> int:
         mark = ""
         if crossed is None and rk >= TARGET:
             crossed = (k, rk)
-            mark = f"  <-- first k reaching this thesis's own 0.80 " \
-                   f"'reliable' bar (F16/F54)"
+            mark = "  <-- first k reaching this thesis's own 0.80 " \
+                   "'reliable' bar (F16/F54)"
         print(f"{k:3d} {rk:7.3f}{mark}")
         if crossed is not None:
             break

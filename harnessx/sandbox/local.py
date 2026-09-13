@@ -5,6 +5,8 @@ from __future__ import annotations
 import asyncio
 import os
 import re
+import signal
+import subprocess
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -68,16 +70,42 @@ class LocalSandbox(Sandbox):
         timeout: float = 30.0,
     ) -> str:
         try:
+            process_group_options = (
+                {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP}
+                if os.name == "nt"
+                else {"start_new_session": True}
+            )
             proc = await asyncio.create_subprocess_shell(
                 command,
                 cwd=cwd or str(self._root),
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
+                **process_group_options,
             )
             try:
                 stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=timeout)
             except asyncio.TimeoutError:
-                proc.kill()
+                try:
+                    if os.name == "nt":
+                        killer = await asyncio.create_subprocess_exec(
+                            "taskkill",
+                            "/PID",
+                            str(proc.pid),
+                            "/T",
+                            "/F",
+                            stdout=asyncio.subprocess.DEVNULL,
+                            stderr=asyncio.subprocess.DEVNULL,
+                        )
+                        await asyncio.wait_for(killer.wait(), timeout=5.0)
+                    else:
+                        os.killpg(proc.pid, signal.SIGKILL)
+                except (ProcessLookupError, FileNotFoundError, asyncio.TimeoutError):
+                    if proc.returncode is None:
+                        proc.kill()
+                try:
+                    await asyncio.wait_for(proc.communicate(), timeout=1.0)
+                except asyncio.TimeoutError:
+                    pass
                 return f"Error: Command timed out after {timeout}s"
             out = stdout.decode("utf-8", errors="replace")
             err = stderr.decode("utf-8", errors="replace")

@@ -184,7 +184,7 @@ def test_externalized_tool_results_are_restored_inline(tmp_path):
 
     out = _flatten(tmp_path)
     assert len(out) == 1
-    rows = [json.loads(l) for l in out[0].read_text(encoding="utf-8").splitlines()]
+    rows = [json.loads(line) for line in out[0].read_text(encoding="utf-8").splitlines()]
     restored = rows[1]
     assert restored["message"]["content"] == payload
     assert restored["meta"]["content_restored"] is True

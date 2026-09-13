@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONUTF8: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.11", "3.12"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m ruff check .
+      - run: python -m pytest -q -p no:cacheprovider
+
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python scripts/check_paper_source.py
+      - run: python -m pip install --upgrade pip build
+      - run: python -m build
+      - run: python -m pip install dist/*.whl
+      - name: Smoke-test the installed wheel and runtime resources
+        working-directory: ${{ runner.temp }}
+        run: >-
+          python -I -c "import harnessx;
+          from harnessx.aegis.agents.planner import _PLANNER_TEMPLATE;
+          from importlib.resources import files;
+          assert 'site-packages' in harnessx.__file__;
+          assert _PLANNER_TEMPLATE.read_text(encoding='utf-8').strip();
+          assert (files('harnessx') / 'meta_harness/workspace/SOUL.md').read_text().strip()"

@@ -12,7 +12,7 @@ import pytest
 
 from harnessx.core.harness import HarnessConfig
 from harnessx.graph.snapshot import _WKD_DRIFT_SEEN, _extract_declaration, to_graph
-from harnessx.graph.types import EdgeType, NodeType
+from harnessx.graph.types import EdgeType
 
 CG = "harnessx.processors.control.cost_guard.CostGuardProcessor"
 MR = "harnessx.processors.multi_model.model_router.ModelRouterProcessor"

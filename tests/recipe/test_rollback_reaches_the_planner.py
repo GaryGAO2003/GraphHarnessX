@@ -12,7 +12,6 @@ only as an anonymous miss in a bucket.
 """
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 from harnessx.aegis.data.journal import Journal

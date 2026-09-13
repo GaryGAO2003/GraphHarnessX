@@ -1,118 +1,66 @@
 % =========================================================================
-\chapter{Baseline Diagnosis}
+\chapter{Reproduction and Baseline Diagnosis}
 \label{ch:baseline}
 % =========================================================================
 
-\claim{Run as published, the official loop is an open loop measured through
-a noisy instrument, prescribing from evidence that is wrong three times out
-of four on the only subset anyone can verify --- and its one real repair
-demonstrates that the machinery works when the signal is clean.}
 
-This chapter reports what happened when the released self-evolving harness
-was executed at scale without modification. Nothing in it depends on the
-system built in Chapter~\ref{ch:ghx}: every finding here was established on
-the no-graph baseline campaign, using scripts that read the loop's own raw
-trajectories, so that the diagnosis stands independently of the treatment.
-
-The chapter has one positive finding and three negative ones. The positive
-finding --- \S\ref{sec:evidence-audit} --- is that the loop's central
-evidence signal is structurally incapable of registering the thing it
-claims to measure, and that this can be shown from the code and the bed
-alone, before any data is examined. The negative findings are that feedback
-is written but not delivered (\S\ref{sec:open-loop}), that the measurement
-layer is contaminated from three directions (\S\ref{sec:measurement}), and
-that the decision plane discards its own records (\S\ref{sec:decision}).
-\S\ref{sec:one-repair} closes with the counter-example: one repair in the
-whole campaign that demonstrably worked and was kept, showing that the
-retention machinery engages when an effect is large enough to be seen.
 
 \section{What the official loop does well, and where the release diverges}
 \label{sec:official-strengths}
 % -------------------------------------------------------------------------
 
-The released loop is the most carefully governed self-evolving harness in
-the literature surveyed in Chapter~\ref{ch:related}. Six of its design
-choices were kept or built on here.
+Four of the loop's design choices were kept or built on here, and the
+diagnosis that follows should be read against them.
 
 \begin{enumerate}
-  \item \textbf{It digests successes.} The Digester runs three templates ---
-        all-fail, all-pass and partial --- and the all-pass template
-        instructs it ``not to celebrate'' but to name the reusable strategy
-        and any latent fragility. Most systems read only failures.
-  \item \textbf{It invokes itself selectively.} Each round's actionability
-        is computed mechanically from the dossier mix, and the evolve stage
-        is skipped below a threshold. The loop does not edit for the sake
-        of editing.
-  \item \textbf{Every role runs behind scope gates.} No role may read the
-        harness source or the history of another run, and the gate also
-        catches absolute paths inside shell commands --- a defence against
-        prompt injection and cross-experiment leakage that this thesis's
-        own registry error 13 (\S\ref{sec:governance}) shows to be
-        necessary.
-  \item \textbf{Five deterministic gates, cheapest first.} A
-        \emph{structure} gate enforces twelve evidence invariants --- every
-        cited anchor must exist on disk and point inside its trajectory,
-        manifests must carry their required keys, a candidate's bucket must
-        match its file types, and lineage references must resolve. A
-        \emph{novelty} gate hashes the file changes and refuses anything
-        already in the ledger of refuted signatures. After
-        canonicalization, a \emph{counterfactual} gate replays the proposed
-        processor chain over recorded events from the previous round's
-        passing tasks and rejects on any change to final output or exit
-        reason --- no model call, no tool execution. A synthetic-task replay
-        closes the ladder.
-  \item \textbf{The Critic argues with the Evolver.} It judges each
-        candidate against the configuration it would land in, demands
-        round-trip evidence for tool and processor candidates, may
-        interrogate the Evolver for up to two turns, and audits the
-        candidates as a set against the scoreboard before any of them
-        ships.
-  \item \textbf{Shipped candidates are held to their own predictions.} Each
-        names the tasks it expects to flip; the next round scores that
-        prediction, and a hit rate below one half triggers rollback.
+  \item \textbf{It digests successes.} The all-pass Digester template
+        instructs the role ``not to celebrate'' but to name the reusable
+        strategy and any latent fragility. Most systems read only failures.
+  \item \textbf{It invokes itself selectively}, on an actionability score
+        computed mechanically from the dossier mix, and \textbf{every role
+        runs behind scope gates} that forbid it the harness source, other
+        runs' histories, and absolute paths inside shell commands --- a
+        defence this thesis's own registry error 13
+        (\S\ref{sec:governance}) shows to be necessary.
+  \item \textbf{Five deterministic gates, cheapest first}
+        (\S\ref{sec:motivation}), of which the structure gate's twelve
+        evidence invariants and the counterfactual replay are the ancestors
+        of this thesis's sixth gate.
+  \item \textbf{Shipped candidates are held to their own predictions.}
+        Each names the tasks it expects to flip; the next round scores that
+        prediction, and a hit rate below one half triggers rollback. This
+        is the ancestor of the localization metric of
+        \S\ref{sec:localization}.
 \end{enumerate}
-
-Items 4 and 6 are the ancestors of this thesis's sixth gate and of its
-localization metric respectively.
 
 \subsection*{Where the release diverges from the paper}
 
-The code diverges from the paper in five places
-(Appendix~\ref{app:deviations} records each with its code pin):
+Five specifications in the paper are absent from the code: the variant
+pool and ensemble routing behind the GAIA headline (the release is one
+lineage with a \texttt{ship\,|\,no\_op} decision); the global ratchet
+forbidding a solved task to be given back; the $\pm 5\%$ noise threshold on
+retention; three seeds per cell, the code defaulting to $k{=}1$; and the
+Planner's per-candidate briefs. Appendix~\ref{app:deviations} records each
+with its code pin.
 
-\begin{itemize}
-  \item the \emph{variant pool} and ensemble routing behind the paper's
-        GAIA headline are absent --- the release is a single lineage with a
-        \texttt{ship\,|\,no\_op} decision;
-  \item the \emph{global ratchet} --- no solved task may be given back ---
-        is not implemented; in its place stand an advisory watchlist over
-        adjacent rounds, the counterfactual gate, and the hit-rate rollback
-        (\S\ref{sec:open-loop});
-  \item the $\pm 5\%$ \emph{noise threshold} on retention is not
-        implemented; a three-state discretization and one sentence in the
-        Critic's prompt approximate it;
-  \item \emph{three seeds per cell} is the paper's table; the code defaults
-        to $k{=}1$, rising to $k{=}2$ on a focus set;
-  \item the Planner's per-candidate \emph{briefs} have been retired; it
-        writes one landscape, and a single Evolver session chooses how many
-        candidates to author.
-\end{itemize}
-
-What follows diagnoses the released system as fielded. Where a finding
-depends on one of these divergences, the dependence is stated.
+The measures taken are the same in every case. The tree is vendored
+byte-for-byte under a hash manifest, so what was run is the release and not
+a repair of it; the authors' own upstream fix is adopted where they
+published one; the missing specifications are supplied by the
+\emph{experiment} rather than by patching the system --- three seeds per
+arm, a pre-specified noise band, offline regression accounts --- and every
+statistic in this thesis is recomputed from raw trajectories rather than
+read from the loop's own output. Where a finding depends on one of these
+divergences, the dependence is stated.
 
 % -------------------------------------------------------------------------
 \section{The system as fielded}
 \label{sec:fielded}
 % -------------------------------------------------------------------------
 
-The loop is the six-stage, four-role system of \S\ref{sec:motivation}:
-solver batch, Digester dossiers, Planner landscape, Evolver candidates,
-Critic verdict, five gates, and whatever lands becomes the configuration
-the next round's solver runs under. Each round is bounded by a token and
-cost budget and by a cap on the number of tasks attempted.
-
-Two properties of this architecture matter for everything that follows.
+Each round is bounded by a token and cost budget and by a cap on the
+number of tasks attempted. Two properties of the architecture
+(\S\ref{sec:motivation}) matter for everything that follows.
 
 The first is that \textbf{the loop edits itself through free text}. The
 Evolver does not emit a typed patch; it composes a manifest and a
@@ -136,22 +84,20 @@ in round $k+1$. A candidate that lands and is wrong has no floor beneath it;
 % -------------------------------------------------------------------------
 
 A self-evolving loop is only closed if the consequences of an edit reach
-the author of the next edit. In the released system four separate channels
-break that delivery. All four are properties of the released tree,
-established by reading it, and depend on neither the campaign flown nor
-the model tier configured.
+the author of the next edit. Four channels break that delivery, and all
+four are properties of the released tree rather than of the campaign flown
+or the model tier configured.
 
 \paragraph{The regression report is left empty by a round-indexing slip.}
-The loop computes, each round, which previously-passing tasks have started
-failing --- exactly the signal a lineage without a ratchet most needs. An
-off-by-one in the round index means the comparison is drawn against an
-empty set, so the report is structurally always empty. The authors' own
-upstream fix has been adopted here, and every regression account in this
-thesis is re-derived offline rather than read from the loop's output.
+Each round the loop computes which previously-passing tasks have started
+failing --- the signal a lineage without a ratchet most needs. An
+off-by-one in the round index draws the comparison against an empty set,
+so the report is structurally always empty. The authors' own upstream fix
+is adopted here and every regression account is re-derived offline.
 
-\paragraph{The verdict contract is stated twice and the two statements have
-drifted apart.} The schema a role is instructed to emit and the schema the
-consumer validates against no longer agree. Validation therefore fails
+\paragraph{The verdict contract is stated twice, and the two statements
+have drifted apart.} The schema a role is instructed to emit and the schema
+the consumer validates against no longer agree, so validation fails
 softly: the outcome is dropped rather than raised, and the next author is
 never told what happened to the last edit.
 
@@ -175,24 +121,21 @@ falls below $0.5$. None of these is a floor. In flight the watchlist fires at th
 before 81 of 86 evolve rounds across the six whitelist campaigns --- and
 the rollback rule never fired (\S\ref{sec:archaeology}, \F{66}).
 
-The released tree guards its own worst known regression --- an Evolver edit that replaced the system-prompt
-builder and thereby deleted a 23K-character injected domain policy,
-recorded in the authors' own words as a ``catastrophic
-regression\ldots dropped 55\%'' --- with an instruction inside a prompt
-template rather than with a code path. And the only committed performance
-number anywhere in the repository is a commit message recording that two
-lineages \emph{never recovered} from one such crash \F{19}. A loop that
-cannot un-poison its own lineage is the case for attaching a readout to
-the retention decision (\S\ref{sec:future}).
+The tree guards its own worst known regression --- an Evolver edit that
+replaced the system-prompt builder and thereby deleted a 23K-character
+injected domain policy, recorded in the authors' own words as a
+``catastrophic regression\ldots dropped 55\%'' --- with an instruction
+inside a prompt template rather than a code path, and the only committed
+performance number in the repository is a commit message recording that
+two lineages \emph{never recovered} from one such crash \F{19}. A loop
+that cannot un-poison its own lineage is the case for attaching a readout
+to the retention decision (\S\ref{sec:future}).
 
 % -------------------------------------------------------------------------
 \section{The measurement layer: three contamination sources}
 \label{sec:measurement}
 % -------------------------------------------------------------------------
 
-Three properties of the bed condition every claim read off it. Each was
-found by running it and each was hardened, identically in both arms, so
-none can be a source of between-arm difference.
 
 \paragraph{Judge false positives can flip the sign of a round.} Scoring is
 performed by an LLM judge, and an unhardened judge's false positives are
@@ -204,11 +147,7 @@ in this thesis uses audited scores only.
 49-task cohort assembled from the tasks that swing, thirteen are
 \emph{leak-route}: more than half of their passes touch benchmark
 artifacts, and reference answers appear verbatim inside solver
-trajectories \F{31}. The response was a leakage blocklist and a
-decontamination census. The residual risk is disclosed in
-\S\ref{sec:threats} rather than claimed away: both arms evaluate on the
-same fixed bed every round, so any drift toward the bed is shared, and the
-blocklist is the only held-out defence.
+trajectories \F{31}.
 
 \paragraph{Re-measuring the same configuration moves 20\% of the bed.}
 This finding governs the design of every experiment in this thesis; the
@@ -252,24 +191,17 @@ twenty characters.
 
 The third of those is not a corner case here. GAIA final answers have a
 median length of \textbf{9} characters and a 90th percentile of
-\textbf{14} \F{3} --- both below the column's own floor. A tool call that
-retrieves a task's answer and hands it to a model that uses it correctly
-produces, in the next assistant message, a string too short to clear the
-threshold. \emph{On this bed, the column cannot register the use of an
-answer.}
+\textbf{14} \F{3} --- both below the column's own floor.
 
-Tiers (i) and (ii) settle the matter without any experiment: the first is
-a property of the code, the second of the benchmark. Both were established
-on the no-graph baseline, and neither depends on the model tier --- a
-twenty-character floor and a nine-character median answer are unchanged by
-whichever model reads the digest.
+
 
 \subsection*{(iii) Rate, and what it does not license}
 
 The rate measures the reach of the defect. Of the $559$ calls whose output literally
 contains the final answer of a rollout that passed, \textbf{419
-($75.0\%$)} are graded ``not referenced'', and $96.7\%$ of those carry an
-answer below the column's own minimum length \F{2}. The figure is robust
+($75.0\%$)} receive the overlap rule's ``not referenced'' label, and
+$96.7\%$ of those carry an answer below the column's own minimum length
+\F{2}. The figure is robust
 across variants of the answer-length window at $73.8$--$75.1\%$ \F{2};
 the column's own twenty-character threshold was not swept, and by tier (i)
 it could not have been swept without changing the instrument.
@@ -279,8 +211,8 @@ is a call sitting on the successful path holding the answer, which is not
 the same as having caused the pass. The finding
 therefore rests on (i) and (ii), which need no causal premise, and the
 $75.0\%$ is reported as a property of the column's output --- the rate at
-which it applies its verdict to answer-carrying calls --- not as a count of
-tool calls wrongly dismissed.
+which it applies its overlap verdict to answer-carrying calls --- not as a
+count of verified causal errors.
 
 \subsection*{The disclaimer, and why it makes the case worse}
 
@@ -325,16 +257,15 @@ Two further properties of the decision plane were recorded; both are
 code-pinned.
 
 \paragraph{The cause-of-death ledger is written and never read.} The loop
-maintains a record of why each candidate died. Nothing consumes it. The
-write sites and the absent read sites are both given in
-Appendix~\ref{app:ledger}. This is the fourth broken delivery channel of \S\ref{sec:open-loop}.
+records why each candidate died; nothing consumes it. Write sites and
+absent read sites are both given in Appendix~\ref{app:ledger}. This is the
+fourth broken delivery channel of \S\ref{sec:open-loop}.
 
-\paragraph{The aimer is never shown where its aims landed.} The Planner
-is structurally excluded from the loop's conversion priors --- the
-guidance rebind list omits it (\texttt{planner.py:30--46}), and this
-holds in every arm. The role that decides what to aim at is not shown
-where previous aims landed, so whatever the loop learns about which
-targets convert never reaches the stage that chooses targets.
+\paragraph{The aimer is never shown where its aims landed.} The guidance
+rebind list omits the Planner (\texttt{planner.py:30--46}), in every arm,
+so the role that decides what to aim at never sees where previous aims
+landed: whatever the loop learns about which targets convert does not reach
+the stage that chooses targets.
 
 % -------------------------------------------------------------------------
 \section{The one real repair}
@@ -358,30 +289,17 @@ single-round move that campaign makes after its baseline draw, and --- of
 the six above-band whole-bed moves in all six campaigns --- the only one
 whose mechanism is legible in the exit ledger \F{48}.
 
-\paragraph{Which number carries this section.} The mechanism endpoints,
-not the score. The collapse from $35$ to $4$ and the twelve-of-sixteen
-attribution identify the mechanism directly and need no dispersion
-argument; the $+9$ agrees with them and clears the same-config band.
-
-The cleared band is, on its own, weaker evidence than it looks. A sweep of every round pair in every campaign finds eleven above-band moves,
-six of which occur in rounds where nothing shipped \F{48}; and among the
-whole-bed rounds whose starvation count collapses by ten exits or more, the
-score moves by $+9$, $+4$, $+2$ and $-3$ \F{49}. It is the mechanism
-counts, not the band, that tie this move to this repair.
-
 The two calibers disagree, and the disagreement is not resolved in this
 thesis's favour: a range drawn from six windows is not a standard
-deviation, and the directly measured $\sigma = 3.70$ of \S\ref{sec:power}
-places $+9$ inside three sigma. The repair stands on the mechanism counts
-under either caliber; what the caliber changes is how loud an effect must
-be before the score axis registers it.
+deviation, and the paired-change sample SD of $3.70$ in \S\ref{sec:power}
+does not define a score-level sigma. The repair stands on the mechanism
+counts under either caliber; what remains unresolved is how small an effect
+the score axis can register.
 
 \paragraph{How to read it.} This is an engineering-defect repair, not a
 capability lift. The loop did not become better at solving GAIA tasks; it
-stopped wasting the budget it needed to solve them. It is also the
-existence proof that the retention machinery is intact: the effect was
-large enough to be seen, it was seen, and the intervention was kept for the
-rest of the campaign. Chapter~\ref{ch:results} returns to it twice: once to
+stopped wasting the budget it needed to solve them. It is also a recorded example of a large, mechanism-confirmed event
+being retained: the intervention was kept for the rest of the campaign. Chapter~\ref{ch:results} returns to it twice: once to
 show that it never reached a later campaign, the inheritance channel not
 existing \F{39}, and once to calibrate what this bed's instrument can hear
 (\S\ref{sec:readout}).

@@ -1,0 +1,13 @@
+# Paper-source hashes are over repository-normalised bytes on every platform.
+experiments/docs/thesis/*.tex text eol=lf
+experiments/docs/thesis/latexmkrc text eol=lf
+experiments/docs/thesis/frontmatter/*.tex text eol=lf
+experiments/docs/thesis/chapters/*.tex text eol=lf
+experiments/docs/thesis/appendices/*.tex text eol=lf
+experiments/docs/thesis/bibliography/*.tex text eol=lf
+experiments/docs/thesis/figures/*.tex text eol=lf
+experiments/analysis/audit_candidate_bucket_and_aim.py text eol=lf
+experiments/analysis/audit_proposal_face.py text eol=lf
+experiments/docs/thesis/figures/*.pdf binary
+experiments/docs/thesis/figures/*.jpg binary
+experiments/docs/thesis/figures/*.png binary

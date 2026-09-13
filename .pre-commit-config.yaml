@@ -9,14 +9,17 @@ repos:
       - id: check-merge-conflict      # check for leftover conflict markers
       - id: check-yaml                # YAML syntax check
       - id: check-toml                # TOML syntax check
+      # Preserve byte-sensitive patch fixtures and archived review evidence exactly.
       - id: end-of-file-fixer         # ensure files end with a newline
+        exclude: ^(patches/aegis/.*\.patch|experiments/docs/thesis/review/0904/(gate_result\.json|STATE\.md))$
       - id: trailing-whitespace       # strip trailing whitespace
+        exclude: ^(patches/aegis/.*\.patch|experiments/docs/thesis/review/0904/(gate_result\.json|STATE\.md))$
       - id: mixed-line-ending         # normalize line endings
+        exclude: ^(patches/aegis/.*\.patch|experiments/docs/thesis/review/0904/(gate_result\.json|STATE\.md))$
 
   # ── Python lint & formatting ──────────────────────────────────────────────────
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.11.5
     hooks:
       - id: ruff                      # lint (includes isort)
-        args: [--fix]
-      - id: ruff-format               # format
+        args: [--no-cache]

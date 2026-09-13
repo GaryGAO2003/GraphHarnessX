@@ -1,18 +1,16 @@
 % =========================================================================
-\chapter{Results}
+\chapter{Experimental Results and Analysis}
 \label{ch:results}
+\label{ch:design}
 % =========================================================================
 
-\claim{The graph did what it promised to the evidence; the graph arm's
-outcomes did not separate from the no-graph arm's; and the archaeology
-shows why --- prescription was never the bottleneck, and the one readable
-effect was the one the ratchet kept, within its own campaign.}
+
 
 % -------------------------------------------------------------------------
 \section*{Results at a glance}
 % -------------------------------------------------------------------------
 
-\begin{table}[t]
+\begin{table}[tp]
 \centering\footnotesize
 \setlength{\tabcolsep}{5pt}
 \renewcommand{\arraystretch}{1.18}
@@ -27,35 +25,37 @@ Digests failing the anchor validator   & $11.7\%$   & $1.5\%$  & measured \F{52}
 Top-three failure-tag share            & $3\%$      & $17\%$   & a vocabulary appears \F{65} \\
 \midrule
 \multicolumn{4}{@{}l}{\emph{Candidate plane --- shape, not reach}} \\
-Ship rate per round & $0.88$ & $0.50/0.92/0.60$ & one more gate; one seed above \F{10} \\
+Ship rate per round & $0.88$\rlap{$^{\dagger}$} & $0.50/0.92/0.60$ & one more gate; one seed above \F{10} \\
 Candidates dying malformed             & $30.5\%$   & $14.5\%$ & artifacts machine-generated \F{53} \\
 Sixth-gate kills, five gates passed    & ---        & $18$     & live record \F{53} \\
 Replay-gate structural refusals        & ---        & $7/15$   & live record \F{11} \\
 Cards adding a tool                    & $22\%$     & $44\%$   & three seeds disjoint \F{61} \\
-Predicted tasks per card (core)        & $3.0$      & $5.4$ ($0.9$) & halo nine tenths \F{64} \\
+Declared unlock tasks per card          & $3.0$      & $5.4$         & implementation diagnostic \F{64} \\
 \midrule
 \multicolumn{4}{@{}l}{\emph{Outcome plane --- what the thesis set out to measure}} \\
-Plateau R3--R15, arm mean              & $63.4$     & $66.1$   & $+2.7$, inside band \F{46} \\
-Terminal round, arm mean               & $66.7$     & $71.7$   & $+5.0$, inside band \F{46} \\
+Plateau R3--R15, arm mean              & $63.4$     & $66.1$   & $+2.7$, SE $2.8$ \F{46} \\
+Terminal round, arm mean               & $66.7$     & $71.7$   & $+5.0$, one draw per seed \F{46} \\
 Slope, tasks per round, arm mean       & $+0.48$    & $+0.86$  & $+0.37$, $p=0.10$ \F{47} \\
 Localization lift                      & $1.99$     & \emph{n/a} & arms not comparable \F{9a}\F{9c} \\
 \midrule
 \multicolumn{4}{@{}l}{\emph{The instrument --- why the outcome plane reads as it does}} \\
 Same-config flip rate, three seeds     & \multicolumn{2}{c}{$21.0 / 20.1 / 19.2\%$} & the readout floor \F{15} \\
 Single-window score swing              & \multicolumn{2}{c}{$-8\ldots{+}5$ tasks}   & the band \F{15} \\
-Per-round score SD, 20 windows         & \multicolumn{2}{c}{$3.70$ tasks}           & $3\sigma = \pm 11.1$ \F{15} \\
+Paired-change sample SD, 20 windows    & \multicolumn{2}{c}{$3.70$ tasks}           & threefold scale $11.1$ \F{15} \\
 \bottomrule
 \end{tabular}
 \caption[Results at a glance]{Every headline of this chapter, with the
 section that establishes it. The three planes do not agree. The evidence
 plane moved as designed and is verifiable. The candidate plane changed
 shape --- fewer candidates, of higher legality, behind one more gate ---
-which the outcome axis cannot price. The outcome plane did not separate in
-either direction: every entry
-sits inside the same-config band, and the slope gap reaches $p = 0.10$
-against a design floor of $0.05$ with three seeds per arm. The instrument
-panel says why. \emph{No entry in the outcome plane is a non-inferiority
-claim}; no margin was pre-specified. The slope row's $+0.37$ is the rounded
+which the outcome axis cannot price. The instrument panel says why --- and
+its band and SD are measured on the three no-graph arms' same-config
+windows only \F{9e}, no graph-arm same-config window existing, so every
+graph-arm reading taken against them is conditional on that assumption
+(\S\ref{sec:gain-face}). \emph{No entry in the outcome plane is a non-inferiority
+claim}; no margin was pre-specified. $^{\dagger}$~The no-graph figure is a single pooled rate; its
+between-seed spread is not reported, so the ``one more gate'' reading is
+not testable against it. The slope row's $+0.37$ is the rounded
 difference of the unrounded arm means, $0.482 \to 0.856$, difference
 $0.374$ \F{47}; the two one-decimal entries shown do not subtract to it
 exactly.}
@@ -63,253 +63,170 @@ exactly.}
 \end{table}
 
 % -------------------------------------------------------------------------
-\section{What the loop's evidence gets wrong}
-\label{sec:evidence-wrong}
+% -------------------------------------------------------------------------
+% -------------------------------------------------------------------------
+\section{Scores and measurement design}
 % -------------------------------------------------------------------------
 
-Table~\ref{tab:results} collects every headline of this chapter; each
-section below establishes one row of it.
-
-The first result is Chapter~\ref{ch:baseline}'s: the loop's ``output used'' column requires a
-twenty-character verbatim overlap on a bed whose answers have a median
-length of nine \F{2}\F{3}, so it applies its negative verdict to $75.0\%$
-of answer-carrying calls \F{2}, reaches $86.0\%$ of dossiers \F{4}, and
-was quoted by three candidates and shipped on by one \F{5}\F{6}.
-
-This finding does not require the graph: it was established on the
-no-graph arm, from the code and the bed.
-
-% -------------------------------------------------------------------------
-\section{What the graph did, and what it did not}
-\label{sec:what-graph-did}
+\subsection{Beds, arms, and the switch ladder}
+\label{sec:beds}
 % -------------------------------------------------------------------------
 
-\subsection*{The false signal is gone}
+The bed is the \textbf{100-task no-pixel subset} of GAIA's text-only
+split, for the four reasons \S\ref{sec:what-was-run} gives.
 
-Across the post-fix graph campaign, \textbf{0 of 859} dossiers carry the
-misleading column, against a reach of $86.0\%$ in the no-graph arm
-\F{7}\F{4}. It is the cleanest positive result in the thesis and also the
-narrowest, for the reason given below.
 
-\subsection*{Non-interference, by construction and by demonstration}
+The \emph{no-graph} arm is the official system with every GHX flag off.
+The \emph{graph} arm is the same system with the \textbf{whole stack on}
+--- recording, graph evidence, graph verification and the typed candidate
+surface together. The switches are cumulative by construction, each level
+keeping the ones below, but no campaign was flown at an intermediate
+level, which is why \S\ref{sec:localization} reports no component
+ablation: there are no per-level arms to attribute an effect to.
 
-The recorder must not change the thing it records. Two arguments of
-different kinds support this.
+Earlier graph campaigns
+flown before the graph-layer fixes are excluded by a scope ruling
+(\S\ref{sec:scope}, Appendix~\ref{app:deviations}). Scoring is audited
+throughout.
 
-\emph{By construction}: the recorder is write-only with respect to the
-loop's decision inputs, and every seam restores on exit
-(\S\ref{sec:constraints}). Between-arm differences can flow only through
-the loop's own decisions.
+One bookkeeping point governs every cross-arm number. The arms did not fly
+quite the same bed: GAIA's text-only split holds 103 tasks, three of them
+carrying pixel content the recorder could not attribute, and while the
+graph arms always flew the 100 without them, the no-graph arm flew all 103
+on the first two seeds and switched to the 100 at round 7 of the third.
+The loop's own \texttt{curves.json} records whichever bed each round
+actually flew and is therefore not comparable across arms, so every
+cross-arm reading in this thesis is recomputed from \texttt{task\_history}
+on the 100-task subset common to all six campaigns \F{46}. Three of those
+100 are never solved in 9{,}600 evaluations and contribute no variance, so
+every reported \emph{difference} is identical on 97 or on 100 \F{54}; the
+100-task denominator is kept regardless, since dropping tasks on the basis
+of their outcomes is selection.
 
-\emph{By demonstration}: a same-window paired trial on the stable cohort
---- eight always-pass canaries and two never-solved tasks, three
-repetitions $\times$ two arms, with recording as the only difference ---
-returns 9 of 10 per-task outcome vectors identical. The single divergence
-is the documented flaky canary \F{33}, and it failed twice in the
-recording-\emph{off} arm. Arm totals are $22/30$ against $24/30$: inside
-noise, and signed \emph{against} interference \F{43}.
+\subsubsection*{Models}
 
-On a bed that flips one outcome in five (\S\ref{sec:power}), score identity
-is not an achievable standard. Vector-level parity on stable tasks is, and
-that is the standard used.
+Every campaign runs the same two models through a LiteLLM gateway, and the
+runbooks record the pair on every launch line: the \textbf{solver} is
+\texttt{deepseek-v4-flash} (284B parameters, 13B active; thinking enabled,
+effort high), and the \textbf{four meta-roles and the judge} are
+\texttt{deepseek-v4-pro} (1.6T, 49B active). The official paper's one
+complete experiment has the same shape --- a stronger meta tier over a
+weaker task tier, Claude Opus over Sonnet, GPT and Qwen --- on a different
+benchmark, so the comparison across the two is one of form, not of
+number.
 
-\subsection*{Removal is not measurement}
+The split follows the published model cards, fixed before any campaign
+flew.\footnote{DeepSeek-V4 model cards, Hugging Face, accessed 4 September
+2026 (\url{https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash}), and the
+API pricing page (\url{https://deepseek.ai/pricing}): BrowseComp Pass@1
+V4-Pro Max $83.4$, V4-Flash High $53.5$; MRCR-1M V4-Flash Non-Think
+$37.5$; list price per million tokens \$0.14 / \$0.28 against \$0.435 /
+\$0.87.} Pro on the solver would have flattened the window a harness
+effect has to show in --- it scores $83.4$ on BrowseComp, the published
+benchmark closest to this bed, near the open-model ceiling --- where Flash
+sits mid-curve at $53.5$ and costs a third as much, which is what makes
+the three-seed replication of \S\ref{sec:replication} affordable at all.
+Flash's one documented hard limit, long-context collapse with thinking
+off, is avoided: thinking is on in every trajectory here.  Claims are scoped to this pair; no claim in this thesis
+concerns model tiers.
 
-The replacement column saturates by construction under the sliding window:
-$549/549$ \F{8}. The false signal's absence is verifiable; the
-replacement's presence measures nothing. ``$0/859$'' is therefore not evidence that the graph arm's tool calls were
-genuinely used, and is not read that way.
+% -------------------------------------------------------------------------
+\subsection{Power arithmetic first}
+\label{sec:power}
+% -------------------------------------------------------------------------
 
-\subsection*{Citation integrity improves; the credit goes to the layer}
+\subsubsection*{The flip rate}
 
-Digests in the graph arms carry \textbf{3.50} verified citation anchors
-each, against \textbf{1.75} in the no-graph arms, while the share of
-digests failing the production anchor validator falls from \textbf{11.7\%}
-to \textbf{1.5\%} \F{52}. Roughly twice the citing at roughly a seventh of
-the failure rate, so this is not the saturation trap of the previous
-subsection, where cleanliness is bought by citing less.
+Take two consecutive rounds in which nothing shipped. The configuration is
+identical; the only difference is that the bed was run again. Across the
+six such windows in the baseline campaign's sixteen-round readout,
+\textbf{21.0\%} of task outcomes flip --- $126$ of $600$ task-pairs, 95\%
+Wilson interval $[17.9\%, 24.4\%]$ \F{15}. The other two seeds give
+$20.1\%$ and $19.2\%$, and pooled over all twenty windows the figure is
+\textbf{20.1\%} on $402/2{,}000$ pairs, $[18.4\%, 21.9\%]$, with the three
+per-seed intervals overlapping heavily \F{9e}. A task-clustered bootstrap
+--- resampling the 100 tasks rather than the pairs, since flip propensity
+is a property of the task --- widens this to $[16.5\%, 23.9\%]$ \F{57}. The noise floor is a property of the bed, not
+of a run.
 
-Which component earns it is not established. Three GHX changes could each
-produce it: the anchor-repair pass, which is an independent flag;
-the graph-fed digest itself; and the rebound digest builder. No arm
-isolates them.
+Over those windows, $52.3\%$ of task-campaign pairs flip at least once.
+The resulting total-score swing for a single window runs from $-8$ to
+$+5$ tasks \F{15}\F{44}\F{45}.
 
-The defensible claim is that \emph{the GHX layer} improves citation
-integrity; that the \emph{graph} does is not shown. The anchor-repair pass
-being separately switchable, the gain may be as portable to an unmodified
-harness as the cost work of \S\ref{sec:cost}.
+\subsubsection*{The arithmetic}
 
-\subsection*{What the roles read: a vocabulary appears}
+\begin{enumerate}
+  \item One fifth of task outcomes flip on re-measurement with no treatment
+        applied.
+  \item The bed therefore swings by up to eight tasks between two
+        identical rounds.
+\end{enumerate}
 
-The Digester tags each failing dossier with a free-text failure mode. The
-no-graph arms' 1{,}585 failing dossiers carry 1{,}431 distinct tags, $96\%$
-used once, the three commonest covering $3\%$ \F{65} --- three spellings of
-budget starvation are three tags, and no round can count a family. The
-graph arms' 1{,}079 dossiers carry 850 tags, still $96\%$ singletons, but
-the three commonest cover $17\%$, two of them the motif names of
-\S\ref{sec:evidence-integration} \F{65}, and no task went without a dossier
-where the no-graph Digester missed seven \F{67}. The graph does not improve
-the diagnosis; it gives two rounds a few words in common, the precondition
-for reading ``this family was treated before'' (\S\ref{sec:archaeology}).
+
+
+\subsubsection*{One envelope, one caliber}
+
+The swing is quoted throughout as an \emph{observed range} over ship-free
+windows, and the range depends on how many windows were drawn:
+$-4\ldots{+}5$ on seed 1 (6 windows), $-4\ldots{+}2$ on seed 2 (8
+windows), and $-8\ldots{+}5$ on seed 3 (6 windows), all on the
+config-identity window rule this thesis quotes throughout
+\F{15}\F{9e}; F44 and F45 record what a second labelling rule gives for
+the same two seeds.
+The band used for every readability judgment in this thesis is the union,
+$\mathbf{-8\ldots{+}5}$ tasks, quoted that way everywhere; per-seed
+ranges appear only where a seed is being described.
+
+A range over a handful of windows is not a standard deviation. Across the
+twenty adjacent same-configuration windows, the sample SD of paired score
+changes is $\mathbf{3.70}$ tasks; three times that descriptive scale is
+$11.1$ \F{15}. Neither quantity is a formal detection threshold or a
+per-round score SD. The one number on
+which the two calibers disagree is the $+9$ of \S\ref{sec:one-repair},
+discussed there and in \S\ref{sec:readout}.
+
+\subsubsection*{There is no informative-and-reliable subset of this bed}
+
+The natural response to a noisy bed is to find its reliable core and
+measure there. The census forecloses it. Across the six whitelist campaigns on the 100-task subset ---
+9{,}600 task evaluations --- \textbf{3} tasks are never solved,
+\textbf{18} always pass, and \textbf{79 are volatile} \F{54}.
+
+The 21 stable tasks contribute no variance and can register no treatment
+effect; the 79 that \emph{can} move are the ones that move unaided.
+Removing the volatile family removes the instrument rather than cleaning
+it.
+
+Bed reliability here cannot be bought by item selection. It can be bought
+in repetitions --- a Spearman--Brown calculation prices that against the
+measured per-task flip rate --- or by changing the readout, which is this
+thesis's own route (\S\ref{sec:future}). Priced: a single draw's
+reliability is $0.57$, and \textbf{four} averaged repeats are the first
+integer count reaching this thesis's own $0.80$ ``reliable'' bar
+(F16/F54) \F{60}.
+
 
 
 % -------------------------------------------------------------------------
-\section{Downstream: outcomes do not separate; fewer candidates ship, and
-they are cleaner}
-\label{sec:localization}
+\subsection{Resolution laws as design inputs}
+\label{sec:resolution}
 % -------------------------------------------------------------------------
 
-\subsection*{Localization, and why only one number from it survives}
+\emph{Resolution}, throughout this thesis, names a minimum detectable
+effect --- the smallest score movement this design can tell apart from
+noise --- and not the metrology sense in which resolution is an
+instrument's smallest distinguishable increment (VIM).
 
-The loop's own predictions carry real information. On the no-graph
-baseline, the tasks a shipped candidate named flipped at \textbf{50.0\%}
-against a base rate of \textbf{25.2\%} --- a lift of \textbf{1.99}, with a
-95\% confidence interval of $[1.47, 2.54]$ by bootstrap over candidates (13
-candidates, 50 eligible predictions), an interval that excludes $1.0$
-\F{9a}\F{9d}.
 
-That is the load-bearing localization number in this thesis, and it points
-the same way as the archaeology of \S\ref{sec:archaeology}: the base loop
-can already aim.
 
-\subsection*{The between-arm comparison is withdrawn, not lost}
-
-The graph arm's lift cannot be set beside it. The two shipped sets are
-different candidate populations, admitted under different gate regimes ---
-five gates against six, with $17\%$ killed against $57\%$ --- and drawn
-against base pools nine percentage points apart. The graph arm's own
-interval includes $1.0$ in any case, so even taken alone the value is
-indistinguishable from chance.
-
-Four stacked defects, and the superseded figures they retire, are recorded
-at \F{9b}\F{9c}\F{9d}; the body takes no direction from them. A fifth
-surfaced on the proposal face: the graph arm's prediction lists are nine
-tenths halo (\S\ref{sec:proposal-face}, \F{64}).
-
-The design's reach closes the section: a real \textbf{40\%} improvement in
-localization would not have been visible at this sample \F{9d}. This is an
-\emph{absent measurement} rather than an underpowered null, which would
-still point somewhere.
-
-\subsection*{Outcomes}
-
-Final scores do not separate. Ship rates are $0.88$ per round in the
-no-graph arm against $0.50$, $0.92$ and $0.60$ across the three graph
-seeds \F{10} --- one seed ships \emph{more} often than the no-graph arm,
-not less. The switch
-profit-and-loss account covers 21 items, none of which constitutes a measured
-behavioural improvement \F{12}. On these declared substitute endpoints H1 is
-not supported (\S\ref{sec:hypothesis}).
-
-\subsection*{Fewer ships is not a regression}
-
-The graph arm's lower ship rate is not the loop getting worse. Across the
-three graph seeds the sixth gate killed \textbf{18} candidates that had
-cleared all five official gates, each naming a node that was never there.
-The share of candidates dying \emph{malformed} --- failing
-canonicalization, replay and structure together --- fell from
-\textbf{18/59 ($30.5\%$)} to \textbf{8/55 ($14.5\%$)}, the direct
-consequence of both artifacts being machine-generated rather than
-transcribed \F{53}.
-
-\paragraph{An alternative reading of the eighteen kills.} An equally
-consistent reading is that the cone-based representation itself degrades
-targeting rather than revealing targeting that was already bad. The
-no-graph arm has no equivalent gate, so its own mistargeting rate is
-unmeasured, not zero, and no hand audit of no-graph candidates against the
-same criterion was run. The eighteen kills show the gate firing; they do
-not by themselves distinguish the two readings.
-
-\subsection*{The proposal face: what the graph arm writes}
-\label{sec:proposal-face}
-
-The cards the Evolver wrote show what the graph changed before any gate
-acted.
-
-\emph{Bucket.} Of 86 no-graph cards $22\%$ add a tool; of 79 graph cards
-$44\%$ do --- $20.0/25.0/20.0\%$ against $40.0/48.1/45.5\%$ by seed,
-disjoint, at the design's floor of $p = 0.05$ --- and prompt cards fall
-from $22\%$ to $14\%$ \F{61}. The shift is written, not filtered: Critic
-acceptance of tool and prompt candidates is alike in both arms, the sixth gate refuses tools
-and processors at the same rate, and the landed sets carry 11 and 13 tool
-ships \F{62}. Part of it is a rule: the release's own structure gate binds
-a candidate to the bucket the Planner flagged, both arms flag tools about
-equally often, and only the graph arm's Evolver is told so before writing
---- its tools share is $61\%$ against $18\%$ in flagged rounds, and still
-$39\%$ against $23\%$ in the rest \F{62}, the residue the evidence regime
-owns.
-
-\emph{Citation.} Both arms cite trajectory steps at six anchors per card;
-the graph arm adds a second language --- node names on $65\%$ of cards,
-cone and motif terms on $89\%$, lift on $37\%$ --- and drops one, prompt
-and template mentions falling from $2.8$ per card on $58\%$ of cards to
-$1.0$ on $23\%$ \F{63}. No rule forbids a prompt edit; the cone renders
-the prompt as one intervention line and copies no text. Every operation
-written is additive or parametric --- 37 tool insertions, 27 parameter
-mutations, 23 node insertions, the three restructuring operations never
---- and the lift table is read, not chased: a card names one of its
-round's three top-lift nodes in $22$--$41\%$ of cases, the top node in
-$3$--$23\%$ \F{63}.
-
-\emph{Prediction.} A graph card predicts $5.4$ tasks against $3.0$, and the
-candidate surface splits each list by machine into a \emph{core} the edit
-touches in the task's own cone and a \emph{halo} it does not
-(\S\ref{sec:candidate-surface}): the core is $0.9$ tasks per card, the
-halo nine tenths of the list \F{64}. Under the F9 rule the core hits
-$4/27$ and the halo $50/145$, against a passive $172/530$ \F{64}. Touching
-a task's cone carries no detectable efficacy information at this
-resolution --- \S\ref{sec:archaeology}'s ``death signatures, not cure
-sites'', measured on the loop's own predictions --- and it is the fifth
-reason \F{9c} gives for not subtracting the arms' lifts.
-
-\subsection*{Why there is no component ablation}
-
-No level-by-level ablation of the switch ladder was run, and the reason is
-not that the control arm also rises --- that rules out a pure time trend
-and would not stop an ablation from being informative. An ablation
-\emph{attributes} an arm-level effect to a part, and on the score axis
-there is no arm-level effect to attribute:
-the arms sit inside the same-config band (\S\ref{sec:power},
-\S\ref{sec:replication}), so per-level arms would return the same ``not
-separable'' verdict one level at a time, at $k$ times the cost.
-
-Two secondary points are design costs rather than justifications. A level
-ablation on this bed would need its own seeds,
-since one seed per level cannot resolve a difference inside the band. And
-the contrast as flown is a flag \emph{bundle}, so a clean ladder would have
-to re-fly every level on one bed --- a fixable expense, and one this
-project did not pay.
-
-What the thesis substitutes is bookkeeping, labelled \cls{C} observational
-rather than presented as a causal decomposition: the per-edit localization
-account \F{9a}\F{9b}\F{9c}, the four-layer mortality account \F{40}, the
-ratchet's retention record \F{39}, and the reading that the gains both arms
-show belong to a single mechanism family (\S\ref{sec:archaeology}).
-
-The decisive ablation is not a level ablation of the graph but the one
-\S\ref{sec:proposition} names: the readout, attached to retention.
-
-% -------------------------------------------------------------------------
-\section{Replication across seeds: the noise geometry is a property of the
+\subsection{Replication across seeds: the noise geometry is a property of the
 bed}
 \label{sec:replication}
 % -------------------------------------------------------------------------
 
-Both arm configurations were re-flown twice more, unchanged, for sixteen
-rounds each. The replication target is the noise geometry the readout
+The replication target is the noise geometry the readout
 argument stands on, not the score.
 
-\subsection*{Terminal scores, and why no claim rests on them}
-
-On the common bed the second seed reached 68 from 53 in the no-graph arm
-and 72 from 59 in the graph arm \F{44}; the third reached 63 from 66 and
-76 from 57 respectively \F{45}. Table~\ref{tab:arms} carries all six arms,
-Figure~\ref{fig:scores} draws every scored round against the
-same-configuration band, and Table~\ref{tab:rounds} lists the numbers
-behind the figure.
-
-No claim in this thesis rests on these terminal scores and they are not
-compared across arms; the trend reading below explains why.
 
 \begin{table}[htbp]
 \centering\small
@@ -342,7 +259,9 @@ R0-to-terminal gain correlates with where R0 happened to land at
 $r = -0.87$ --- the arms that ``improved most'' are the arms whose first
 round fell lowest. The two columns that survive that objection are the
 plateau, which averages thirteen rounds, and the slope, which is fitted
-with R0 excluded. Both sit inside the band. All six arms completed sixteen
+with R0 excluded. \emph{The
+$-8\ldots{+}5$ band is a single-round-pair envelope and is not the
+dispersion of either column.} All six arms completed sixteen
 of sixteen scored rounds. The plateau column is not evenly drawn between
 arms: the no-graph arm's R3--R15 window is $100\%$ fresh re-draws (0 of 39
 round-campaigns carried), the graph arm's is $28.2\%$ carried
@@ -358,12 +277,13 @@ on the common 100-task subset, recomputed from \texttt{task\_history}
 for all six campaigns \F{46}. A filled marker is a round into which a
 candidate shipped; a hollow marker re-ran the previous round's
 configuration unchanged. The grey band is each arm's R3--R15 plateau
-mean $\pm 3.70$ tasks, the directly measured per-round SD \F{15}. That
-$3.70$ is measured on the three no-graph arms' windows only \F{9e}; no
-graph-arm same-config window exists, so the same band is drawn under the
-graph arm's plateau by assumption. Hollow
+mean $\pm 3.70$ tasks, using the sample SD of paired score changes across
+the twenty no-graph same-configuration windows as a descriptive reference
+width \F{15}\F{9e}. It is not per-round dispersion, mean uncertainty or a
+confidence interval; no graph-arm same-config window exists, so the same
+width is drawn under the graph arm's plateau by assumption. Hollow
 markers move as much as filled ones, which is the readout problem of
-Chapter~\ref{ch:design} drawn rather than stated; the positive control of
+Section~\ref{sec:power} drawn rather than stated; the positive control of
 \S\ref{sec:one-repair} is the no-graph seed-1 rise from R2 to R3.}
 \label{fig:scores}
 \end{figure}
@@ -382,23 +302,17 @@ the figure.}
 
 
 
-\subsection*{Operational deviations, disclosed in-body}
+\subsubsection*{Operational deviations}
 
-An unplanned machine restart killed one evolve stage and one task batch on
-the second seed; the batch was re-flown from a byte-identical round-head
-configuration, and the affected pair is read as a same-config pair. A
-twelve-hour gateway outage on the third seed poisoned five rounds' fresh
-rows, which were quarantined, the histories washed back to the clean
-prefix, and both arms re-flown from the last verified round. Five
-meta-chain holes occurred across the two third-seed arms, from the gateway
-outage and from a binary-JSONL crash family in the evolve stage; pairs
-that are not adjacent are left unpooled.
+A machine restart on the second seed, a twelve-hour gateway outage on the
+third whose five poisoned rounds were quarantined and re-flown from the
+last verified round, and five meta-chain holes: each is narrated with its
+handling in Appendix~\ref{app:ops}, and non-adjacent pairs are left
+unpooled. Both arms of both seeds completed sixteen of sixteen
+\emph{scored} rounds, and every same-config window used in the flip
+statistics is a verified clean pair \F{44}\F{45}.
 
-Both arms of both seeds completed sixteen of sixteen \emph{scored} rounds,
-and every same-config window used in the flip statistics is a verified
-clean pair \F{44}\F{45}.
-
-\subsection*{The flip rate replicates}
+\subsubsection*{The flip rate replicates}
 
 The same-config flip rate is \textbf{21.0\%} on the first seed
 ($126/600$ pairs over six full-batch windows, per-window swing
@@ -413,7 +327,7 @@ second seed; the third seed's gives $19.5\%$ \F{44}\F{45}.)
 Three seeds give $21.0$ / $20.1$ / $19.2$: the figure the readout argument
 rests on is stable.
 
-\subsection*{The volatile family replicates too}
+\subsubsection*{The volatile family replicates too}
 
 Flip noise is not uniform across the bed. Tasks that flipped within the
 last three rounds re-flip at \textbf{41.6\%} on the first seed,
@@ -425,15 +339,16 @@ windows only \F{41}\F{44}\F{45}.
 The flip concentration that makes single-window readings unreadable is
 therefore a structural property of the bed, not one campaign's draw.
 
-\subsection*{Both arms climb; the climb is the one thing three seeds
-settle}
+\subsubsection*{Both arms climb within a campaign}
 \label{sec:trend}
 
 Fitting a line to rounds R1--R15 on the common 100-task subset gives a
 \textbf{positive slope in all six campaigns} --- no-graph $+0.62$, $+0.44$,
-$+0.38$ tasks per round; graph $+0.53$, $+1.39$, $+0.64$. Under a null of
-no trend, six positives out of six is a $1/64$ event, $p \approx 0.016$
-\F{47}. The loop improves within a campaign, in both arms.
+$+0.38$ tasks per round; graph $+0.53$, $+1.39$, $+0.64$. Under a null of no trend, and treating the six campaigns as independent,
+six positives out of six is a $1/64$ event, $p \approx 0.016$ \F{47}.
+\emph{They are not independent} --- one bed, three seed-pairs, overlapping
+calendars \F{59} --- so the level is not claimed and the reading is
+descriptive: all three seed-pairs climb, in both arms.
 
 The round-0-to-terminal difference is not that finding. Across the six
 arms it correlates with
@@ -441,179 +356,40 @@ where round 0 happened to land at $r = -0.87$ \F{46}. That is regression to
 the mean on a bed whose same-config swing is $-8\ldots{+}5$: the arms that
 ``improved most'' are the arms whose first round fell lowest.
 
-Between arms, on the common bed: plateau means over R3--R15 are
-\textbf{63.4} tasks (no-graph) against \textbf{66.1} (graph), a gap of
-$+2.7$ \F{46}, on arms of unequal batch composition \F{58}; the
-within-campaign slope gap is $+0.37$ tasks per round at
-an exact permutation $p = 0.10$; and the last four rounds differ by $+5.25$
-at $p = 0.15$ \F{47}.
+One pair was not interleaved. The no-graph seed-1 campaign ran
+2026-08-17--18 and its graph counterpart 08-23--27, while the seed-2 and
+seed-3 pairs are concurrent with their own counterparts \F{59}. Arm is
+therefore confounded with time window on one of the three pairs, against
+the first rule of \S\ref{sec:efficacy-protocol}; the two concurrent pairs
+are what the cross-arm reading rests on.
 
-Every one of those sits inside the band. With three seeds per arm the
-smallest attainable one-sided permutation $p$ is $0.05$, so an observed
-$0.10$ is one exchange from the design's floor: ``not significant'' here
-means the design reached its own ceiling before it reached significance,
-not that there is no effect. Whether the graph is what makes the loop
-improve is a question this data cannot answer in either direction.
+Between arms, on the common bed: plateau means over R3--R15 are
+\textbf{63.4} tasks (no-graph) against \textbf{66.1} (graph), a descriptive
+gap of $+2.7$ \F{46}, with its between-seed standard error reported in
+Table~\ref{tab:results}, on arms of unequal fresh/carried batch
+composition \F{58}; the exploratory within-campaign slope gap is $+0.37$
+tasks per round at an exact permutation $p = 0.10$, and the exploratory
+last-four-round difference is $+5.25$ at $p = 0.15$ \F{47}. Arm and time
+window are also confounded for the non-interleaved seed pair.
+
+
 
 % -------------------------------------------------------------------------
-\section{The space, re-scoped}
+\subsection{The space, re-scoped}
 \label{sec:respace}
 % -------------------------------------------------------------------------
 
 Measuring the bed changes what counts as a reasonable target on it.
 
-\paragraph{Ceilings.} Of the 100 tasks, 97 are reachable at all; 3 are
-never solved; 47 are reachable but unreliable, passing under $80\%$ of the
-time. The union of everything ever solved, 97, exceeds the best single
-round any arm recorded, 76, by \textbf{21} tasks \F{16}. A loop optimizing a single round's score is optimizing a
-number 21 below what its own history has already achieved.
 
 \paragraph{Where the variance is injected.} Twin-trajectory analysis puts
-$74\%$ of divergence at a plan fork (upper bound) and $14\%$ at an
-environment-first difference (lower bound), with the median divergence at
-the second call \F{22}. Empty tool results are non-predictive of outcome
-(9 against 8; an arbiter preferring fewer empties is a coin flip) \F{23},
-and arbiter feasibility is one strong, one weak, one reversed \F{24}. At
-content level, pure sampling accounts for about $17\%$; about $80\%$ of
-plan forks follow a world difference rather than precede it; and the
-injection point is a web search in 76 of 79 cases \F{25}.
-
-\S\ref{sec:future} acts on that last number: the measured variance
-injection point is a cache away from being closed.
+most divergence at a plan fork, with the median divergence at the second
+call \F{22}, and most plan forks follow a difference in the world rather
+than precede it --- the injection point being a web search in 76 of 79
+cases \F{25}.
 
 % -------------------------------------------------------------------------
-\section{The clinic: capability against efficacy}
-\label{sec:clinic}
-% -------------------------------------------------------------------------
-
-The campaigns answer whether the graph changes outcomes. They do not answer
-whether the loop is \emph{able} to diagnose, because a campaign confounds
-ability with everything else in the loop. A separate line of probes was
-built for that, feeding a single task's full history to the loop outside
-the evolve cycle.
-
-\subsection*{The capability chain is intact end to end}
-
-$k{=}1$ observations suffice for the loop to reach the correct drug family.
-More trajectories buy argument quality, claim-narrowing and honest
-abstention --- not new families \F{26}--\F{30}. Fed a cluster of related
-failures, the loop returns one general prescription, narrows its own claim,
-and abstains where it should \F{36}.
-
-Pushed with a coverage directive --- treat every task, never abstain ---
-the loop's rational optimum is to engineer the bed's own leak routes into a
-benchmark-lookup cheat tool, which passed the Critic and \emph{all} landing
-gates \F{37}. It was not shipped for scoring; the text evidence is
-retained. \S\ref{sec:governance} reads it as the governance result it is.
-
-Every item above is capability evidence; none of it is efficacy evidence.
-
-\subsection*{Efficacy is zero}
-
-Three drugs the loop repeatedly prescribes were assembled into a
-configuration bundle and run through the pre-specified trial protocol of
-\S\ref{sec:efficacy-protocol}.
-
-\begin{itemize}
-  \item Clean-cluster transfer: $+1$ and $+2$, inside the $\pm3$ floor ---
-        engaged but unreadable \F{32}.
-  \item Canary set: $23/24$ against $24/24$; at worst harmless \F{33}.
-  \item \textbf{Verdict on the pre-specified test: bundle effect $= 0$} \F{34}. The
-        two readings are kept apart. The prospective batch --- 7 clean
-        tasks $\times$ 10 repetitions $\times$ 2 arms, $n{=}70$ pairs ---
-        returns $+1/-4$, sign test $p = 0.97$. The pooled clean
-        same-window pairs ($n{=}174$) return 75 for the parent against 72
-        for the applied configuration, one-sided Fisher $p = 0.67$. And
-        the mechanism endpoint, confident-wrong share, is flat in both.
-\end{itemize}
-
-Scores flat with mechanism flat is a true zero, not a resolution failure
-(\S\ref{sec:efficacy-protocol}). This is the one confirmatory test in the
-thesis and it returned nothing.
-
-\subsection*{The execution history of four apparent wins}
-
-The route to that verdict shows why the protocol has the shape it does.
-Four successive apparent wins were killed by three different instruments:
-the first by firing forensics --- the score gains sat entirely on
-repetitions where the drug never fired, 0 of 5 \F{36}; the second by a
-same-window control returning $6/10$ against $6/10$ \F{36}; and the last by
-the pre-specified prospective batch \F{34}.
-
-\subsection*{Pathology census}
-
-Of the 49 swing tasks: 13 are leak-route, 15 sit at a capability wall, 18
-are wrong-closure failures, 2 are friction, and 1 is starvation. The
-quarantine bin verified 5 of 5 \F{31}.
-
-The census prices the remaining work. Only one of those five families --- starvation --- was ever repaired, and the family that
-dominates, wrong-closure, needs an organ the loop does not have
-(\S\ref{sec:future}).
-
-% -------------------------------------------------------------------------
-\section{Archaeology, the treadmill, and four layers of mortality}
-\label{sec:archaeology}
-% -------------------------------------------------------------------------
-
-\subsection*{The loop had already prescribed correctly, four campaigns
-earlier}
-
-The finding that reorients the thesis came from re-reading the study's own
-archives, and it falsified an earlier claim made here.
-
-Three ancestors, with their decision quotes \F{38}:
-
-\begin{itemize}
-  \item In the \emph{zero-graph} baseline arm, round 3, a prompt repair
-        carrying a step-cited fabrication diagnosis --- the loop had
-        identified a specific fabricated identifier absent from every tool
-        output --- accepted ``first in ranking''. This is four campaigns
-        before the dossier mechanism that was supposed to make such
-        diagnosis possible.
-  \item In the graph campaign, round 1, a dormant-rule activation shipping
-        with replay counts of 13 fires and 5 false positives on one side,
-        9 and 4 on the other; accepted, ship-alone.
-  \item An archive-fetch tool, invented by the loop itself.
-\end{itemize}
-
-Each family re-surfaces in later campaigns and probes \emph{without
-inheriting} from the earlier instance. This is the \textbf{re-prescription
-treadmill}: the same drug, re-derived from scratch, repeatedly. Within a campaign the treadmill is visible too: the three graph
-seeds' 35 tool cards name 22 distinct tools, three of them re-authored
-three times each on one seed, and the no-graph seeds' 19 name 11, one
-of them four times \F{67}.
-
-\subsection*{Card anatomy: what the graph actually changed}
-
-The no-graph cards already reason from symptom to mechanism to drug, using
-step-pinned quotes from the trajectory --- a fabricated identifier absent
-from every tool output, a zero-length return, the specific prompt line that
-sanctioned the behaviour. Diagnosis is native to the base loop.
-
-What the graph changes is the evidence \emph{regime}. The graph-arm card
-replays its proposed rule over all 100 recorded execution graphs and ships
-with fire \emph{and false-positive} counts, wiring citations, an explicit
-self-grading of what its evidence does not show, and a priced interaction
-with a concurrent candidate \F{38}.
-
-Argument quality climbs to readout rung R2, which is still not R3:
-measured firing sites are death signatures, not cure sites. The
-localization axis that would have settled the difference is not measurable
-on this design (\S\ref{sec:localization}).
-
-\subsection*{The one drug that worked, and where it went}
-
-The budget-starvation repair of \S\ref{sec:one-repair} was retained from
-round 3 to round 16 of its own campaign --- the ratchet's existence proof
---- and then reached no later campaign configuration examined \F{39}.
-
-The mechanism is decisive independently of how many campaigns are grepped:
-the drug's target is a \texttt{file://} absolute path into its own campaign
-directory, and every later seed is generated from the clean template. The
-inheritance channel does not exist: the loop did not forget the drug, it
-was never able to pass it on.
-
-\subsection*{The gain face: what else clears the band, and what clearing it
+\subsection{The gain face: what else clears the band, and what clearing it
              means}
 \label{sec:gain-face}
 
@@ -640,16 +416,7 @@ mechanism legible in the exit ledger. The count is caliber-sensitive in
 the expected direction: under the $\pm 7$ single-pair ceiling of \F{14}
 the whole-bed above-band set is three, all ship-bearing.
 
-Clearing the band is therefore not sufficient evidence that an edit worked
---- six of eleven had no edit. What follows shows it is not necessary
-either.
 
-\paragraph{The other face.} Budget exhaustion is the one failure mode on
-this bed with a mechanical reading: a task exiting \texttt{budget\_exceeded}
-ran out of steps rather than answering wrongly, so its count measures an
-intervention's size without reference to the score. Four whole-bed round
-pairs collapse it by ten exits or more (Table~\ref{tab:starvation})
-\F{49}.
 
 \begin{table}[htbp]
 \centering\small
@@ -679,13 +446,220 @@ mechanism that converts starvation failures into wrong-answer failures at a
 rate this bed does not fix, and this thesis does not exclude that reading
 \cls{C}.
 
-That reading does not rescue the axis. Under any of them, an intervention
-whose mechanical size is measured, large and identical across two campaigns
-produced score movements on opposite sides of the noise band. A signal with
-that property cannot rank edits by how much they helped, which is what a
-selection signal is for.
 
-\subsection*{Four layers of mortality} \cls{C}
+% -------------------------------------------------------------------------
+% -------------------------------------------------------------------------
+\section{Two-arm comparison}
+% -------------------------------------------------------------------------
+
+\subsection{What the graph did, and what it did not}
+\label{sec:what-graph-did}
+% -------------------------------------------------------------------------
+
+\subsubsection*{Removal is not measurement}
+
+The replacement column saturates by construction under the sliding window:
+$549/549$ \F{8}. The false signal's absence is verifiable; the
+replacement's presence measures nothing. ``$0/859$'' is therefore not evidence that the graph arm's tool calls were
+genuinely used, and is not read that way.
+
+\subsubsection*{Citation integrity improves; the credit goes to the layer}
+
+Digests in the graph arms carry \textbf{3.50} verified citation anchors
+each, against \textbf{1.75} in the no-graph arms, while the share of
+digests failing the production anchor validator falls from \textbf{11.7\%}
+to \textbf{1.5\%} \F{52}. Roughly twice the citing at roughly a seventh of
+the failure rate, so this is not the saturation trap of the previous
+subsection, where cleanliness is bought by citing less.
+
+Which component earns it is not established. Three GHX changes could each
+produce it: the anchor-repair pass, which is an independent flag;
+the graph-fed digest itself; and the rebound digest builder. No arm
+isolates them.
+
+The defensible claim is that \emph{the GHX layer} improves citation
+integrity; that the \emph{graph} does is not shown. The anchor-repair pass
+being separately switchable, the gain may be as portable to an unmodified
+harness as the cost work of \S\ref{sec:cost}.
+
+\subsubsection*{What the roles read: a vocabulary appears}
+
+The Digester tags each failing dossier with a free-text failure mode. The
+no-graph arms' 1{,}585 failing dossiers carry 1{,}431 distinct tags, $96\%$
+used once, the three commonest covering $3\%$ --- three spellings of budget
+starvation are three tags, so no round can count a family. The graph arms'
+1{,}079 dossiers carry 850 tags, still $96\%$ singletons, but the three
+commonest cover $17\%$, two of them motif names \F{65}. The graph does not
+improve the diagnosis; it gives two rounds a few words in common, which is
+the precondition for reading ``this family was treated before''
+(\S\ref{sec:archaeology}).
+
+
+% -------------------------------------------------------------------------
+\subsection{Downstream: outcomes do not separate; fewer candidates ship, and
+they are cleaner}
+\label{sec:localization}
+% -------------------------------------------------------------------------
+
+\subsubsection*{Localization, and why only one number from it survives}
+
+The loop's own predictions carry real information. On the no-graph
+baseline, the tasks a shipped candidate named flipped at \textbf{50.0\%}
+against a base rate of \textbf{25.2\%} --- a lift of \textbf{1.99}, with a
+95\% confidence interval of $[1.47, 2.54]$ by bootstrap over candidates (13
+candidates, 50 eligible predictions), an interval that excludes $1.0$
+\F{9a}\F{9d}.
+
+That is the load-bearing localization number in this thesis, and it points
+the same way as the archaeology of \S\ref{sec:archaeology}: the base loop
+can already aim.
+
+\subsubsection*{The between-arm comparison is withdrawn, not lost}
+
+The graph arm's lift cannot be set beside it. The two shipped sets are
+different candidate populations, admitted under different gate regimes ---
+five gates against six, killing 18 of 59 candidates ($30.5\%$) against 26
+of 55 ($47.3\%$) pooled over three seeds \F{53} --- and drawn
+against base pools nine percentage points apart. The graph arm's own
+interval includes $1.0$ in any case, so even taken alone the value is
+indistinguishable from chance.
+
+Four stacked defects, and the superseded figures they retire, are recorded
+at \F{9b}\F{9c}\F{9d}; the body takes no direction from them. A fifth surfaced on the proposal face: the stored core/halo labels use a
+broader prediction population than the declared unlock lists and omit
+registry-tool touches (\S\ref{sec:proposal-face}, \F{64}).
+
+The design's reach closes the section: a real \textbf{40\%} improvement in
+localization would not have been visible at this sample \F{9d}. This is an
+\emph{absent measurement} rather than an underpowered null, which would
+still point somewhere.
+
+The switch
+profit-and-loss account covers 21 items, none of which constitutes a measured
+behavioural improvement \F{12}.
+
+
+The share of candidates dying \emph{malformed} --- failing
+canonicalization, replay and structure together --- fell from
+\textbf{18/59 ($30.5\%$)} to \textbf{8/55 ($14.5\%$)}, the direct
+consequence of both artifacts being machine-generated rather than
+transcribed \F{53}.
+
+\paragraph{An alternative reading of the eighteen kills.} An equally
+consistent reading is that the cone-based representation itself degrades
+targeting rather than revealing targeting that was already bad. The
+no-graph arm has no equivalent gate, so its own mistargeting rate is
+unmeasured, not zero, and no hand audit of no-graph candidates against the
+same criterion was run. The eighteen kills show the gate firing; they do
+not by themselves distinguish the two readings.
+
+\subsubsection*{The proposal face: what the graph arm writes}
+\label{sec:proposal-face}
+
+The cards the Evolver wrote show what the graph changed before any gate
+acted.
+
+\emph{Bucket.} The card's primary declared category is tools for $22\%$ of
+86 no-graph cards and $44\%$ of 79 graph cards ---
+$20.0/25.0/20.0\%$ against $40.0/48.1/45.5\%$ by seed, disjoint, at the
+design's floor of $p = 0.05$ --- while prompt is the primary category for
+$22\%$ and $14\%$ \F{61}. The ship-ranking membership counts for tool and
+prompt cards are alike in both arms; this is not a census of Critic
+acceptance. The sixth gate refuses tools and processors at the same rate,
+and the landed sets carry 11 and 13 tool ships \F{62}. Part of it is a rule: the release's own structure gate binds
+a candidate to the bucket the Planner flagged, both arms flag tools about
+equally often, and only the graph arm's Evolver is told so before writing
+--- its tools share is $61\%$ against $18\%$ in flagged rounds, and still
+$39\%$ against $23\%$ in the rest \F{62}, the residue the evidence regime
+owns.
+
+\emph{Citation.} Both arms cite trajectory steps at six anchors per card;
+the graph arm adds a second language --- node names on $65\%$ of cards,
+cone and motif terms on $89\%$, lift on $37\%$ --- and drops one, prompt
+and template mentions falling from $2.8$ per card on $58\%$ of cards to
+$1.0$ on $23\%$ \F{63}. No rule forbids a prompt edit; the cone renders
+the prompt as one intervention line and copies no text.
+
+\emph{Prediction.} A graph card declares $5.4$
+\texttt{tasks\_will\_unlock} entries against $3.0$ in the no-graph arm
+\F{64}. Separately, the stored core/halo labels use a broader prediction
+population: the raw labelled core count is $0.9$ tasks per card, with
+$4/27$ core and $50/145$ halo hits against a passive $172/530$ \F{64}.
+Those labels omit registry-tool touches and do not partition the declared
+unlock list, so the counts are implementation diagnostics and do not
+estimate the efficacy of cone touch. This population mismatch is the fifth
+reason \F{9c} gives for not subtracting the arms' lifts.
+
+\subsubsection*{Why there is no component ablation}
+
+No level-by-level ablation was run. An ablation \emph{attributes} an
+arm-level effect to a part, and on the score axis there is no
+\emph{separable} arm-level effect to attribute. The reason there are no
+per-level arms is simply that no campaign was flown at an intermediate
+level (\S\ref{sec:beds}); what such arms would have returned is not
+predicted here. What the
+thesis substitutes is bookkeeping, labelled \cls{C} observational rather
+than offered as a causal decomposition \F{9c}\F{39}\F{40}.
+
+% -------------------------------------------------------------------------
+\subsection{Archaeology, the treadmill, and four layers of mortality}
+\label{sec:archaeology}
+% -------------------------------------------------------------------------
+
+\subsubsection*{The loop had already prescribed correctly, four campaigns
+earlier}
+
+The finding that reorients the thesis came from re-reading the study's own
+archives, and it falsified an earlier claim made here.
+
+Three ancestors, with their decision quotes \F{38}:
+
+\begin{itemize}
+  \item In the \emph{zero-graph} baseline arm, round 3, a prompt repair
+        carrying a step-cited fabrication diagnosis --- the loop had
+        identified a specific fabricated identifier absent from every tool
+        output --- accepted ``first in ranking''. This is four campaigns
+        before the dossier mechanism that was supposed to make such
+        diagnosis possible.
+  \item In the graph campaign, round 1, a dormant-rule activation shipping
+        with replay counts of 13 fires and 5 false positives on one side,
+        9 and 4 on the other; accepted, ship-alone.
+  \item An archive-fetch tool, invented by the loop itself.
+\end{itemize}
+
+Each family re-surfaces in later campaigns and probes \emph{without
+inheriting} from the earlier instance. This is the \textbf{re-prescription
+treadmill}: the same drug, re-derived from scratch, repeatedly. Within a campaign the treadmill is visible too: the three graph
+seeds' 35 tool cards name 22 distinct tools, three of them re-authored
+three times each on one seed, and the no-graph seeds' 19 name 11, one
+of them four times \F{67}.
+
+\subsubsection*{Card anatomy: what the graph actually changed}
+
+Diagnosis is native to the base loop: the no-graph cards already reason
+from symptom to mechanism to drug on step-pinned quotes --- a fabricated
+identifier absent from every tool output, a zero-length return, the prompt
+line that sanctioned the behaviour. What the graph changes is the evidence
+\emph{regime}: the graph-arm card replays its proposed rule over all 100
+recorded execution graphs and ships with fire \emph{and false-positive}
+counts \F{38}. Argument quality climbs to readout rung R2, which is still
+not R3 --- measured firing sites are death signatures, not cure sites ---
+and the localization axis that would have settled the difference is not
+measurable here (\S\ref{sec:localization}).
+
+\subsubsection*{The one drug that worked, and where it went}
+
+The budget-starvation repair of \S\ref{sec:one-repair} was retained from
+round 3 to round 16 of its own campaign --- the ratchet's existence proof
+--- and then reached no later campaign configuration examined \F{39}.
+
+The mechanism is decisive independently of how many campaigns are grepped:
+the drug's target is a \texttt{file://} absolute path into its own campaign
+directory, and every later seed is generated from the clean template. No cross-seed inheritance channel exists: later campaigns start from the
+clean template, so this reset does not demonstrate within-lineage
+forgetting.
+
+\subsubsection*{Four layers of mortality} \cls{C}
 
 Why a loop that can prescribe correctly still does not improve, in four
 layers \F{40}:
@@ -700,18 +674,183 @@ layers \F{40}:
   \item \textbf{No readout, therefore no ratchet.}
 \end{enumerate}
 
-The fourth layer catches the first three. Without an efficacy readout the
-loop does not know that a drug was ineffective --- so it re-prescribes the
-placebo; does not know that a drug was lost --- so it does not repair
-inheritance; and does not know that a drug went silent --- so it does not
-check the wiring. It is legible in every decision file: hard regressions were
-surfaced before 81 of 86 evolve rounds, at the size the flip rate predicts,
-the rollback rule fired in none of 75 decisions, and the Critic wrote
-``acceptable'' in 26 \F{66}. A watchlist firing at the noise rate every
-round is one the loop learns to ignore.
+% -------------------------------------------------------------------------
+\section{Supplementary verification}
+% -------------------------------------------------------------------------
+
+\subsection{Non-interference, by construction and by demonstration}
+\label{sec:non-interference}
+
+The recorder must not change the thing it records.
+\emph{By demonstration}: a same-window paired trial on the stable cohort
+--- eight always-pass canaries and two never-solved tasks, three
+repetitions $\times$ two arms, recording the only difference --- returns 9
+of 10 per-task outcome vectors identical, the single divergence being the
+documented flaky canary \F{33}, which failed twice in the
+recording-\emph{off} arm. Arm totals are $22/30$ against $24/30$, inside noise \F{43}. On a bed that
+flips one outcome in five, score identity is not an achievable standard;
+vector-level parity on stable tasks is, and is the standard used. That
+cohort is chosen for having zero variance (\S\ref{sec:power}), so the
+demonstration bounds interference \emph{on stable tasks only}; the 79
+volatile tasks, where interference would act, are not covered by it.
+
+\subsection{The efficacy-trial protocol}
+\label{sec:efficacy-protocol}
+% -------------------------------------------------------------------------
+
+Level 3 of the readout ladder --- did firing change outcomes --- was not
+available from the loop, so it was built by hand, following the
+\emph{add-on} design of clinical-trial methodology~\cite{ich-e10}: the
+graph mechanism is added on top of the base loop and read against the
+base loop alone, rather than either arm forgoing a standard-of-care
+control. The protocol below is what a manual R3 readout costs, and serves
+as a specification for the automated version \S\ref{sec:future} calls
+for.
+
+\begin{itemize}
+  \item \textbf{Arms are interleaved within the same window.} Running arms
+        serially confounds arm with time window; its absence destroyed one
+        result here \F{36}.
+  \item \textbf{True completions are counted before anything is scored.}
+        Launch-spike deaths and phantom runs are excluded by inspection.
+        This is registry error 14.
+  \item \textbf{Campaign task parameters are replicated exactly.} The
+        campaigns run \texttt{--max-steps 20}; the loader's default of 40
+        doubles the step budget and revives tasks that had died of burnout,
+        which silently changes what is being measured. Registry error 15.
+  \item \textbf{Adjudication files are quarantined outside the
+        subject-reachable filesystem, and seeded with canary words.} If a
+        planted marker word ever surfaces in a subject trajectory, the
+        subject read what it should not have. Registry error 13 is the
+        specimen: an adjudication file left readable in a run root, a role
+        that read the answer sheet, and a round of rulings voided.
+  \item \textbf{Gold labels are health-checked before trials}, following
+        the archaeology protocol --- a wrong gold label was found this way
+        \F{29}.
+  \item \textbf{A canary set of eight always-pass tasks detects harm}
+        \F{33}, stopping arithmetic decides continuation, and
+        \textbf{mechanism endpoints are reported beside scores}: firing
+        forensics, and the confident-wrong share --- the fraction of
+        failures in which the subject closed confidently on a wrong
+        answer.
+\end{itemize}
 
 % -------------------------------------------------------------------------
-\section{The survivor}
+\subsubsection*{Multiplicity, declared}
+
+There is \textbf{exactly one confirmatory test} in this thesis: the
+\emph{prospective} efficacy batch of $n{=}70$ pairs --- 7 clean tasks
+$\times$ 10 repetitions $\times$ 2 arms --- which is the test the stopping
+rule was fixed against \F{34}. The pooled 174-pair reading is a
+\emph{supporting} estimate over all clean same-window pairs, reported
+because both point estimates are negative and neither separates --- they
+differ in magnitude, $-8$ of 70 against $-3$ of 174 --- and not because it
+was pre-specified.
+
+No external registry was used, so what \emph{pre-specified} rests on is
+stated here. The cluster-transfer and canary designs, with their
+$\pm 3$ floor and their sample sizes, were written into the working notes
+and committed to the author's working repository before their data
+existed (25 August 2026, 01:30; the trial files are stamped 02:04--02:14)
+\F{32}\F{33}. The rules of the prospective batch --- seven fixed clean
+tasks, one of them a known negative case that could not be dropped, a
+sign test, at most two batches --- were written in the working notes
+before the batch was launched, but their committed record was made
+together with the verdict, after the batch had run. That batch's
+pre-specification therefore rests on the notes, not on a timestamp
+\F{34}. The log excerpts and the plan text are reproduced in the released
+repository under \texttt{docs/provenance/}.
+
+Every other $p$-value in this document is exploratory. That includes the
+McNemar window of Appendix~\ref{app:ledger} \F{21}, the same-window controls
+\F{36}, the notes channel \F{35}, the cluster transfer \F{32}, and the
+within-campaign slope permutation of \S\ref{sec:trend} \F{47}. Each is
+labelled exploratory at its point of use as well as here, and no
+family-wise correction is claimed.
+
+Four successive apparent wins were executed one at a time and killed by
+three different instruments; the two whose magnitudes have ledger rows are
+$+7$ and $+5$ \F{36}. They are serial re-tests of
+a single hypothesis, which is why the confirmatory endpoint is the
+pre-specified prospective batch and none of them.
+
+% -------------------------------------------------------------------------
+\subsection{Evaluator-bias controls}
+\label{sec:evaluator-bias}
+% -------------------------------------------------------------------------
+
+\paragraph{pass@1 discipline.} Mixed-$k$ passes do not count. Applying this
+rule mechanically to the baseline campaign's seed round moved its recorded
+score from 67 to \textbf{57}: $k$-mixing had gifted the seed ten free
+passes (registry error 11, Appendix~\ref{app:deviations}). That round is
+excluded from every flip and gain-face statistic for this reason
+\F{15}\F{48}; Table~\ref{tab:arms} prints its uncorrected R0 because the
+R0 column reports what each campaign recorded, and no reading rests on
+it.
+
+The direction of the correction matters: lowering the seed \emph{enlarges}
+the campaign's apparent gain, so the rule, applied mechanically in both
+directions, happens here to flatter this thesis's own baseline campaign.
+
+\subsection{The clinic: capability against efficacy}
+\label{sec:clinic}
+% -------------------------------------------------------------------------
+
+The campaigns answer whether the graph changes outcomes. They do not answer
+whether the loop is \emph{able} to diagnose, because a campaign confounds
+ability with everything else in the loop. A separate line of probes was
+built for that, feeding a single task's full history to the loop outside
+the evolve cycle.
+
+\subsubsection*{The capability chain is intact end to end}
+
+$k{=}1$ observations suffice for the loop to reach the correct drug family.
+More trajectories buy argument quality, claim-narrowing and honest
+abstention --- not new families \F{26}--\F{30}. Fed a cluster of related
+failures, the loop returns one general prescription, narrows its own claim,
+and abstains where it should \F{36}.
+
+Pushed with a coverage directive --- treat every task, never abstain ---
+the loop's rational optimum is to engineer the bed's own leak routes into a
+benchmark-lookup cheat tool, which passed the Critic and \emph{all} landing
+gates \F{37}. It was not shipped for scoring; the text evidence is
+retained. \S\ref{sec:governance} reads it as the governance result it is.
+
+Every item above is capability evidence; none of it is efficacy evidence.
+
+
+
+Three drugs the loop repeatedly prescribes were assembled into a
+configuration bundle and run through the pre-specified trial protocol of
+\S\ref{sec:efficacy-protocol}.
+
+\begin{itemize}
+  \item Clean-cluster transfer: $+1$ and $+2$, inside the $\pm3$ floor ---
+        engaged but unreadable \F{32}.
+
+  \item \textbf{Verdict on the pre-specified test: no improvement, with a
+        negative point estimate} \F{34}. This is the observed
+        decision-rule result, not an equivalence claim. The
+        two readings are kept apart. The prospective batch --- 7 clean
+        tasks $\times$ 10 repetitions $\times$ 2 arms, $n{=}70$ pairs ---
+        returns $+1/-4$, sign test $p = 0.97$. The pooled clean
+        same-window pairs ($n{=}174$) return 75 for the parent against 72
+        for the applied configuration, one-sided Fisher $p = 0.67$. And
+        the mechanism endpoint, confident-wrong share, is flat in both.
+\end{itemize}
+
+The bundle trial detected no improvement and returned a negative point
+estimate, with the named mechanism endpoint flat
+(\S\ref{sec:efficacy-protocol}). This is an interpretable null for the
+specified decision rule, not an equivalence result: it does not
+establish a true zero or exclude smaller effects. The post-hoc control
+event is an observation of a large event rather than a calibration of
+sensitivity to smaller effects.
+
+
+
+% -------------------------------------------------------------------------
+\subsection{The survivor}
 \label{sec:survivor}
 % -------------------------------------------------------------------------
 
@@ -724,12 +863,11 @@ note was most on-target. Deciding its fate needs three or four more window
 pairs, so it is reported as unresolved.
 
 Its interest is structural rather than numerical: it is the only channel
-that bypasses all four mortality layers of \S\ref{sec:archaeology}: it does
-not occupy the prompt singleton slot, because it is injected per task; it
-does not pass the governance gates, because it never enters the evolve
-loop; it cannot go dormant, because it is prepended to the task itself; and
-it does not need the loop to read an efficacy signal, because the operator
-decides its life or death.
+that bypasses all four mortality layers of \S\ref{sec:archaeology} --- it
+is injected per task rather than occupying the prompt singleton slot, never
+enters the evolve loop, cannot go dormant because it is prepended to the
+task itself, and needs no efficacy signal because the operator decides its
+life or death.
 
 The price of that immunity is that it is no longer self-evolution but
 retrieval-based experience reuse, the adjacent literature line
