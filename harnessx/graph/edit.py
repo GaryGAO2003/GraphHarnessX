@@ -19,10 +19,10 @@ Five edit types
 from __future__ import annotations
 
 from copy import deepcopy
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 
-from .types import EdgeType, GraphSnapshot, Node, NodeType
+from .types import Edge, EdgeType, GraphSnapshot, Node, NodeType
 
 
 class GraphEditType(str, Enum):
@@ -387,8 +387,7 @@ def _add_edge_type_to_edge() -> None:
 
 
 # Patch EdgeType to have a to_edge helper
-def _edge_type_to_edge(self, source_id: str, target_id: str, metadata=None) -> "Edge":
-    from .types import Edge
+def _edge_type_to_edge(self, source_id: str, target_id: str, metadata=None) -> Edge:
     return Edge(
         source_id=source_id,
         target_id=target_id,

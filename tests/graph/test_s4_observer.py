@@ -1,6 +1,5 @@
 """Tests for S4 observer module."""
 
-import pytest
 
 from harnessx.graph.observer import HookObservation, ObservationProcessor, TaskTrace
 

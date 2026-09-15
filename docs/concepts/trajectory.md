@@ -121,4 +121,4 @@ Child trajectories are linked via `parent_run_id` and embedded in step exports, 
 
 - [Processors](processors.md)
 - [Harness Composition](harnesses.md)
-- [Training Data Recipe](../recipes/training_data.md)
+- [Training-record example](../agents.md#pattern-7-collect-training-data)

@@ -10,7 +10,7 @@ import logging
 import weakref
 import warnings
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Iterable, Optional
 
 _log = logging.getLogger(__name__)
 

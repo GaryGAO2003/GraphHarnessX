@@ -952,7 +952,7 @@ print(f"  tools: shipped {T['all']['ships']}, drawn-task absence {pct(*T['all'][
       f"graph {T['graph']['drawn'][0]}/{T['graph']['drawn'][1]}; predicted-set {T['all']['predicted_set'][0]}/{T['all']['predicted_set'][1]}; "
       f"random task {T['all']['background'][0]}/{T['all']['background'][1]}; never ran: no-graph {len(T['no_graph']['never_ran'])}/{T['no_graph']['ships']}")
 kd = F70["k_draw"]["tools, all"]
-print(f"  k-draw, tools: " + ", ".join(f"k={k} {kd[f'k{k}'][0]}/{kd[f'k{k}'][1]}" for k in (1, 2, 3, 5))
+print("  k-draw, tools: " + ", ".join(f"k={k} {kd[f'k{k}'][0]}/{kd[f'k{k}'][1]}" for k in (1, 2, 3, 5))
       + f"; candidates with <3 predicted tasks {F70['predicted_tasks_available']['lt3']}/{F70['predicted_tasks_available']['n']}")
 print(f"  processors: graph drawn-task absence {P['graph']['drawn'][0]}/{P['graph']['drawn'][1]}, always-on {P['graph_always_on']}/{P['graph']['ships']}; "
       f"no-graph never intervened {len(P['no_graph']['never_ran'])}/{P['no_graph']['ships']} {P['no_graph']['never_ran']}, "

@@ -59,9 +59,7 @@ GRAPH = [r for r, a in ARMS if a == "GHX"]
 ROUND_DIR = re.compile(r"^R\d+$")
 
 # Verbatim from harnessx/aegis/gates/structure.py::_ANCHOR_RE -- keep in sync.
-ANCHOR_RE = re.compile(
-    r"(?:\[|`)(?:R\d+/)?(sessions|trajectories|digests)/([^\]`#]+)(?:#([^\]`]+))?(?:\]|`)"
-)
+ANCHOR_RE = re.compile(r"(?:\[|`)(?:R\d+/)?(sessions|trajectories|digests)/([^\]`#]+)(?:#([^\]`]+))?(?:\]|`)")
 
 EVIDENCE_ARTIFACTS = {
     "facts.md": "facts",
@@ -108,7 +106,9 @@ def round_dirs(run: str):
 
 def fisher_two_sided(a: int, b: int, c: int, d: int) -> float:
     n, r1, c1 = a + b + c + d, a + b, a + c
-    p = lambda x: comb(r1, x) * comb(n - r1, c1 - x) / comb(n, c1)
+    def p(x):
+        return comb(r1, x) * comb(n - r1, c1 - x) / comb(n, c1)
+
     p0 = p(a)
     return sum(p(x) for x in range(max(0, c1 - (n - r1)), min(r1, c1) + 1) if p(x) <= p0 + 1e-12)
 
@@ -156,7 +156,7 @@ def evolver_context_artifacts(round_dir: Path) -> set[str]:
                 row = json.loads(line)
             except Exception:
                 continue
-            for call in ((row.get("message") or {}).get("tool_calls") or []):
+            for call in (row.get("message") or {}).get("tool_calls") or []:
                 blob = json.dumps(call.get("input") or {}, ensure_ascii=False).lower()
                 for pattern, name in EVIDENCE_ARTIFACTS.items():
                     if pattern.lower() in blob:
@@ -168,8 +168,10 @@ def t5_stage_spine() -> None:
     print("=" * 96)
     print("T5  Stage spine from audit.jsonl")
     print("=" * 96)
-    print(f"{'run':15s} {'arm':4s} {'gated':>6s} {'killed':>7s}  failing gate set"
-          f"                             {'reverts':>8s} {'parse-fail':>11s} {'rollbacks':>10s} {'degraded':>9s} {'missing':>8s}")
+    print(
+        f"{'run':15s} {'arm':4s} {'gated':>6s} {'killed':>7s}  failing gate set"
+        f"                             {'reverts':>8s} {'parse-fail':>11s} {'rollbacks':>10s} {'degraded':>9s} {'missing':>8s}"
+    )
     for run, arm in ARMS:
         path = RUNS / run / "audit.jsonl"
         if not path.exists():
@@ -190,11 +192,13 @@ def t5_stage_spine() -> None:
             elif kind == "gate":
                 gated += 1
                 results = payload.get("results") or {}
-                bad = tuple(sorted(
-                    g
-                    for g, v in results.items()
-                    if not (v is True or (isinstance(v, dict) and v.get("ok", v.get("passed"))))
-                ))
+                bad = tuple(
+                    sorted(
+                        g
+                        for g, v in results.items()
+                        if not (v is True or (isinstance(v, dict) and v.get("ok", v.get("passed"))))
+                    )
+                )
                 if bad:
                     killed += 1
                     # Report the WHOLE failing set, not the first key: dict order is
@@ -212,8 +216,10 @@ def t5_stage_spine() -> None:
             elif kind == "rollback":
                 rollbacks += 1
         gates = " ".join(f"{g}:{n}" for g, n in first_fail.most_common())
-        print(f"{run:15s} {arm:4s} {gated:6d} {killed:3d} {killed/gated*100:4.0f}%  {gates:44s}"
-              f" {reverts:8d} {parse_fail:11d} {rollbacks:10d} {degraded:9d} {missing:8d}")
+        print(
+            f"{run:15s} {arm:4s} {gated:6d} {killed:3d} {killed / gated * 100:4.0f}%  {gates:44s}"
+            f" {reverts:8d} {parse_fail:11d} {rollbacks:10d} {degraded:9d} {missing:8d}"
+        )
 
 
 def t6_digest_anchors() -> None:
@@ -234,8 +240,10 @@ def t6_digest_anchors() -> None:
     print("=" * 96)
     print("T6  Digest citation integrity (production validator replayed offline)")
     print("=" * 96)
-    print(f"{'run':15s} {'arm':4s} {'digests':>8s} {'anchors':>8s} {'per digest':>11s}"
-          f" {'zero-anchor':>12s} {'bad target':>12s} {'invalid':>13s}")
+    print(
+        f"{'run':15s} {'arm':4s} {'digests':>8s} {'anchors':>8s} {'per digest':>11s}"
+        f" {'zero-anchor':>12s} {'bad target':>12s} {'invalid':>13s}"
+    )
     for run, arm in ARMS:
         files = [f for d in round_dirs(run) for f in (d / "digests").glob("*.md")]
         if not files:
@@ -251,9 +259,11 @@ def t6_digest_anchors() -> None:
                 else:
                     bad += 1
         n = len(files)
-        print(f"{run:15s} {arm:4s} {n:8d} {anchors:8d} {anchors/n:11.2f}"
-              f" {zero:5d} {zero/n*100:5.1f}% {bad:6d} {bad/n*100:5.1f}%"
-              f" {zero+bad:6d} {(zero+bad)/n*100:5.1f}%")
+        print(
+            f"{run:15s} {arm:4s} {n:8d} {anchors:8d} {anchors / n:11.2f}"
+            f" {zero:5d} {zero / n * 100:5.1f}% {bad:6d} {bad / n * 100:5.1f}%"
+            f" {zero + bad:6d} {(zero + bad) / n * 100:5.1f}%"
+        )
     print("  Cross-check: compare 'invalid' against T5's 'degraded' (the loop's own runtime")
     print("  count). Agreement on both paths is what licenses reading this as a real effect")
     print("  rather than an artifact of either counter.")
@@ -266,8 +276,19 @@ def t7_t8_evidence_and_experiment() -> None:
     print("=" * 96)
     print("T7  Artifacts the Evolver OPENED (tool-call arguments only; see docstring)")
     print("=" * 96)
-    order = ["facts", "cones", "cheatsheet", "flip_ledger", "population", "map", "cone_sigs",
-             "regr_diffs", "gate_refusals", "landscape", "summary"]
+    order = [
+        "facts",
+        "cones",
+        "cheatsheet",
+        "flip_ledger",
+        "population",
+        "map",
+        "cone_sigs",
+        "regr_diffs",
+        "gate_refusals",
+        "landscape",
+        "summary",
+    ]
     facts_split: dict[str, list[tuple[bool, list[str]]]] = {}
     for run, arm in ARMS:
         hits: collections.Counter = collections.Counter()
@@ -280,11 +301,15 @@ def t7_t8_evidence_and_experiment() -> None:
             seen = evolver_context_artifacts(d)
             for name in seen:
                 hits[name] += 1
-            buckets = [
-                b
-                for c in (d / "candidates").glob("C-*.md")
-                if (b := primary_bucket(c.read_text(encoding="utf-8", errors="replace")))
-            ] if (d / "candidates").exists() else []
+            buckets = (
+                [
+                    b
+                    for c in (d / "candidates").glob("C-*.md")
+                    if (b := primary_bucket(c.read_text(encoding="utf-8", errors="replace")))
+                ]
+                if (d / "candidates").exists()
+                else []
+            )
             if buckets:
                 per_round.append(("facts" in seen, buckets))
         facts_split[run] = per_round
@@ -299,14 +324,23 @@ def t7_t8_evidence_and_experiment() -> None:
     for run in GRAPH:
         present = [x for has, bs in facts_split[run] if has for x in bs]
         absent = [x for has, bs in facts_split[run] if not has for x in bs]
-        share = lambda L: f"{sum(x=='tools' for x in L)}/{len(L)} = {sum(x=='tools' for x in L)/len(L)*100:4.0f}%" if L else "        --"
-        a += sum(x == "tools" for x in present); b += sum(x != "tools" for x in present)
-        c += sum(x == "tools" for x in absent); d_ += sum(x != "tools" for x in absent)
+        def share(buckets):
+            if not buckets:
+                return "        --"
+            tools = sum(x == "tools" for x in buckets)
+            return f"{tools}/{len(buckets)} = {tools / len(buckets) * 100:4.0f}%"
+
+        a += sum(x == "tools" for x in present)
+        b += sum(x != "tools" for x in present)
+        c += sum(x == "tools" for x in absent)
+        d_ += sum(x != "tools" for x in absent)
         print(f"{run:15s} facts present: {share(present):16s}   facts absent: {share(absent)}")
     if (a + b) and (c + d_):
-        print(f"{'pooled':15s} facts present: {a}/{a+b} = {a/(a+b)*100:.1f}%"
-              f"   facts absent: {c}/{c+d_} = {c/(c+d_)*100:.1f}%"
-              f"   Fisher 2-sided p = {fisher_two_sided(a, b, c, d_):.3f}")
+        print(
+            f"{'pooled':15s} facts present: {a}/{a + b} = {a / (a + b) * 100:.1f}%"
+            f"   facts absent: {c}/{c + d_} = {c / (c + d_) * 100:.1f}%"
+            f"   Fisher 2-sided p = {fisher_two_sided(a, b, c, d_):.3f}"
+        )
         print("  Reference: no-graph arms pool at 21.1% tools (see audit_candidate_bucket_and_aim.py T1).")
         print("  The cheatsheet is in 100% of graph rounds, so a cheatsheet-only account predicts no gap.")
 

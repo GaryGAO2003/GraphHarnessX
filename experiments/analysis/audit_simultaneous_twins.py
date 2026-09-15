@@ -60,7 +60,7 @@ def main() -> None:
     subset = {t["task_id"] for t in json.loads(BED.read_text(encoding="utf-8"))}
     assert len(subset) == 100, len(subset)
 
-    rows = [json.loads(l) for l in (ROOT / "data" / "task_history.jsonl").open(encoding="utf-8") if l.strip()]
+    rows = [json.loads(line) for line in (ROOT / "data" / "task_history.jsonl").open(encoding="utf-8") if line.strip()]
     r0 = [r for r in rows
           if int(r["round"]) == 0 and str(r["task_id"]) in subset and not r.get("carried")]
     flags = [r["passed_flags"][:2] for r in r0 if isinstance(r.get("passed_flags"), list)
@@ -81,7 +81,7 @@ def main() -> None:
     # Conditional sensitivity model: Var(score | window) = sum_i p_i(1-p_i)
     # requires zero cross-task covariance; 1/sqrt(k) additionally assumes
     # independent repeats at fixed propensities.  The data do not test these.
-    e_pq = (dis / n) / 2
+    e_pq = (dis / n) / 2  # noqa: E741
     sd_window = math.sqrt(n * e_pq)
     sd_paired_pred = sd_window * math.sqrt(2)
     sd_se = PAIRED_CHANGE_SD / math.sqrt(2 * 19)   # SE of an SD on 20 windows

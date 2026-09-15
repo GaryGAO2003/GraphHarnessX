@@ -16,15 +16,16 @@ Reading B (full-batch) — additionally requires round k to be a FULL batch
 
 Also prints per-arm passive flip-back base rates for the F18 cross-check.
 """
-import hashlib
+
+import argparse
 import json
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from audit_candidate_prediction_lift import predicted_ids  # noqa: E402
+from run_paths import require_path, runs_root  # noqa: E402
 
-REPO = Path(r"D:\PycharmProj\HarnessX")
 RUNS = [
     ("baseline-seed1", "no-graph"),
     ("ghx-seed1", "graph"),
@@ -102,28 +103,45 @@ def flipback(fresh):
     return h, n
 
 
-for label, require_full in (
-    ("A (as-is)", False),
-    ("B (full-batch landing round)", True),
-    ("C (both k-1 and k full: confound-free windows)", "both"),
-):
-    print(f"\n==== reading {label} ====")
-    arm_rows = {"no-graph": [], "graph": []}
-    for name, arm in RUNS:
-        root = REPO / "recipe/gaia_evolver/runs" / name
-        curves, ships, fresh, per_round = load_run(root)
-        rows = score(root, ships, fresh, per_round, require_full)
-        arm_rows[arm].extend(rows)
-        e, h, hr, bh, bn, br, lift = pooled(rows)
-        print(f"  {name:14} cand={len(rows):2d} elig={e:3d} hit={h:3d} "
-              f"hit_rate={100*hr:5.1f}%  base={bh}/{bn}={100*br:5.1f}%  lift={lift:.2f}")
-    for arm, rows in arm_rows.items():
-        e, h, hr, bh, bn, br, lift = pooled(rows)
-        print(f"  arm {arm:9} cand={len(rows):2d} elig={e:3d} hit={h:3d} "
-              f"hit_rate={100*hr:5.1f}%  base={bh}/{bn}={100*br:5.1f}%  lift={lift:.2f}")
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--runs-root", help="Campaign runs directory (default: GHX_RUNS_ROOT or repository runs)")
+    args = parser.parse_args()
+    root_dir = runs_root(args.runs_root)
+    missing = [root_dir / name for name, _ in RUNS if not (root_dir / name).is_dir()]
+    if missing:
+        parser.error(f"missing campaign run: {missing[0]}")
+    for label, require_full in (
+        ("A (as-is)", False),
+        ("B (full-batch landing round)", True),
+        ("C (both k-1 and k full: confound-free windows)", "both"),
+    ):
+        print(f"\n==== reading {label} ====")
+        arm_rows = {"no-graph": [], "graph": []}
+        for name, arm in RUNS:
+            root = require_path(root_dir / name, "campaign run")
+            _, ships, fresh, per_round = load_run(root)
+            rows = score(root, ships, fresh, per_round, require_full)
+            arm_rows[arm].extend(rows)
+            e, h, hr, bh, bn, br, lift = pooled(rows)
+            print(
+                f"  {name:14} cand={len(rows):2d} elig={e:3d} hit={h:3d} "
+                f"hit_rate={100 * hr:5.1f}%  base={bh}/{bn}={100 * br:5.1f}%  lift={lift:.2f}"
+            )
+        for arm, rows in arm_rows.items():
+            e, h, hr, bh, bn, br, lift = pooled(rows)
+            print(
+                f"  arm {arm:9} cand={len(rows):2d} elig={e:3d} hit={h:3d} "
+                f"hit_rate={100 * hr:5.1f}%  base={bh}/{bn}={100 * br:5.1f}%  lift={lift:.2f}"
+            )
 
-print("\n==== F18 cross-check: passive flip-back base rates (all round pairs) ====")
-for name, arm in RUNS:
-    _, _, fresh, per_round = load_run(REPO / "recipe/gaia_evolver/runs" / name)
-    h, n = flipback(fresh)
-    print(f"  {name:14} ({arm:8}): {h}/{n} = {100*h/n if n else 0:.1f}%")
+    print("\n==== F18 cross-check: passive flip-back base rates (all round pairs) ====")
+    for name, arm in RUNS:
+        _, _, fresh, _ = load_run(root_dir / name)
+        h, n = flipback(fresh)
+        print(f"  {name:14} ({arm:8}): {h}/{n} = {100 * h / n if n else 0:.1f}%")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

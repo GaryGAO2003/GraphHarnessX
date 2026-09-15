@@ -12,6 +12,7 @@ know a rule's firing set before it costs a batch.
 from __future__ import annotations
 
 import asyncio
+from pathlib import Path
 
 from harnessx.core.attribution import install_unfold_recorder, reset_unfold_recorder
 from harnessx.core.events import BeforeModelEvent, Message

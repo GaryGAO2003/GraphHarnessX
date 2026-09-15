@@ -61,7 +61,7 @@ def test_write_rejected_ledger_on_critic_failed(tmp_path):
     write_rejected_ledger_on_critic_failed(run_dir, 1, cdir)
 
     rej_path = run_dir / "data" / "rejected_candidates.jsonl"
-    rows = [json.loads(l) for l in rej_path.read_text(encoding="utf-8").splitlines()]
+    rows = [json.loads(line) for line in rej_path.read_text(encoding="utf-8").splitlines()]
     by_cid = {r["candidate_id"]: r for r in rows}
     assert set(by_cid) == {"C-R1-01", "C-R1-02"}
     assert by_cid["C-R1-01"]["predicted_tasks"] == ["t1", "t2"]
@@ -95,7 +95,7 @@ async def test_install_noop_ledger_fix_wraps_critic_failed_path(tmp_path, monkey
     assert result == {"critic_failed": True, "decision": None}
     rej_path = tmp_path / "data" / "rejected_candidates.jsonl"
     assert rej_path.exists()
-    rows = [json.loads(l) for l in rej_path.read_text(encoding="utf-8").splitlines()]
+    rows = [json.loads(line) for line in rej_path.read_text(encoding="utf-8").splitlines()]
     assert rows[0]["candidate_id"] == "C-R2-01"
 
     # restored afterward

@@ -1,0 +1,19 @@
+GraphHarnessX third-party notices
+=================================
+
+This repository includes and modifies HarnessX code distributed under the MIT
+License. Upstream: https://github.com/Darwin-Agent/HarnessX
+
+The vendored AEGIS implementation was taken from the `feat/aegis-experiment`
+line of the same upstream repository and is also covered by its MIT license.
+The exact upstream commit was not preserved in the available provenance; local
+baseline commits are recorded in `docs/aegis-vendored-deviations.md` and must
+not be interpreted as upstream revision identifiers.
+
+Copyright and SPDX notices embedded in vendored files remain in force. See
+`LICENSE` for the repository's MIT license text and
+`docs/aegis-vendored-deviations.md` for the local deviation ledger.
+
+`experiments/docs/thesis/figures/ucl_logo.png` is an institutional logo used as
+a paper source asset. Its inclusion does not place the UCL name or logo under
+the repository's MIT software licence.

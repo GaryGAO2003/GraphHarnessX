@@ -97,7 +97,7 @@ def check_compile(compile_: bool = True) -> dict:
         if after == before and "Rerun to get" not in log and "Label(s) may have changed" not in log:
             break
         before = after
-    errors = [l for l in log.splitlines() if l.startswith("! ")]
+    errors = [l for l in log.splitlines() if l.startswith("! ")]  # noqa: E741
     undefined_refs = "There were undefined references." in log
     undefined_list = re.findall(r"(?:Reference|Citation) `([^']+)'[^\n]*\n?[^\n]*?undefined", log)
     multiply = "There were multiply-defined labels." in log
@@ -129,7 +129,7 @@ def check_abstract() -> dict:
         pdf = str((OUTDIR or THESIS) / (MAIN + ".pdf"))
         p = subprocess.run([str(PDFTOTEXT), "-f", str(page), "-l", str(page), pdf, "-"],
                            cwd=THESIS, capture_output=True, text=True, errors="replace")
-        return next((l.strip() for l in p.stdout.splitlines() if l.strip()), "")
+        return next((l.strip() for l in p.stdout.splitlines() if l.strip()), "")  # noqa: E741
     p2, p3 = first_line(2), first_line(3)
     # page 3 is whatever front-matter section follows the abstract (declarations since round 1, else Contents)
     ok = p2 == "Abstract" and (p3 == "Contents" or p3.startswith("Declaration"))
@@ -148,7 +148,7 @@ def check_layout() -> dict:
     for page in range(26, 71, 4):
         p = subprocess.run([str(PDFTOTEXT), "-f", str(page), "-l", str(page), "-layout", pdf, "-"],
                            cwd=THESIS, capture_output=True, text=True, errors="replace")
-        lines = [l for l in p.stdout.splitlines() if re.search(r"[a-z]", l)]
+        lines = [l for l in p.stdout.splitlines() if re.search(r"[a-z]", l)]  # noqa: E741
         n = len(lines)
         counts[page] = n
         head = lines[0].strip() if lines else ""

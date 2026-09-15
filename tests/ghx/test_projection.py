@@ -14,14 +14,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
 
 from harnessx.graph.causal import DATA
 from harnessx.graph.types import unfolded_id
 from harnessx.graph.unfold import UnfoldedEdge, UnfoldedGraph, UnfoldedNode
 from harnessx.ghx.motifs import evaluate_motifs
 from harnessx.ghx.projection import (
-    ProjectionReport,
     args_sha,
     classify_return,
     content_to_text,

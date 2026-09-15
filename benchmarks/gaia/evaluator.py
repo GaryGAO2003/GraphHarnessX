@@ -370,7 +370,6 @@ class GAIAPipelineEvaluator:
         gt = (ground_truth or "").strip()
         if not gt:
             # No ground truth — degrade to the legacy judge-fallback path.
-            from harnessx.core.events import Message as _M
             return await self._judge_fallback_raw(
                 recent_rendered or final_output or "",
             )

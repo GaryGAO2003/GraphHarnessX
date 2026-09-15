@@ -27,6 +27,7 @@ _log = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from harnessx.core.harness import HarnessConfig
+    from harnessx.graph.declaration import ComponentDecl
 
 
 # ── skeleton hooks ──────────────────────────────────────────────────────────

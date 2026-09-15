@@ -33,8 +33,10 @@ Usage:  python experiments/analysis/plot_cone_figure.py
 from __future__ import annotations
 
 import json
+import os
 import re
 import statistics
+import subprocess
 import sys
 from pathlib import Path
 
@@ -46,12 +48,11 @@ from matplotlib.patches import FancyArrowPatch  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from plot_campaign_scores import OUT, PLATEAU, REPO, ROOT, RUNS, SD, per_round, ship_rounds  # noqa: E402
+from plot_campaign_scores import OUT, PLATEAU, ROOT, RUNS, SD, per_round, ship_rounds  # noqa: E402
 
 CONE_RUN = ROOT / "runs" / "ghx-seed1"
 CONE_DIR = CONE_RUN / "R1" / "graph_evidence" / "cones"
 F55_PRODUCER = HERE / "cone_size_recompute_m26b.py"
-F55_RUN_LINE = 'RUN = Path(r"D:\\PycharmProj\\HarnessX") / "recipe/gaia_evolver/runs/ghx-seed1"'
 OUT_JSON = HERE / "out" / "cone_repr.json"
 
 INV_RE = re.compile(r"^- (t\d+): (\S+) (\S+)(?: \[step (\d+)\])?(.*)$")
@@ -59,17 +60,28 @@ LANE_OF = {"model": "model", "tool": "tool"}  # every other kind is a processor 
 EDGE_RE = re.compile(r"^- (msg:\S+): (t\d+) -> (t\d+)$")
 
 
+ROW_RE = re.compile(r"^\s*(\d+)\s+([0-9a-f]{8})\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+[\d.]+\s+(\d+)\s*$")
+
+
 def f55_rows() -> list[dict]:
-    """Execute the F55 producer unchanged except for its run root; return its rows."""
-    src = F55_PRODUCER.read_text(encoding="utf-8")
-    patched = src.replace(F55_RUN_LINE, f"RUN = Path(r'{CONE_RUN}')")
-    assert patched != src, "F55 producer RUN line not found; refuse to guess"
-    g = {"__name__": "f55_producer", "__file__": str(F55_PRODUCER)}
-    import contextlib
-    import io
-    with contextlib.redirect_stdout(io.StringIO()):
-        exec(compile(patched, str(F55_PRODUCER), "exec"), g)
-    rows = g["rows"]
+    """Run the F55 producer unchanged as a subprocess and read back its printed
+    per-task table (rnd, task, U_nodes, U_chars, cone_n, cone_chars, ratio, data_n).
+    The run root is passed on the command line; producers that ignore it fall
+    back to their own default, which points at the byte-identical run copy."""
+    proc = subprocess.run(
+        [sys.executable, str(F55_PRODUCER), "--runs-root", str(ROOT / "runs")],
+        capture_output=True, text=True, encoding="utf-8", errors="replace",
+        env={**os.environ, "PYTHONUTF8": "1"},
+    )
+    if proc.returncode != 0:
+        raise SystemExit(f"F55 producer failed:\n{proc.stdout}\n{proc.stderr}")
+    rows = []
+    for ln in proc.stdout.splitlines():
+        m = ROW_RE.match(ln)
+        if m:
+            rows.append(dict(round=int(m.group(1)), task=m.group(2), n_nodes=int(m.group(3)),
+                             u_chars=int(m.group(4)), cone_nodes=int(m.group(5)),
+                             cone_chars=int(m.group(6)), data_nodes=int(m.group(7))))
     assert len(rows) == 56, len(rows)
     return rows
 

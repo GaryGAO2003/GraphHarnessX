@@ -8,7 +8,6 @@ ModuleNotFoundError. This test is the single-pointer ground truth
 referenced from harnessx/aegis/templates/{evolver,critic}.j2.
 """
 from pathlib import Path
-import tempfile
 
 
 def test_file_uri_processor_yaml_roundtrip_to_runtime(tmp_path: Path) -> None:

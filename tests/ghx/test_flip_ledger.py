@@ -234,7 +234,7 @@ def test_guidance_stitch_silently_skips_missing_flip_ledger(tmp_path):
     ev.mkdir(parents=True)
     (ev / "facts.md").write_text("# facts", encoding="utf-8")
 
-    paths = _evolver_paths(run, 5)
+    _evolver_paths(run, 5)
     map_path = ev / "map.md"
     text = map_path.read_text(encoding="utf-8")
     assert "flip_ledger" not in text
