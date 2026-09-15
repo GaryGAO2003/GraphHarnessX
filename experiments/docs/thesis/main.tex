@@ -4,7 +4,7 @@
 %   preamble.tex        packages and document-wide settings (UCL template)
 %   macros.tex          \F{} ledger anchors, \claim{}, \cls{}, \FIELD{}
 %   frontmatter/        title page, abstract, declarations, glossary
-%   chapters/           the eight chapters, in reading order
+%   chapters/           the six chapters, in reading order
 %   appendices/         A deviations, B operations, C fact ledger
 %   bibliography/       reference list (manual thebibliography; no bibtex)
 %   figures/            UCL logo, architecture figure, TikZ loop, score plot and table
@@ -37,7 +37,7 @@
 
 \tableofcontents
 \listoffigures
-\listoftables
+{\let\clearpage\relax \listoftables}   % LOF and LOT share one page
 
 \input{frontmatter/glossary}
 
@@ -48,10 +48,8 @@
 \input{chapters/related_work}
 \input{chapters/baseline}
 \input{chapters/ghx}
-\input{chapters/design}
 \input{chapters/results}
 \input{chapters/discussion}
-\input{chapters/conclusion}
 
 \appendix
 \singlespacing   % appendices and references are reference matter; the 1.5-spacing rule covers the text

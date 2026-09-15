@@ -3,13 +3,18 @@
 \label{ch:intro}
 % =========================================================================
 
-\claim{A self-evolving harness stalls not for lack of intelligence but for
-lack of a readout: we demonstrate that its evidence is false, replace that
-evidence with a graph-native record, retype its candidate surface, find
-that outcomes do not separate in either direction at the resolution this
-bed affords --- measured on three seeds per arm --- and locate the missing
-organ, ``did that edit work?'', which none of the systems surveyed here
-measures.}
+\claim{On this bed, a released single-lineage self-evolving harness exposes
+a construction mismatch in its evidence column. GHX replaces that evidence
+with a graph-native record and typed candidate operations; the whole-stack
+two-arm outcomes are descriptive, H1's localization endpoint is not identified
+by this design, and a separately protocolled bundle trial reports no detected
+improvement with a negative point estimate. These observations motivate a
+conditional readout hypothesis without excluding a capability limit.}
+
+In this chapter and throughout the thesis, score summaries support no
+common-endpoint arm contrast or separation inference in either direction;
+the measurement-policy caveat behind that reading is stated once, in
+Table~\ref{tab:results}.
 
 % -------------------------------------------------------------------------
 \section{The system under study}
@@ -22,35 +27,33 @@ automatic optimization, and a literature of self-evolving agents has grown
 around the idea~\cite{survey-selfevolve}. Most of it evolves prompts,
 workflows or agent code, and by 2026 the harness itself has a line of its
 own --- attribution-guided harness repair, gated promotion, harnesses as
-editable documents (\S\ref{sec:self-evolving}). What no system in that
-line holds is the conjunction this thesis is about: execution provenance,
-automated attribution over it, and typed edits written back into a
-persisted harness, closed in one loop (\S\ref{sec:positioning}).
+editable documents (\S\ref{sec:self-evolving}). GraphHarnessX, the system
+built for this thesis and introduced in \S\ref{sec:ghx-preview}, implements
+the integration studied here: a native execution graph, cross-task
+aggregation, persisted writeback and residence across rounds, with typed
+candidate operations making changes inspectable (\S\ref{sec:positioning}).
 
 HarnessX/AEGIS~\cite{aegis} is one of that line, and is the system this
-thesis takes as its object. Its loop runs in six stages. Each round the
+thesis takes as its object. Its four named meta-agent stages are bracketed
+by task execution and deterministic gating, run here on
+DeepSeek models served through a LiteLLM gateway --- the weaker tier on
+the solver, the stronger on the four meta-roles and the judge
+(\S\ref{sec:beds}). Each round the
 solver attempts the bed under a fixed configuration. A \textbf{Digester}
 reads every trajectory --- failures and successes alike; the success
-template instructs it ``not to celebrate'' but to name the reusable
-strategy and any latent fragility --- and writes a per-task dossier. A
+template instructs it to identify the reusable strategy and any latent
+fragility --- and writes a per-task dossier. A
 \textbf{Planner} synthesizes the dossiers into one landscape. An
 \textbf{Evolver} authors zero or more candidate edits to the harness's
 configuration, tools, prompt or processors, each as a manifest plus an
 applied configuration. A \textbf{Critic} judges each candidate, may
 interrogate the Evolver, and audits the candidates as a set against the
-scoreboard. Survivors face five deterministic gates, cheapest first: a
-\emph{structure} gate enforcing twelve evidence invariants (every cited
-anchor must exist on disk and point inside its trajectory); a
-\emph{novelty} gate against a ledger of refuted candidate signatures;
-canonicalization; a \emph{counterfactual} gate that replays the proposed
-processor chain over the previous round's passing tasks and rejects on any
-change to output or exit reason; and a synthetic-task \emph{replay} smoke.
-Every role runs behind read and write scope gates that forbid it the
-harness source and the histories of other runs. The loop invokes itself
-selectively, on an actionability score, and shipped candidates are scored
-afterwards on the tasks they predicted they would flip.
+scoreboard. Candidates retained by the Critic face five deterministic gates in their execution order ---
+structure, novelty, canonicalization, a counterfactual replay over the
+previous round's passing tasks, and a synthetic-task smoke
+(\S\ref{sec:official-strengths}).
 Figure~\ref{fig:official} is the system's own picture of itself;
-Figure~\ref{fig:loop} opens its \emph{adapt} vertex into the six stages
+Figure~\ref{fig:loop} opens its \emph{adapt} vertex into the six operational phases
 just described and marks the seams at which Chapter~\ref{ch:ghx}
 attaches.
 
@@ -67,15 +70,8 @@ thesis executes is the \emph{adapt} vertex.}
 \label{fig:official}
 \end{figure}
 
-That ladder applies more independent checks per candidate than the
-single-axis gates of the nearest neighbours --- a score-only evaluation
-cascade~\cite{alphaevolve}, a significance threshold~\cite{harnessbank}, a
-single-skill compile gate~\cite{sigil}, a regression-only promotion
-gate~\cite{agentdevel} --- though its five tiers extend rather than dwarf
-the four-tier held-out ladder of~\cite{regimes}
-(Chapter~\ref{ch:related}). That governance is why the system was chosen
-as the object of study: a well-guarded loop is the one on which to ask
-what the guards can see.
+The implemented gates make the system suitable for studying which
+properties its validation process can audit.
 
 \subsection*{The release against the paper}
 
@@ -88,17 +84,7 @@ failing --- while the ensemble ends at $87.4\%$. No round-zero figure is
 published for either \F{68}. The released code is that single lineage: the
 variant pool and ensemble routing the headline rests on are absent, leaving
 a \texttt{ship\,|\,no\_op} decision on one configuration, the arm whose
-published trajectory is the collapsing one. The
-released GAIA runner defaults to a single task, ships no launch script and
-no committed numbers, and the fourteen-round GAIA-64 pilot the authors'
-own narrative describes has its results directory excluded by
-\texttt{.gitignore}. The one complete experiment in the repository is on a
-different benchmark entirely, and the only performance figure committed
-anywhere in the tree is a commit message recording that two lineages never
-recovered from a $55\%$ crash \F{19}. Three further specifications in the
-paper are not in the code: the global ratchet forbidding any solved task to
-be given back, the $\pm 5\%$ noise threshold on retention, and three seeds
-per cell.
+published trajectory is the collapsing one.
 
 The headline is therefore not recomputable from the release. What was run
 is the released system, not the system the paper describes; the
@@ -110,14 +96,16 @@ is recorded in Appendix~\ref{app:deviations}.
 \label{sec:what-was-run}
 % -------------------------------------------------------------------------
 
-The system was vendored byte-for-byte under a sha256 manifest enforced by
-tests, and executed at scale: six claim-bearing campaigns on the
-\textbf{100-task no-pixel bed} drawn from the text-only split of
-GAIA~\cite{gaia} --- one bed for every number in this thesis
-(\S\ref{sec:beds}).
+The released system was vendored byte-for-byte under a sha256 manifest
+enforced by tests and executed in the no-graph campaigns. The complete
+comparative study also includes GHX whole-stack campaigns: six claim-bearing
+campaigns on the \textbf{100-task no-pixel bed} drawn from the text-only
+split of GAIA~\cite{gaia} --- one bed for every number in this thesis, and
+two \emph{arms}, the no-graph arm and the graph arm (\S\ref{sec:beds}).
 Each campaign is read over its formal sixteen-round window, so
-\textbf{96 rounds and 8{,}393 fresh task evaluations} enter the evidence
-base \F{51}. To our knowledge this is the system's first independent execution.
+\textbf{96 rounds and 8{,}276 fresh task evaluations} enter the complete
+study evidence base \F{51}. Independent execution of the released system is
+scoped to the no-graph campaigns.
 
 \subsection*{Why GAIA, and why these hundred tasks}
 
@@ -133,29 +121,20 @@ Four reasons.
         through tools the harness owns --- shell, file reads, web search
         --- so every step of a trajectory is an event the execution graph
         of Chapter~\ref{ch:ghx} can record. Three of the split's 103 tasks
-        carry pixel content the recorder cannot attribute; they are
-        excluded, which leaves 100. Every number in this thesis is on
-        those 100 (\S\ref{sec:beds}).
+        carry pixel content, and the DeepSeek models serving the solver
+        accept no multimodal input, so those three cannot be attempted;
+        they are excluded, which leaves 100. Every number in this thesis
+        is on those 100 (\S\ref{sec:beds}).
   \item \textbf{There is room.} Across the six campaigns the union of
         tasks ever solved is 97 of the 100, against a best single round of
         76: twenty-one tasks of headroom that the loop's own history shows
-        to be reachable, and 47 tasks that pass sometimes but not
-        reliably \F{16}. The bed is neither saturated nor floor-bound.
-  \item \textbf{It is small enough to re-run whole, every round.} A
+        to be reachable, and 47 tasks whose pass rate stays below $80\%$
+        \F{16}. The bed is neither saturated nor floor-bound.
+  \item \textbf{It is small enough to support repeated whole-bed re-runs.} A
         hundred tasks can be attempted in full sixteen times per campaign,
         which is what makes same-configuration re-measurement
         (Chapter~\ref{ch:design}) affordable.
 \end{enumerate}
-
-\emph{Claim-bearing subset.} Earlier graph campaigns flown before the
-graph-layer fixes, and executed rounds outside the formal window, are
-excluded from every number and every narrative here; each exclusion is
-registered with its date and its direction in
-Appendix~\ref{app:deviations}. The 8{,}393 figure counts fresh evaluations
-only; a different denominator, 9{,}600 task evaluations including tasks
-carried through no-op rounds, appears in Chapter~\ref{ch:design} where
-per-task census statistics need it. Both are stated with their scope
-wherever they are used.
 
 % -------------------------------------------------------------------------
 \section{What running the baseline revealed}
@@ -163,28 +142,23 @@ wherever they are used.
 % -------------------------------------------------------------------------
 
 The loop's central evidence signal --- whether a tool call's output was
-\emph{used} --- is structurally blind, and the blindness follows from its
+\emph{used} --- has a construction mismatch, which follows from its
 own construction.
 
 The column grades a call by whether the immediately next assistant message
 shares a verbatim substring of at least twenty characters with the tool
-output. GAIA final answers have a median length of nine characters. A short
-fact cannot clear that floor however it is used \F{3}.
+output. The rule cannot credit verbatim reuse confined to spans shorter than
+twenty characters. Among the 419 overlap-rule-negative answer-carrying calls,
+the reference-answer median is nine characters \F{3}; this selected diagnostic
+subset is not a bed-level prevalence or a measured false-negative rate.
 
-The conclusion needs no experiment: the first premise is a property of
-the code, the second of the benchmark. The data add reach. The rate at
-which the column applies its negative verdict to answer-carrying calls --- $75.0\%$ of 559 such calls \F{2} --- is
-reported in \S\ref{sec:evidence-audit} as a property of the column's
-output, with the limit that a call on a passing path holding the answer
-is not thereby shown to have \emph{caused} the pass.
-
-The verdict propagates. It reaches $86.0\%$ of dossiers \F{4}, is quoted
-verbatim in accepted candidates \F{5}, and one candidate shipped on it
-\F{6}.
-
-The remaining baseline observations are null: a flat plateau, an edit
-ledger that fixes one thing and breaks another, and shipped-edit margins
-inside the same-config re-measurement envelope. This produced the
+The remaining baseline observations do not establish an edit effect: a
+plateau whose climb is under a task per round \F{47}, an edit ledger that
+fixes one thing and breaks another, and shipped-edit margins that mostly lie
+within the observed same-configuration swing (score movement seen when an
+unchanged configuration is run again; Chapter~\ref{ch:design}). The
+above-range moves are swept in \S\ref{sec:gain-face}; only the guard event of
+\S\ref{sec:one-repair} has a legible mechanism \F{48}. This produced the
 hypothesis.
 
 \begin{quote}
@@ -198,42 +172,49 @@ outcomes.
 \label{sec:hypothesis}
 % -------------------------------------------------------------------------
 
-Four independent literature routes leave the needed position unoccupied.
-Self-evolution papers enhance candidate \emph{generation} and select on
-aggregate score. Attribution methods are offline, and report 14.2\% to
-roughly 11\% localization accuracy on their own benchmarks. Execution
-provenance serves human audit --- a 2026 survey finds, as of its cutoff,
-that no work closes it into an improvement loop~\cite{survey-provenance}.
-Typed candidate spaces beat free code on validity, but type what may be
-\emph{proposed}, never what \emph{did} happen. Chapter~\ref{ch:related}
-develops all four and concedes, in a table, what the five nearest systems
-already hold.
 
-H1 was stated as falsifiable, with edit localization as its endpoint. It
-is \textbf{not supported on declared substitute endpoints}: its original
-endpoint proved not measurable on this design, and the reason that
-happened is itself the main result
-(\S\ref{sec:readout}).
+H1 names two endpoints, edit localization and outcomes; the study addressed
+localization first, and no pre-registration record fixes either as primary.
+The whole-stack design did not identify the graph-evidence component
+estimand --- the quantity a design is built to estimate --- behind
+localization, so that endpoint remains untested; the reason is developed in
+\S\ref{sec:readout}.
 
 \subsection*{Research questions}
 \label{sec:research-questions}
 
-Three questions were posed and all three have settled answers.
+Three questions organize the study; the design answers them with different limits.
 
-\paragraph{Q1, diagnosis.}\label{rq:1} The evidence is false, aiming
-carries no measurable gain, and retention is noise-bounded. Posed from
-what running the baseline campaign revealed (\S\ref{sec:baseline-revealed}),
-before H1 existed to test.
+\paragraph{Q1, diagnosis.}\label{rq:1} How is the released loop's evidence
+column constructed, and how far does its verdict reach into candidate
+decisions? The evidence column has a construction mismatch. In the
+baseline campaign, eligible predictions from selected shipped candidates
+show a descriptive within-arm association: lift $1.99$ from the observed
+rates \F{9a}. The archived candidate-bootstrap interval is not used as
+calibrated inferential support, and the between-arm aiming comparison is not
+adjudicable (Q3, \F{9c}); retention must be read against observed same-configuration variation. Q1 was posed from
+what running the baseline campaign revealed
+(\S\ref{sec:baseline-revealed}), before H1 existed to test.
 
-\paragraph{Q2, non-interference.}\label{rq:2} Yes --- the recorder is
-write-only with respect to the loop's decision inputs and seams restore on
-exit, supported by a same-window paired demonstration
-(\S\ref{sec:what-graph-did}). Fixed with H1: an instrument is trusted
-only once it is shown not to have changed what it measures.
+\paragraph{Q2, non-interference.}\label{rq:2} Does enabling the recorder
+alter observed task outcomes in the tested cohort? The recording comparison is
+limited to a selected stable cohort; the volatile remainder is not covered
+(\S\ref{sec:non-interference}). It therefore supplies a bounded
+non-interference observation rather than a whole-bed guarantee.
 
-\paragraph{Q3, the effect of graph evidence.}\label{rq:3} Not detectable,
-and on the original endpoint not measurable at all. Fixed with H1, against
-edit localization.
+\paragraph{Q3, the effect of graph evidence.}\label{rq:3} What is the
+effect of supplying graph evidence on edit localization while holding the
+other stack elements and admission rule fixed? The estimand is that
+graph-evidence component effect. The whole-stack design
+does not identify that component effect, and its arm-specific
+post-selection localization diagnostics are inconclusive for it. A second
+quantity, the whole-stack contrast between the two packages on one bed, is
+what the two-arm design was built around; the recorded rows do not deliver
+it as a common-endpoint contrast (Table~\ref{tab:results}), and the
+full-batch row that equalizes the measurement policy is read at a precision
+of about ten tasks; it compares unequal selected round sets under changing
+configurations and partially non-contemporaneous calendars \F{58}\F{59}, so no
+separation inference is drawn in either direction.
 
 % -------------------------------------------------------------------------
 \section{GraphHarnessX, in one paragraph}
@@ -241,156 +222,128 @@ edit localization.
 % -------------------------------------------------------------------------
 
 GraphHarnessX --- GHX for the rest of this document --- attaches to the
-byte-pinned official substrate from outside and puts the harness and its
-execution into one representation. \textbf{The harness itself becomes a
-graph}: its executable surface --- hook points, processors, slots, bundles,
-skills, tools --- is re-expressed as a typed composition graph which is
-then the authority that orders the running pipeline, held to byte-level
-parity with the original runloop, and which candidate edits mutate through
-typed operations rather than through prose. \textbf{Each invocation of it
-becomes a second graph}: an unfolded execution DAG whose data edges are
-cross-checked against runtime slot provenance and never invented, carrying
+byte-pinned official substrate from outside and links a typed exported-
+processor composition graph $G$ to an observed execution DAG $U$. The
+composition graph materializes exported hooks, processors and slots and
+orders represented processors at byte-level parity; ungraphed processors
+retain their explicit legacy-order path. Typed candidate operations make
+processor changes inspectable, while tool-registry changes remain
+inspectable in generated configuration and the edit ledger. The unfolded
+execution DAG records runtime tool calls and nested-agent events; its data
+edges are cross-checked against runtime slot provenance and never invented,
+carrying
 causal ancestor cones (over-approximations of what could have shaped a
 failure, never counterfactuals). The pair is what makes rungs R1 and R2 of
-\S\ref{sec:readout} mechanical: the composition graph says what a
-candidate is and where it sits, the execution DAG says whether it ran and
-what it fired on. Four switches are stacked cumulatively --- recording,
-then graph evidence, then graph verification, then a typed graph-edit
-candidate surface --- each keeping the ones below.
-\emph{All flags default off, all seams restore on exit, and every
-between-arm difference flows only through the loop's own decisions.}
+\S\ref{sec:readout} mechanical: the composition graph locates
+processor-graph targets, while the execution DAG says whether they ran and
+what they fired on. Four switches are stacked cumulatively --- recording,
+then graph evidence, then graph verification, then typed candidate
+operations --- each keeping the ones below; the campaigns reported
+here fly the whole stack against the stack switched off, not one level at
+a time (\S\ref{sec:beds}).
+
 Chapter~\ref{ch:ghx} is the system; Chapter~\ref{ch:design} is how it was
 tested.
 
-Patching the twenty-character threshold would not have sufficed. The loop
-edits itself through free text, so nothing downstream can confirm that a
-candidate document and the applied change describe the same intervention,
-and four channels meant to carry an edit's consequences back to the next
-edit are written but never delivered (Chapter~\ref{ch:baseline}). A
-threshold change repairs neither the identity problem nor the broken
-feedback loop.
-
 % -------------------------------------------------------------------------
-\section{The verdict of the experiments}
+\section{Summary of findings}
 \label{sec:verdict}
 % -------------------------------------------------------------------------
 
-Headlines only; every number is in Chapter~\ref{ch:results}.
+The principal findings are summarized here and reported in full in Chapter~\ref{ch:results}.
 
 \begin{itemize}
-  \item \textbf{Built and functioning.} The false signal is gone from every
-        graph-arm dossier \F{7}; the graph gates have live firing records
+  \item \textbf{Observed execution and checks.} The construction-mismatched proxy is gone from every
+        dossier of the whitelist graph campaign \F{7}; the graph gates have live firing records
         \F{11}; and the loop itself began using the graph \F{38}\F{20}.
-  \item \textbf{Outcomes did not separate, in either direction}, at the
-        resolution available. Edit localization is \emph{not measurable on
-        this design} --- the arms' candidate sets were admitted under
-        different gate regimes and drawn against base pools nine points
-        apart, which is an absent measurement rather than an underpowered
-        null \F{9c}\F{9d}. Scores likewise did not separate: on the common
-        bed, arm-mean plateaus differ by $+2.7$ tasks against a same-config
-        band of $-8\ldots{+}5$ \F{46}, and the within-campaign slope gap
-        reaches $p = 0.10$ against a design floor of $0.05$ \F{47}.
-        \emph{This is symmetric, and it is not a non-inferiority claim}: no
-        margin was pre-specified.
-  \item \textbf{One process metric moved, seed-dependently, with its
-        mechanism named.} Ship rate across the three graph-arm seeds is
-        $0.50$, $0.92$ and $0.60$ per round against a no-graph $0.88$
-        \F{10}: two seeds ship below the no-graph figure and one ships
-        above it, because the graph arm runs a sixth gate which killed 18
-        candidates that had cleared all five official gates --- while the
-        share of candidates dying malformed fell by half \F{53}. What
-        ships is of higher legality behind one more gate; how many ship
-        is not uniformly lower.
+  \item \textbf{The score dashboards are not a common-endpoint arm
+        contrast.} On the common task set, the recorded arm-mean plateaus differ by $+2.7$ tasks against a between-seed
+        standard error of $2.8$ \F{46}. The no-graph plateau is entirely
+        fresh while the graph plateau includes selectively carried outcomes,
+        so these summaries support no separation inference in either
+        direction. The design
+        supplies no identified measurement of H1's graph-evidence component
+        effect; the arm-specific post-selection localization diagnostics are
+        inconclusive for that estimand \F{9c}\F{9d}.
+  \item \textbf{Landing and rejection counts.}
+        Landed candidates per round are $0.60$, $0.73$ and $0.60$ on the
+        three graph-arm seeds against $0.93$, $0.73$ and $0.80$ on their
+        no-graph counterparts \F{10}: no graph seed ships more. The graph arm's
+        sixth gate rejected 18 candidates, pooled over the three graph seeds,
+        that had cleared all five official gates but named a target absent or,
+        for a processor, non-intervening in the one selected failure replayed;
+        four distinct no-graph refusals occurred later at baseline compose
+        \F{53}. A retrospective
+        application flags 6 of 22 selected shipped
+        tools, a selected-sample outcome rather than an estimate of actual
+        false-refusal probability \F{71}. Separately, the
+        recorded-gate observation shows that the share rejected as malformed at
+        those gates fell by half; it does not isolate the contribution of
+        artifact generation \F{53}.
   \item \textbf{The candidate surface changed shape}, not reach. Proposals
-        became typed graph edits committed atomically with machine-generated
+        became typed candidate operations committed atomically with machine-generated
         artifacts, and the loop authored a runtime rule through the
         graph-fed channel that cleared the offline replay gate \F{20}\F{38}.
         The official free-text path could already install a processor, and
         did \F{39}.
-  \item \textbf{A pre-specified paired efficacy trial returns zero}, with
-        the mechanism endpoint flat while the treatment demonstrably
-        engages \F{34}.
+  \item \textbf{A pre-specified paired efficacy trial finds no improvement, with a
+        negative point estimate}; this is the observed decision-rule result,
+        with the mechanism endpoint flat while the treatment engages \F{34}.
 \end{itemize}
 
-\paragraph{H1 is not supported, on declared substitute endpoints.} H1 was
-stated against edit localization, and localization proved not
-measurable here. An endpoint that dies with its own measurability
-cannot carry a falsification, so the verdict rests on three endpoints
-that were \emph{not} pre-specified --- named here rather than swapped in
-silently. They are: the archaeology \F{38}, the strongest and independent
-of every lift number, showing the no-graph loop had already prescribed the
-same drug families correctly, four campaigns earlier, from $k{=}1$
-observations and false evidence; the pre-specified efficacy trial returning
-zero \F{34}; and non-separation on the outcome axis \F{14}\F{46}.
-
-The substitution was forced by the measurement rather than chosen after
-seeing a direction; the unmeasurability is itself a result
-(\S\ref{sec:readout}).
+\paragraph{What the design says about H1.} Both H1 endpoints concern
+graph-evidence component effects, which the whole-stack design does not
+identify. The score summaries \F{14}\F{46}, the archaeology of repeated
+proposals \F{38} and the fixed-bundle trial \F{34} each answer a different
+question, and none identifies H1's component effects. The trial rules were
+written before launch and committed with the verdict \F{34}, its
+cluster-transfer and canary designs before their data \F{32}\F{33}; the
+archaeology is post-hoc \F{38}.
 
 % -------------------------------------------------------------------------
-\section{The deeper finding: the missing readout}
+\section{The deeper finding: readout and actuator jointly unresolved}
 \label{sec:readout}
 % -------------------------------------------------------------------------
 
-\subsection*{Prescription was never the bottleneck}
+The intervention families later proposed by the evidence-fed loop had already been
+proposed --- by the official loop, in the no-graph arm, on
+a construction-mismatched evidence column, from single observations, four
+campaigns earlier \F{38}. Each family re-surfaces later without
+inheriting from the earlier instance, forming a pattern of \textbf{repeated
+independent proposals}.
 
-The drug families the evidence-fed loop ``discovered'' had already been
-correctly prescribed --- by the official loop, in the zero-graph arm, on
-false evidence, from single observations, four campaigns earlier \F{38}.
-Each family re-surfaces later without inheriting from the earlier
-instance: the \textbf{re-prescription treadmill}. What the graph changes
-is the evidence \emph{regime} --- graph-arm cards replay their rule over
-all recorded execution graphs and ship with fire and false-positive
-counts --- which lifts argument quality to readout rung R2. R2 is
-still not rung 3: measured firing sites are death signatures, not cure
-sites.
-
-\subsection*{The positive control, and what it calibrates}
-
-One intervention in the study is known on mechanism grounds to have
-worked: a budget-starvation repair that collapsed a round's
-budget-exhaustion exits from $35$ to $4$ and moved the score by $+9$,
-clearing the same-config band. It was retained for the rest of its
-campaign --- the ratchet's existence proof --- and then reached no later
-campaign, because its target is a path into its own campaign directory
-and every later seed is built from a clean template: \emph{the
-inheritance channel does not exist} \F{39}.
-
-Clinical trials call the property at stake \emph{assay sensitivity} and
-demonstrate it by recovering a known-effective intervention. The score
-axis recovered this one, but only because its effect was roughly three
-times the per-edit effects the loop produces ($|\delta| \lesssim 3$ tasks
-against a band of $-8\ldots{+}5$). Two sweeps across every round pair in
-every campaign indicate something worse than a detection limit: half the above-band moves fall in rounds
-where nothing shipped, and two interventions of identical mechanical size
-moved the score by $+9$ and by $+4$ \F{48}\F{49}. \textbf{Over the range
-of effects this loop can produce, the score axis is not a monotone
-transducer of mechanism magnitude}, so every null measured on it means
-``below threshold, or above it and pointing the wrong way'' --- including
-this thesis's own. Chapter~\ref{ch:results} carries the sweeps and
-Chapter~\ref{ch:discussion} the argument.
-
-\subsection*{The readout proposition and the ladder}
+One mechanism-consistent event pairs a fall in budget-exhaustion exits from
+$35$ to $4$ with a $+9$ score movement; two other candidates shipped into the
+same round, no same-window counterfactual isolates the step-countdown
+processor, and it left the configuration four rounds later \F{39}.
+The gain-face sweep shows that band crossing cannot isolate edit efficacy
+\F{48}. Separately, across four selected whole-bed pairs, movement in the
+observed starvation-count proxy did not consistently track score movement
+\F{49}. This bounded
+observation does not estimate the ordering of latent intervention effects;
+a score null remains ambiguous. \S\ref{sec:gain-face} carries the sweeps and
+\S\ref{sec:proposition} the conditional argument.
 
 \begin{quote}
 \textbf{Self-evolution $=$ variation $+$ selection $+$ readout.}
 \end{quote}
 
-The field's selection signal is aggregate score. On this bed it sits below
-the noise floor: $21.0$, $20.1$ and $19.2\%$ same-config flips on three
-seeds \F{15}\F{44}\F{45}, so retention degenerates into drift. The
+In the released loop, aggregate score is a retention signal. On this bed,
+same-configuration re-measurement flips $21.0$, $20.1$ and $19.2\%$ of task
+outcomes across three seeds \F{15}\F{9e}. If selected edit effects are small
+relative to that readout variation, score-based retention may mis-rank them. The
 proposition is about effect detectability under noise, not about
 observability of execution; it sits beside, not above, the rival account
-that drugs aimed at a capability wall are placebos \F{40}, which
+that the targeted failures may be beyond what the available actions can repair \F{40}, which
 \S\ref{sec:proposition} weighs rather than dismisses. Its constructive
-counterpart is a four-rung ladder of evidence about an edit --- \textbf{R0}
-in the deployed configuration, \textbf{R1} ever executed, \textbf{R2}
-fired and on what, \textbf{R3} did firing change outcomes. The rungs grade
-\emph{evidence about an edit}; they are not the cumulative GHX switches of
-\S\ref{sec:ghx-preview}, numbered L0--L5 in the run archives, which grade
-what the runtime records. R0 to R2 live in GHX \F{11}\F{38}; R3 was built
-and exercised by hand here \F{34}\F{36}, and every surveyed system admits
-candidates at R0.
+counterpart is the four-rung readout ladder of \S\ref{sec:ladder} ---
+\textbf{R0} deployed, \textbf{R1} would have executed on the failures it
+cites, \textbf{R2} fired, \textbf{R3} changed outcomes --- which grades
+evidence about an edit, not the GHX switches L0--L5 of
+\S\ref{sec:ghx-preview}. R0 to R2 live in GHX \F{11}\F{38}; R3 was built
+and exercised by hand here \F{34}\F{36}. No verified treatment-specific
+efficacy-to-retention link was identified among the implementations
+reviewed here.
 
 % -------------------------------------------------------------------------
 \section{Contributions}
@@ -398,31 +351,33 @@ candidates at R0.
 % -------------------------------------------------------------------------
 
 \begin{description}[leftmargin=3.2em,style=nextline]
-  \item[C1] The first independent execution and public reading of the
-        official self-evolving harness \F{19}.
+  \item[C1] An independent execution and public reading of the official
+        self-evolving harness in the no-graph campaigns \F{19}\F{51}.
   \item[C2] A quantified audit of its evidence pipeline: a
         \emph{construction} proof that the ``output used'' column cannot
-        register the use of a short fact, the rate at which it labels
+        register verbatim reuse confined to a span shorter than twenty characters, the rate at which it labels
         answer-carrying calls not referenced, and the reach of that label
         into decisions \F{2}--\F{6} --- established graph-free.
-  \item[C3] GHX: a graph-native runtime with non-invasive integration, the
-        false signal removed and live gate records \F{7}\F{11}, and a typed,
-        transactional candidate surface. \emph{Not} a wider reach --- the
-        official Evolver already edits the processor plane, and its one
-        above-noise repair was shipped exactly that way \F{39}. The claim
-        is \textbf{legality and identity} of candidates \F{20}.
-  \item[C4] A pre-specified test of H1, not supported on declared
-        substitute endpoints, together with the measurement methodology
-        that establishes the unmeasurability: flip rates, resolution laws,
-        same-window paired trials, stopping arithmetic, firing forensics,
-        and a fifteen-error registry \F{9c}\F{14}\F{34}\F{38}.
-  \item[C5] The capability/efficacy separation and the readout proposition:
-        capability chain intact end to end \F{36}--\F{38}, efficacy channel
-        absent \F{34}\F{39}\F{40}, with a governance red-team specimen
+  \item[C3] GHX: a graph-native runtime attached from outside, with the
+        construction-mismatched proxy removed, live gate records \F{7}\F{11},
+        and a typed, transactional candidate surface. The claim is
+        \textbf{typed-candidate legality and checkability} \F{20}; reach is
+        unchanged, since the official Evolver already edits the processor
+        plane and the mechanism-consistent guard event shipped through that
+        path \F{39}.
+  \item[C4] A diagnosis that the whole-stack design does not identify H1's
+        graph-evidence component estimand, together with a separately
+        protocolled bundle trial and the measurement methodology of
+        Chapter~\ref{ch:results} around it \F{9c}\F{14}\F{34}\F{38}.
+  \item[C5] The capability/efficacy separation and the conditional readout
+        proposition, stated with readout and actuator jointly unresolved:
+        diagnosis and proposal capability demonstrated \F{36}--\F{38},
+        efficacy-to-retention link absent \F{34}\F{39}\F{40}, with a
+        governance red-team specimen
         \F{37}.
   \item[C6] A grounded roadmap: readout-first self-evolution with a live
         R0--R2 ladder and a hand-demonstrated R3, bed-reliability
-        engineering with its ceiling priced, and the episodic-note channel
+        engineering with a conditional repetition price, and the episodic-note channel
         \F{35}.
 \end{description}
 
@@ -432,44 +387,27 @@ candidates at R0.
 % -------------------------------------------------------------------------
 
 Comparisons are arm-level; no single-factor attribution is made \F{9c}.
-Where an arm-level comparison is not supported at all --- localization,
-whose arms were admitted under different gate regimes --- the arms are
-reported separately and the difference is not taken \F{9a}\F{9b}\F{9c}.
+The localization lifts are arm-specific, selected-population diagnostics.
+They are reported separately and do not identify the graph-evidence
+component effect \F{9a}\F{9b}\F{9c}.
 
 One bed, one solver tier, three seeds per arm \F{44}\F{45}; audited scores
 only.
 
-\paragraph{Data scope.} Runs predating the baseline campaign (early
-commissioning, before the system was properly built) and the two
-GHX-shakedown campaigns are excluded from every claim. Evidence rests on
-the baseline campaign, the post-fix graph campaign, the two replication
-pairs \F{44}\F{45}, and pre-specified probes.
+\paragraph{Data scope.} Claim-bearing campaign evidence excludes runs
+predating the baseline campaign (early commissioning, before the system was
+properly built) and the two GHX-shakedown campaigns. It rests on the baseline
+campaign, the post-fix graph campaign, the two replication pairs
+\F{44}\F{45}, and pre-specified probes. The sole exception is F38's labelled
+archival candidate-and-decision specimen, which supports retrospective
+proposal capability only; its firing, outcome and localization measurements
+remain excluded from campaign results and comparisons.
 
-\paragraph{Timing of the scope rulings.} Three rulings narrowed what this
-thesis may claim; each is dated in Appendix~\ref{app:deviations} together
-with the direction it moved the numbers. No ruling was made after seeing
-the number it would change in the favourable direction: the whitelist
-lowered the graph arm's pooled localization lift \F{9b}, which is the
-checkable case.
+\paragraph{Timing of the evidence-scope ruling.} The evidence whitelist was
+fixed after the excluded campaigns had run and been read. It invalidated the
+project's most graph-favourable arm-level localization reading;
+Appendix~\ref{app:deviations} records the ruling and its direction.
 
-\paragraph{Judgment and retraction.} Judgment-typed claims are labelled
-\cls{C}, and a retraction registry keeps nothing it records re-cited
-(\S\ref{sec:threats}).
+\paragraph{Judgment.} Judgment-typed claims are labelled \cls{C}; withdrawn
+readings are not re-cited.
 
-\paragraph{Organization.} Chapter~\ref{ch:related} places the thesis
-against four literature routes and tabulates what the five nearest systems
-already hold. Chapter~\ref{ch:baseline} is diagnostic: it runs the
-official system at scale and establishes, by construction and by
-measurement, that its evidence column is blind. Chapter~\ref{ch:ghx}
-describes GraphHarnessX and what each of its gates checks.
-Chapter~\ref{ch:design} sets out the measurement apparatus ---
-same-configuration re-measurement, resolution laws, the pre-specified
-efficacy trial. Chapter~\ref{ch:results} carries the main results: the
-verdict on H1, the readout ladder's live rungs, and the sweeps that locate
-the missing organ. Chapter~\ref{ch:discussion} states the readout
-proposition formally, weighs it against the capability-wall account, and
-names the experiment that would separate them.
-Chapter~\ref{ch:conclusion} restates the claims against their evidence.
-Appendix~\ref{app:deviations} registers every deviation and scope ruling
-with its date, Appendix~\ref{app:ops} how the campaigns were run, and
-Appendix~\ref{app:ledger} is the fact ledger every number anchors to.

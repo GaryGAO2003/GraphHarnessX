@@ -1,14 +1,15 @@
 # Copyright 2026 Darwin-Agent
 # SPDX-License-Identifier: MIT
-"""F46 -- both arms, three seeds, recomputed on the common 100-task subset.
+"""F46 -- both arms, three seeds, common-bed convention and R0 exception.
 
 Why this exists: the arms flew different beds. The no-graph arm ran the full
 103-task bed on seeds 1-2, the graph arms ran the 100-task no-pixel subset, and
 the seed-3 no-graph arm switched beds at R7 mid-campaign. ``curves.json`` records
 whatever bed each round actually ran, so its numbers are not comparable across
 arms -- and the seed-3 no-graph curve is not even comparable with itself across
-R6/R7. Every readout here is recomputed from ``task_history.jsonl`` restricted to
-the 100-task no-pixel subset, which makes all six campaigns one denominator.
+R6/R7. Except for the documented baseline-seed1 R0 normalization below,
+readouts use ``task_history.jsonl`` restricted to the 100-task no-pixel subset,
+which makes all six campaigns one denominator.
 
 What it reports, per campaign:
   * per-round score on the 100-task subset (last row per (round, task); carried
@@ -27,6 +28,11 @@ non-comparable for the reasons in F9c (different candidate populations, gate
 regimes); putting both on one bed fixes the denominator, not the design.
 
 Scope: whitelist only (ruling II).
+
+The released baseline-seed1 R0 stored a k=2 aggregate of 67. The accepted
+pass@1 reading is 57 (F15/F46). This audit applies that established
+normalization only after asserting the run, round, bed size, and stored total;
+it does not claim to rederive pass@1 from aggregate task-history rows.
 
 Usage:  python experiments/analysis/audit_three_seed_plateau.py
 """
@@ -71,6 +77,10 @@ def per_round(run: str):
         score[k] += 1 if r.get("passed") else 0
         if not r.get("carried"):
             fresh[k] += 1
+    if run == "baseline-seed1":
+        assert len({tid for rd, tid in last if rd == 0}) == 100
+        assert score.get(0) == 67, score.get(0)
+        score[0] = 57  # accepted pass@1 value recorded in thesis ledger F15/F46
     return score, fresh
 
 
@@ -94,7 +104,7 @@ def pearson(xs, ys):
 
 def main() -> None:
     print("=" * 100)
-    print("F46  Three seeds x two arms, all recomputed on the 100-task no-pixel subset")
+    print("F46  Common 100-task convention; baseline-seed1 R0 uses accepted pass@1")
     print("=" * 100)
     print(f"{'run':16s} {'arm':4s} {'seed':>4s} {'R0':>4s} {'Rend':>5s} {'delta':>6s} "
           f"{'plateau R3-15':>14s} {'early R1-7':>11s} {'late R8-15':>11s} {'late-early':>10s} {'full':>5s}")
@@ -124,9 +134,8 @@ def main() -> None:
     print(f"  R0 across the six arms : {[int(x) for x in r0s]}")
     print(f"  R0->terminal delta     : {[int(x) for x in deltas]}")
     print(f"  Pearson r(R0, delta)   : {pearson(r0s, deltas):+.3f}   (n=6)")
-    print("  Read: a strongly negative r means the arms that 'improved most' are the")
-    print("  arms whose first round happened to land low. R0 is one draw from a bed")
-    print("  whose same-config swing is -8..+5 tasks, so R0->terminal is not a trend.")
+    print("  Read: R0 is one draw and is also subtracted inside the delta, so this")
+    print("  correlation is mathematically coupled and cannot establish a trend.")
 
     print()
     print("=" * 100)

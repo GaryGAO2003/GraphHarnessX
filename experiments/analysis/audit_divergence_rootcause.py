@@ -34,7 +34,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from audit_divergence_points import ROOT, first_fork, pass1, spine  # noqa: E402
+from audit_divergence_points import ROOT, SUBSET, first_fork, pass1, spine  # noqa: E402
 
 import os
 HI = float(os.environ.get("RC_HI", "0.8"))
@@ -91,7 +91,8 @@ def build_pairs():
         for line in (ROOT / "data" / "task_history.jsonl").open(encoding="utf-8")
         if line.strip()
     ]
-    by_rt = {(int(r["round"]), str(r["task_id"])): r for r in hist if not r.get("carried")}
+    by_rt = {(int(r["round"]), str(r["task_id"])): r for r in hist
+             if not r.get("carried") and str(r["task_id"]) in SUBSET}
     pairs = []
     for (rnd, tid), r in by_rt.items():
         flags = r.get("passed_flags")

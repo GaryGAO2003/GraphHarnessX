@@ -3,7 +3,7 @@
 """F48 -- the gain face: single-round moves that leave the same-config envelope.
 
 Why this exists: the thesis's positive control (F39) is one round pair in one
-campaign -- M22 R2->R3, the round that shipped the Windows bash guard. The claim
+campaign -- M22 R2->R3, whose receiving round R3 shipped a step-countdown processor. The claim
 resting on it -- that the score axis resolves an effect only when the effect is
 roughly three times the size of the effects this loop actually produces -- needs
 the other side of that ledger: every OTHER single-round move, in all six
@@ -25,12 +25,15 @@ seed-1 no-graph campaign it is the one round scored at k=2, so its pass@1
 identity differs from every round after it (registry error 11). The sweep runs
 over R1..R15, giving 14 pairs per campaign.
 
-A ship recorded at round k first scores at round k+1. That mapping is not
-assumed, it is checked: on the seed-1 no-graph campaign the Windows bash guard
-first appears in R2/config.yaml and the starvation exits collapse between R2 and
-R3; on the seed-2 graph campaign the runtime-policy rule first appears in
-R4/config.yaml and the starvation exits collapse between R4 and R5. Rk/config.yaml
-is written at the end of round k and is what round k+1 runs.
+A ship recorded at scoreboard round k lands in round k. The candidates are named
+C-R{k}-NN, proposed while planning round k and run in round k; Rk/config.yaml is
+round k's own configuration (curves.json[k].config_hash equals its sha256 in
+every round), and the Windows bash guard shipped into R2 is already present in
+R2's trajectories while R2's starvation exits do not move (36 -> 35). The exit
+collapse between R2 and R3 arrives with the R3 ships (a step-countdown
+processor, a prompt, a PDF tool). An earlier version of this script read a ship
+at round a as landing in round b = a+1; that attribution was one round late
+(thesis Appendix C.2) and is corrected below.
 
 What it reports, per campaign:
   * per-round score on the common 100-task no-pixel subset and the round-to-round
@@ -142,7 +145,7 @@ def main() -> None:
             pairs_total += 1
             full = fresh.get(a, 0) >= FULL_MIN and fresh.get(b, 0) >= FULL_MIN
             pairs_full += 1 if full else 0
-            landed = ships.get(a, [])                 # a ship at round a scores at b
+            landed = ships.get(b, [])                 # a ship recorded at round b ran in round b
             row = (run, arm, seed, a, b, d, full,
                    starved.get(a, 0), starved.get(b, 0), landed)
             flagged_all.append(row)

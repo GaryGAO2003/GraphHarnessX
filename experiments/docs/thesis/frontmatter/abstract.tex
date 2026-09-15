@@ -3,53 +3,51 @@
 % =========================================================================
 \begin{abstract}
 \singlespacing\noindent
-A large language model (LLM) agent is a model plus a harness, and a
-growing literature evolves the harness automatically. HarnessX/AEGIS is a
-published harness-level closed loop with released code: four meta-roles
-read every trajectory, and each candidate edit must clear five
-deterministic gates.
+HarnessX/AEGIS is a
+published harness-level closed loop with released code: four meta-roles,
+the first of which reads every trajectory, and five deterministic gates
+that each candidate edit must clear.
 
-We vendored it byte-for-byte and ran it --- its first independent
-execution: six campaigns of sixteen rounds, 8{,}393 fresh
-evaluations on a 100-task text-only GAIA bed. Its evidence signal grades a tool
-call as ``used'' only if the next assistant message repeats twenty
-characters of its output verbatim, while this bed's answers have a median
-length of nine: the column is blind by construction, applies its negative
-verdict to $75.0\%$ of answer-carrying calls, and reaches $86.0\%$ of
-dossiers. One candidate shipped on that column. Four feedback channels are
-written but never delivered, the paper's ratchet is absent, and the loop
-edits itself through free text, so nothing confirms a candidate document
-and the applied change are one intervention.
+We vendored the released single-lineage implementation byte-for-byte; distinct from
+the published ensemble result, the study runs no-graph executions of that release and
+GHX whole-stack campaigns: six campaigns of sixteen rounds, 8{,}276 fresh evaluations on a
+100-task text-only GAIA bed. The evidence signal calls output ``used'' only when the next message
+repeats twenty characters verbatim; it cannot credit reuse confined to shorter
+spans. Among answer-carrying calls its $75.0\%$ negative-verdict rate is a rule
+output, not a verified false-negative rate, and it reaches $86.0\%$ of available dossiers. Several feedback paths fail to inform subsequent decisions,
+and the score clamp fired five times, three inside the same-configuration
+band; the paper's ratchet is absent, and the loop edits itself through free
+text, so nothing confirms a candidate document and the applied change are
+one intervention.
 
-We built GraphHarnessX (GHX) in response. It re-expresses the harness as a
-typed executable composition graph that drives execution at parity with the
-legacy runloop, and adds a per-invocation execution DAG whose edges are
-observed, not reconstructed, causal cones on it, a replay gate and a sixth
-acceptance gate that check a candidate's claim against the record, and a
-candidate surface of typed graph edits --- all attached from outside, flags
-off. What it buys is checkability: the false column reaches 0 of 859 graph-arm dossiers,
-malformed candidate deaths halve, and eighteen candidates that had passed
-all five official gates named a node that never ran.
+We built GraphHarnessX (GHX) in response. Linked graphs represent harness
+composition and observed execution: one exporter materializes released
+hooks, processors and slots, the other records runtime tool calls and
+nested-agent events per invocation. Causal cones, replay and a sixth
+acceptance gate check claims against that record; typed candidate operations
+cover graph and tool-registry changes --- all attached from outside, flags
+off by default. Reported observations: the construction-mismatched column reaches 0 of 859 dossiers
+in the whitelist graph campaign, the share rejected as malformed at the recorded gates halves, and eighteen candidates that had passed all five official gates, pooled over
+three graph seeds, named a target absent or, for a processor, non-intervening
+in the one selected failure replayed.
 
-The pre-specified hypothesis --- that faithful execution-level evidence
-improves edit localization and outcomes --- is not supported on declared
-substitute endpoints, the original one having proved unmeasurable;
-\emph{that} is the thesis's result. Same-configuration re-measurement flips $21.0$,
-$20.1$ and $19.2\%$ of task outcomes across three seeds, so total-score
-deltas of five tasks or fewer carry no information. The archives show the unmodified loop had already prescribed the same
-repairs, four campaigns earlier, from single observations and false
-evidence: prescription was never the bottleneck. A pre-specified
-efficacy trial returned zero. A positive control --- one event, found after the fact --- shows the score
-axis recovered a known-effective intervention whose effect was three times
-the per-edit effects this loop produces;
-two campaign-wide sweeps show that clearing the noise band is neither
-necessary nor sufficient for an edit to have worked.
+The evidence, in order. Same-configuration re-measurement flips $21.0$,
+$20.1$ and $19.2\%$ of task outcomes across three seeds; every score
+reading below is read against that scale. Against it the design does not
+identify the graph-evidence effect: score summaries were recorded under
+unequal measurement policies, the archived localization diagnostics are
+inconclusive, and the separately protocolled bundle trial returned a
+negative point estimate with no detected improvement. One post-hoc,
+mechanism-consistent event pairs a large starvation-exit reduction with
+score movement; its processor left the configuration four rounds later,
+and without a same-window counterfactual it does not isolate that
+processor's efficacy.
 
 We state the consequence as a proposition --- self-evolution is variation
 plus selection plus \emph{readout}, and on this bed and system class
-below-floor selection makes cumulative gain non-positive whatever the
-variation quality --- and offer a four-rung readout ladder on which every
-surveyed system admits candidates at rung R0. R0 to R2 are live in GHX; R3 --- did the edit
-change outcomes --- exists here only as a hand-run efficacy-trial protocol,
-wired into no loop in the field.
+score-based retention may mis-rank effects small relative to readout
+variation. Non-positive cumulative gain is a possible dynamic, not one
+estimated here. We also offer a four-rung evidence ladder: R0 to R2 are
+live in GHX, R3 (did the edit change outcomes) only as a hand-run
+efficacy-trial protocol.
 \end{abstract}

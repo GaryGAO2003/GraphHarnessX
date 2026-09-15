@@ -12,17 +12,24 @@ point to a term's fullest treatment, not necessarily its first use.
 
 \begin{description}[leftmargin=1.8em,labelsep=0.4em,itemsep=0.5pt,parsep=0pt,topsep=2pt]
 
-\item[ancestor cone (cone)] The over-approximate upstream subgraph of $U$
-that could have shaped a failure; not a counterfactual, and never a claim
-of causation on its own.
+\item[ancestor cone (cone)] The upstream subgraph of recorded $U$ that
+could have shaped a failure; observation-limited, not a counterfactual or
+a causal attribution.
 
 \item[archaeology] The method of re-reading this project's own earlier
 campaign archives to check whether a candidate's ``discovery'' already
-existed there. One of the three substitute endpoints for H1.
+existed there. A post-hoc descriptive reading, not an endpoint of H1.
 
-\item[band (same-config band)] The range of round-to-round score movement
-produced by re-measurement noise alone, under an unchanged configuration; a
-move inside it carries no information.
+\item[audited scores] Scores recomputed from \texttt{task\_history} under
+pass@1 on the 100-task bed, last row per (round, task), carried rows
+included, rather than the loop's own \texttt{curves.json}, which is not
+comparable across arms (\S\ref{sec:evaluator-bias}, \F{46}).
+
+\item[band (same-config band)] The observed range of round-to-round score
+movement, $-8\ldots{+}5$ tasks, is the union over the three no-graph seeds'
+twenty ship-free same-configuration windows (\S\ref{sec:power}). The range is a descriptive
+reference, not a calibrated detection threshold; a move inside it is not, by
+itself, evidence of an edit effect.
 
 \item[capability vs efficacy] The distinction, drawn out in the clinic
 (\S\ref{sec:clinic}), between whether the harness \emph{can} take an
@@ -33,27 +40,37 @@ action space, not the readout, cannot reach the relevant lesion.
 \item[candidate] A proposed edit to the harness's configuration, tools,
 prompt or processors, authored by the Evolver, before it faces the gates.
 
-\item[the clinic] This thesis's name, by extension of its drug/dose/trial
-vocabulary, for the capability-vs-efficacy testing regime of
-\S\ref{sec:clinic}.
+\item[carried / fresh] A task-round is \emph{fresh} when the task was
+re-executed in that round and \emph{carried} when the previous round's
+outcome was held fixed by the audit-batch mechanism
+(Appendix~\ref{app:cost}); carried rows occur on the graph arm only \F{58}.
 
-\item[composition graph ($G$)] A typed, static re-expression of the
-harness's configuration: nodes are hook points, processors, slots,
-bundles, skills and tools.
+\item[the clinic] The ledger's name (F26--F40) for the capability-vs-efficacy
+probe regime of \S\ref{sec:clinic}; in that vocabulary a candidate under
+test is a \emph{drug} and a same-window paired run a \emph{trial}.
+
+\item[composition graph ($G$)] A typed, static representation of the
+exported processor composition: nodes are exported hook points, processors
+and slots. Bundles, skills and tools remain schema categories; runtime tool
+and nested-agent events appear in $U$.
 
 \item[Critic] The meta-role that judges each candidate, may interrogate
 the Evolver, and audits the candidate set against the scoreboard before
 the gates run.
-
-\item[deaf (selection is deaf)] Said of an instrument whose noise floor
-exceeds the magnitude of the effect it is meant to detect, so a null
-reading cannot distinguish ``no effect'' from ``undetectable effect.''
 
 \item[Digester] The meta-role that reads every trajectory, pass and fail
 alike, and writes a per-task dossier.
 
 \item[dossier] The Digester's per-task write-up of a trajectory: what
 happened, and the reusable strategy or fragility it names.
+
+\item[estimand / identified] The estimand is the quantity a design is built
+to estimate; a design \emph{identifies} it when its recorded contrast could
+pin that quantity down under its assumptions with unlimited data. Two are
+distinguished here: the graph-evidence component effect, which the
+whole-stack design does not identify, and the whole-stack contrast between
+the two packages, which the design targets but the recorded rows do not
+deliver as a common-endpoint contrast (Table~\ref{tab:results}).
 
 \item[Evolver] The meta-role that authors zero or more candidate edits,
 each as a manifest plus an applied configuration.
@@ -66,19 +83,24 @@ regenerable) or \cls{C} (judgment).
 
 \item[flip / flip rate] A task whose pass/fail outcome differs between two
 rounds run under an identical configuration; the flip rate is the fraction
-of the bed that does this (\S\ref{sec:what-graph-did}).
+of the bed that does this (\S\ref{sec:power}).
 
-\item[four layers of mortality] This thesis's taxonomy of the four reasons
-a correctly-prescribed edit fails to produce a lasting gain
+\item[four layers of mortality] Four coexisting candidate explanations
+for why a prescribed edit may fail to produce a lasting measured gain
 (Chapter~\ref{ch:results}).
 
 \item[genotype / deployment / phenotype] Three nested identity hashes for
-a candidate: its structural configuration; that configuration plus its
-runtime overlay; and the two plus the execution edges actually observed.
+the graph-represented processor surface: its structural configuration; that
+configuration plus its runtime overlay; and the two plus the execution edges
+actually observed. Tool-registry content is outside these hashes.
 
 \item[harness] Everything around the model that turns it into an agent:
 tools, prompts, processors and the control flow that calls them. ``An LLM
 agent is a model plus a harness.''
+
+\item[leak-route task] A swing task more than half of whose passes touch
+benchmark artifacts, with reference answers appearing verbatim inside
+solver trajectories (\S\ref{sec:measurement}, \F{31}).
 
 \item[level 2] Three unrelated senses collide in this thesis: GAIA
 difficulty tier~2 (a benchmark property, always written in that form);
@@ -89,18 +111,23 @@ which Appendix~\ref{app:deviations} calls capability evidence throughout.
 
 \item[lift] A localization metric: the hit rate on a shipped candidate's
 named target tasks, divided by the base rate of those tasks flipping
-anyway.
+anyway. Defined within one arm over that arm's selected shipped
+candidates; the two arms' values are not a contrast \F{9a}--\F{9c}.
 
-\item[no-pixel bed] The 100-task subset of GAIA's text-only split used for
-every number in this thesis, excluding the three tasks whose content the
-recorder cannot attribute.
+\item[no-pixel bed] The 100-task GAIA text-only bed used for every number
+in this thesis.
+
+\item[pass@1] One scored attempt per task per round; every score in this
+thesis is pass@1, and passes from mixed-$k$ rounds do not count
+(\S\ref{sec:evaluator-bias}, Appendix~\ref{app:deviations}).
 
 \item[Planner] The meta-role that synthesizes every dossier in a round
 into one landscape document for the Evolver.
 
-\item[positive control] The one intervention in this study known, on
-mechanism grounds, to have worked; used to calibrate what the score axis
-can detect.
+\item[mechanism-consistent guard event] A post-hoc adjacent-round observation
+in which starvation exits and score moved together after concurrent ships,
+the legible one a step-countdown processor; no same-window counterfactual
+isolates its efficacy, and it was not retained (F39).
 
 \item[processor] A pluggable unit of harness behaviour, composed into
 bundles and hung on hook points; the object the composition graph types.
@@ -110,18 +137,21 @@ unimplemented --- rule that a task solved in one round may never be given
 back in a later one.
 
 \item[readout / readout ladder (R0--R3)] The evidence available about a
-candidate edit, in four rungs: \textbf{R0} deployed, \textbf{R1} executed,
-\textbf{R2} fired (and on what), \textbf{R3} changed outcomes. Distinct
-from the GHX switch ladder, numbered L0--L5 in the run archives.
-``Readout'' is this evidence generally.
+candidate edit, in four rungs: \textbf{R0} deployed, \textbf{R1} would have
+executed on the failures it cites, \textbf{R2} fired (and on what),
+\textbf{R3} changed outcomes. The current implementation assesses R1
+against one selected recorded graph; without a replay graph, that check is
+recorded as unchecked. These readout rungs are distinct from campaign
+rounds R0--R15 and from the GHX switch ladder, numbered L0--L5 in the run
+archives. ``Readout'' is this evidence generally.
 
 \item[recorder] The write-only component that logs the composition graph
-and $U$ during a run, without feeding back into the loop's own decisions.
+and $U$ during a run; it decides nothing itself, and what it writes is what
+the injection seams and the sixth gate read.
 
-\item[resolution] In this thesis, the smallest score change
-distinguishable from same-configuration noise (a detection-limit sense) ---
-not GAIA's own integer scoring resolution, and not the VIM instrumentation
-sense.
+\item[resolution] The model-conditional minimum detectable score change
+(\S\ref{sec:resolution}); not a cutoff defined by the observed band, GAIA's
+integer scoring resolution, or the VIM instrumentation sense.
 
 \item[same-configuration window] A run, or pair of runs, executed under
 one unchanged configuration, used to measure noise rather than an edit's
@@ -134,21 +164,23 @@ attaches from outside, without altering what runs there by default.
 reach: land one or more candidates (\emph{ship}), or change nothing
 (\emph{no\_op}).
 
-\item[sixth gate] GHX's added acceptance gate: a candidate's claimed
-target node must appear in the recorded execution graph of the failure it
-cites, or the candidate is refused.
+\item[sixth gate] GHX's added acceptance gate: when a replay graph of one
+selected failure the candidate cites exists, its claimed target must appear
+(a processor: appear and intervene) in that graph, or the candidate is
+refused. Without a replay graph, the gate records an unchecked pass
+(\texttt{checked=False}).
 
 \item[survivor (the survivor)] The one positive channel in this study ---
 episodic notes prepended to the prompt --- that outlasted every governance
 and dormancy failure mode the rest of the loop suffered.
 
-\item[treadmill (re-prescription treadmill)] The pattern by which the
-same edit family is independently re-derived across campaigns without
-inheriting from an earlier instance that already worked.
+\item[treadmill (re-prescription treadmill)] Independent re-derivation of
+the same edit family across clean-template campaigns without cross-campaign
+transfer; the pattern does not establish efficacy or forgetting.
 
-\item[typed candidate surface] GHX's seven typed graph-edit operations,
-replacing free-text candidate authoring with edits a build-time validator
-can check.
+\item[typed candidate surface] Typed candidate operations comprising
+processor-graph edits and separate tool-registry edits that a build-time
+validator can check.
 
 \item[unfolded execution graph ($U$)] The per-invocation DAG of what a run
 actually executed, with edges observed rather than reconstructed or
@@ -156,7 +188,7 @@ inferred.
 
 \item[whitelist / whitelist campaign] The evidence-admissibility ruling
 (2026-08-26) restricting every claim in this thesis to specific campaigns;
-a \emph{whitelist campaign} is one admitted under it.
+a \emph{whitelist campaign} is one admitted under it; the singular phrase \emph{the whitelist graph campaign} denotes graph seed 1.
 
 \end{description}
 \endgroup

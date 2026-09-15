@@ -19,7 +19,7 @@
 
 % ---------------- left: the released representation ----------------------
 \node[code] (yaml) at (0,0) {processors:\\
-  \ \ - loop\_detection\\
+  \ \ - compaction\\
   \ \ - cost\_guard\\
   \ \ - memory.sliding\\
   tools: [Bash, Read, \ldots]\\
@@ -29,21 +29,18 @@
 
 % ---------------- middle: the typed composition graph -------------------
 \node[gnode, fill=gray!12] (h1) at (8.6,-0.1) {hook: before\_model};
-\node[gnode, below=5.5mm of h1] (p1) {loop\_detection};
+\node[gnode, below=5.5mm of h1] (p1) {compaction};
 \node[gnode, below=5.5mm of p1] (p2) {cost\_guard};
-\node[slot, below=5.5mm of p2] (s1) {slot: history};
-\node[gnode, right=9mm of p1] (t1) {Bash};
-\draw[dec] (h1) -- node[right, font=\tiny, inner sep=1pt] {attaches} (p1);
+\draw[dec] (p1) -- node[right, font=\tiny, inner sep=1pt] {attaches} (h1);
+\draw[dec] (p2.east) to[bend right] node[right, font=\tiny, inner sep=1pt] (attachlabel) {attaches} (h1.east);
 \draw[dec] (p1) -- node[right, font=\tiny, inner sep=1pt] {orders} (p2);
-\draw[dec] (p2) -- node[right, font=\tiny, inner sep=1pt] {writes} (s1);
-\draw[dec] (t1) |- node[above, font=\tiny, pos=0.74, inner sep=1pt] {member} (p2.east);
-\node[panel, fit=(h1)(p1)(p2)(s1)(t1),
+\node[panel, fit=(h1)(p1)(p2)(attachlabel),
       label={[font=\scriptsize\bfseries]above:composition graph $G$}] (M) {};
 
 % ---------------- right: the unfolded execution graph -------------------
-\node[cone] (e1) at (15.6,-0.35) {$p_1$};
+\node[cone] (e1) at (15.6,-0.35) {$q_1$};
 \node[cone, below right=3.4mm and 5mm of e1] (e2) {$t_1$};
-\node[cone, below left=3.4mm and 5mm of e2] (e3) {$p_2$};
+\node[cone, below left=3.4mm and 5mm of e2] (e3) {$q_2$};
 \node[ev, below=3.8mm of e3] (e4) {fail};
 \draw[dec] (e1) -- (e2);
 \draw[obs] (e2) -- node[right, font=\tiny, inner sep=1pt] {data} (e3);
@@ -56,17 +53,17 @@
 \draw[wide] (M.east) -- node[above, font=\scriptsize] {one run} (Rp.west);
 
 % ---------------- notes, on one baseline --------------------------------
-\coordinate (base) at ($(M.south)+(0,-0.32)$);
+\coordinate (base) at ($(Rp.south)+(0,-0.32)$);
 \node[note] (n1) at (L.west |- base) {\textbf{Released.} Processor order is
-  list order plus registration side effects, and an edit is prose: nothing
-  downstream can say whether the applied change is the change the candidate
-  described.};
-\node[note] (n2) at (M.west |- base) {\textbf{Graphified.} Six node types,
-  twelve edge types. $G$ is the only authority that orders the pipeline, at
-  byte parity with the legacy runloop, and a genotype hash gives every
-  candidate an identity.};
-\node[note] (n3) at (Rp.west |- base) {\textbf{Per invocation.} An edge
-  exists only where the runtime observed it. Shaded: the failure's ancestor
-  cone. A candidate naming a node outside it is refused by the sixth
-  gate.};
+  list order plus registration side effects, and an edit is prose: the release has no
+  downstream identity check between the candidate description and the
+  applied change.};
+\node[note] (n2) at (M.west |- base) {\textbf{Graphified.} The schema
+  defines six node types; this exporter instantiates hooks, processors and
+  slots. $G$ orders graphed processors at byte parity; \texttt{UNGRAPHED}
+  processors remain explicit. Hashes identify the graph surface.};
+\node[note] (n3) at (Rp.west |- base) {\textbf{Per invocation.} Tool and
+  nested-agent events appear in $U$; graphed processors retain their shared
+  identifiers. Shaded: the failure's ancestor cone. Unsupported target
+  claims are refused by the sixth gate.};
 \end{tikzpicture}

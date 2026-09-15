@@ -15,7 +15,8 @@ Each run is reduced to its tool spine — the ordered (tool, args-hash,
 payload-class) sequence parsed from the trajectory — and the pair is scanned
 with a TWO-LEVEL alignment.  A strict args-level comparison is uninformative:
 at nonzero temperature the model almost never words the same first query twice
-(measured: 90/103 adjacent twins fork on arguments at index 0).  So level 1
+(measured on the 100-task bed: 89/99 adjacent twins with a tool spine fork
+on (tool, args-hash) at index 0).  So level 1
 aligns tool NAMES (the plan shape) and level 2 walks the shared name prefix
 looking for the first payload-CLASS difference:
 
@@ -48,6 +49,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from harnessx.graph.unfold import payload_is_empty  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2] / "recipe/gaia_evolver/runs/baseline-seed1"
+
+# The thesis reports every number on the 100-task bed; restrict the twin
+# population to it (the three pixel tasks the DeepSeek solver cannot attempt
+# are dropped).
+SUBSET = {t["task_id"] for t in json.loads(
+    (ROOT.parent.parent / "data" / "webthinker_gaia_dev_nopixel.json").read_text(encoding="utf-8"))}
+assert len(SUBSET) == 100, len(SUBSET)
 
 
 def spine(traj: Path):
@@ -136,7 +144,8 @@ def main() -> int:
         for line in (ROOT / "data" / "task_history.jsonl").open(encoding="utf-8")
         if line.strip()
     ]
-    by_rt = {(int(r["round"]), str(r["task_id"])): r for r in hist_rows if not r.get("carried")}
+    by_rt = {(int(r["round"]), str(r["task_id"])): r for r in hist_rows
+             if not r.get("carried") and str(r["task_id"]) in SUBSET}
 
     pairs = []  # (population, task, pass_traj, fail_traj)
 
